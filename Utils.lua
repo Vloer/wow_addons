@@ -49,4 +49,11 @@ table.copy = function(destination, source)
             destination[key] = value
         end
     end
+    return destination
 end
+
+function printf(msg, fmt)
+    fmt = fmt or Defaults.colors.chatAnnounce
+    print(string.format("%sKeyCount: %s|r", fmt, msg))
+end
+

@@ -1,0 +1,11 @@
+## Interface: 100007
+## Title: KeyCount_dev
+## Author: Klanx
+## Version: 0.0.1
+## SavedVariables: KeyCountDB
+## SavedVariables: PreviousRunsDB
+
+KeyCount_dev.lua
+Defaults.lua
+SlashCommands.lua
+Utils.lua
