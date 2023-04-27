@@ -5,6 +5,10 @@ local colors = {
     blue = "|cff0000ff",
     magenta = "|cffff00ff",
     cyan = "|cff00ffff",
+    orange = "|cffffa700",
+    yellow2 = "|cfffff400",
+    lightgreen = "|cffa3ff00",
+    darkgreen = "|cff2cba00",
     reset = "|r"
 }
 Defaults = {
@@ -41,7 +45,14 @@ Defaults = {
         chatAnnounce = colors.cyan,
         chatWarning = colors.yellow,
         chatError = colors.red,
-        chatSuccess = colors.green
+        chatSuccess = colors.green,
+        rating = { 
+            colors.red,
+            colors.orange,
+            colors.yellow2,
+            colors.lightgreen,
+            colors.darkgreen
+        }
     },
     dateFormat = "%Y-%m-%d",
     dateTimeFormat = "%Y-%m-%d %H:%M:%S"
