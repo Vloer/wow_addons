@@ -104,6 +104,7 @@ function KeyCount:SetKeyStart()
     self.current.keyDetails.affixes = {}
     self.current.timeLimit = timeLimit
     self.current.name = name
+    if self.current.player == "" then self.current.player = UnitName("player") end
     for _, affixID in ipairs(activeAffixIDs) do
         local affixName = C_ChallengeMode.GetAffixInfo(affixID)
         table.insert(self.current.keyDetails.affixes, affixName)
