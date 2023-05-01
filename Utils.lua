@@ -57,3 +57,13 @@ function printf(msg, fmt)
     print(string.format("%sKeyCount: %s|r", fmt, msg))
 end
 
+function SumTbl(tbl)
+    if type(tbl) ~= "table" then return end
+    local res = 0
+    for k, v in pairs(tbl) do
+        if type(v) == "number" then
+            res = res + v
+        end
+    end
+    return res
+end
