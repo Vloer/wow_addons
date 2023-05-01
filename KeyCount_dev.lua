@@ -56,6 +56,15 @@ function KeyCount:GROUP_ROSTER_UPDATE(event)
     end
 end
 
+function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
+    if not UnitInParty(destName) then return end
+    local timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, destGUID, destName =  CombatLogGetCurrentEventInfo()
+    if event == "UNIT_DIED" then
+        if AuraUtil.FindAuraByName("Feign Death", destName) then return end
+        self.current.deaths[destName] = (self.current.deaths[destName] or 0) + 1
+    end
+end
+
 -- Key related functions
 function KeyCount:CheckIfInDungeon()
     Log("Called CheckIfInDungeon")
@@ -118,8 +127,7 @@ function KeyCount:SetKeyFailed()
     self.current.completedTimestamp = time()
     self.current.completed = false
     self.current.completedInTime = false
-    local deaths = C_ChallengeMode.GetDeathCount()
-    self.current.deaths = deaths or 0
+    self.current.total_deaths = SumTbl(self.current.deaths) or 0
     KeyCount:FinishDungeon()
     Log("Finished SetKeyFailed")
 end
@@ -135,7 +143,7 @@ function KeyCount:SetKeyEnd()
     self.current.completedTimestamp = time()
     self.current.completedInTime = onTime
     self.current.time = totalTime
-    self.current.deaths = C_ChallengeMode.GetDeathCount()
+    self.current.total_deaths = SumTbl(self.current.deaths) or 0
     if self.current.timeLimit == 0 then
         _, _, self.current.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
     end
@@ -220,6 +228,7 @@ function KeyCount:AddDungeonEvents()
     KeyCount:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     KeyCount:RegisterEvent("GROUP_ROSTER_UPDATE")
     KeyCount:RegisterEvent("GROUP_LEFT")
+    KeyCount:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 function KeyCount:RemoveDungeonEvents()
@@ -253,11 +262,11 @@ function KeyCount:InitSelf()
 end
 
 function KeyCount:SetTimeToComplete(timeStart, timeEnd)
-    self.current.date = date(DateFormat)
+    self.current.date = date(Defaults.dateFormat)
     if self.current.time == 0 then
         timeStart = timeStart or self.current.startedTimestamp or 0
         timeEnd = timeEnd or self.current.completedTimestamp or 0
-        local timeLost = select(2, C_ChallengeMode.GetDeathCount()) or 0
+        local timeLost = select(2, C_ChallengeMode.GetDeathCount()) or self.current.total_deaths * 5
         self.current.time = timeEnd - timeStart + timeLost
     end
     self.current.timeToComplete = FormatTimestamp(self.current.time)
@@ -270,7 +279,7 @@ function ListDungeons(dungeons)
             result = "Timed"
         end
         printf(string.format("[%s] %d: %s %s %d (%d deaths)", dungeon.player, i, result, dungeon.name,
-            dungeon.keyDetails.level, dungeon.deaths))
+            dungeon.keyDetails.level, dungeon.total_deaths))
     end
 end
 
