@@ -6,7 +6,6 @@ KeystoneCurrentlyRunning = false
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
-    Log(event)
     self[event](self, event, ...)
 end
 
@@ -56,6 +55,16 @@ function KeyCount:GROUP_ROSTER_UPDATE(event)
     end
 end
 
+function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
+    local timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, destGUID, destName =
+    CombatLogGetCurrentEventInfo()
+    if event == "UNIT_DIED" and UnitInParty(destName) then
+        if AuraUtil.FindAuraByName("Feign Death", destName) then return end
+        self.current.deaths[destName] = (self.current.deaths[destName] or 0) + 1
+        printf(string.format("%s died!", destName), Defaults.colors.chatWarning)
+    end
+end
+
 -- Key related functions
 function KeyCount:CheckIfInDungeon()
     Log("Called CheckIfInDungeon")
@@ -84,18 +93,18 @@ end
 function KeyCount:SetKeyStart()
     Log("Called SetKeyStart")
     KeyCount:AddDungeonEvents()
-    local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+    local activeKeystoneLevel, activeAffixIDs = C_ChallengeMode.GetActiveKeystoneInfo()
     local challengeMapID = C_ChallengeMode.GetActiveChallengeMapID()
     local name, _, timeLimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
-    printf(string.format("KeyCount: Started recording for %s %d.", name, activeKeystoneLevel))
+    printf(string.format("Started recording for %s %d.", name, activeKeystoneLevel))
     self.current.keyDetails.level = activeKeystoneLevel
     self.current.startedTimestamp = time()
     self.current.party = GetPartyMemberInfo()
     self.current.keyDetails.affixes = {}
-    self.current.usedOwnKey = wasActiveKeystoneCharged
     self.current.timeLimit = timeLimit
     self.current.name = name
+    if self.current.player == "" then self.current.player = UnitName("player") end
     for _, affixID in ipairs(activeAffixIDs) do
         local affixName = C_ChallengeMode.GetAffixInfo(affixID)
         table.insert(self.current.keyDetails.affixes, affixName)
@@ -118,8 +127,7 @@ function KeyCount:SetKeyFailed()
     self.current.completedTimestamp = time()
     self.current.completed = false
     self.current.completedInTime = false
-    local deaths = C_ChallengeMode.GetDeathCount()
-    self.current.deaths = deaths or 0
+    self.current.totalDeaths = SumTbl(self.current.deaths) or 0
     KeyCount:FinishDungeon()
     Log("Finished SetKeyFailed")
 end
@@ -135,7 +143,7 @@ function KeyCount:SetKeyEnd()
     self.current.completedTimestamp = time()
     self.current.completedInTime = onTime
     self.current.time = totalTime
-    self.current.deaths = C_ChallengeMode.GetDeathCount()
+    self.current.totalDeaths = SumTbl(self.current.deaths) or 0
     if self.current.timeLimit == 0 then
         _, _, self.current.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
     end
@@ -145,7 +153,7 @@ end
 
 function KeyCount:SaveAndReset()
     Log("Called SaveAndReset")
-    local cur = table.copy({}, self.current) --Required to pass by value instead of reference
+    local cur = table.copy({}, self.current)            --Required to pass by value instead of reference
     local def = table.copy({}, Defaults.dungeonDefault) --Required to pass by value instead of reference
     table.insert(self.dungeons, cur)
     table.copy(self.current, def)
@@ -220,12 +228,14 @@ function KeyCount:AddDungeonEvents()
     KeyCount:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     KeyCount:RegisterEvent("GROUP_ROSTER_UPDATE")
     KeyCount:RegisterEvent("GROUP_LEFT")
+    KeyCount:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 function KeyCount:RemoveDungeonEvents()
     KeyCount:UnregisterEvent("CHALLENGE_MODE_COMPLETED")
     KeyCount:UnregisterEvent("GROUP_ROSTER_UPDATE")
     KeyCount:UnregisterEvent("GROUP_LEFT")
+    KeyCount:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 KeyCount:RegisterEvent("PLAYER_LOGOUT")
@@ -253,11 +263,11 @@ function KeyCount:InitSelf()
 end
 
 function KeyCount:SetTimeToComplete(timeStart, timeEnd)
-    self.current.date = date(DateFormat)
+    self.current.date = date(Defaults.dateFormat)
     if self.current.time == 0 then
         timeStart = timeStart or self.current.startedTimestamp or 0
         timeEnd = timeEnd or self.current.completedTimestamp or 0
-        local timeLost = select(2, C_ChallengeMode.GetDeathCount()) or 0
+        local timeLost = select(2, C_ChallengeMode.GetDeathCount()) or self.current.totalDeaths * 5
         self.current.time = timeEnd - timeStart + timeLost
     end
     self.current.timeToComplete = FormatTimestamp(self.current.time)
@@ -270,7 +280,7 @@ function ListDungeons(dungeons)
             result = "Timed"
         end
         printf(string.format("[%s] %d: %s %s %d (%d deaths)", dungeon.player, i, result, dungeon.name,
-            dungeon.keyDetails.level, dungeon.deaths))
+            dungeon.keyDetails.level, dungeon.totalDeaths))
     end
 end
 
@@ -304,12 +314,8 @@ function GetDungeonSuccessRate(dungeons)
         return a.successRate > b.successRate
     end)
     for _, d in ipairs(resRate) do
-        local fmt = Defaults.colors.chatError
-        if d.successRate > 66 then
-            fmt = Defaults.colors.chatSuccess
-        elseif d.successRate > 33 then
-            fmt = Defaults.colors.chatWarning
-        end
+        local colorIdx = math.floor(d.successRate / 20) + 1
+        local fmt = Defaults.colors.rating[colorIdx]
         printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed), fmt)
     end
 end
