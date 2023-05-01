@@ -93,16 +93,15 @@ end
 function KeyCount:SetKeyStart()
     Log("Called SetKeyStart")
     KeyCount:AddDungeonEvents()
-    local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+    local activeKeystoneLevel, activeAffixIDs = C_ChallengeMode.GetActiveKeystoneInfo()
     local challengeMapID = C_ChallengeMode.GetActiveChallengeMapID()
     local name, _, timeLimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
-    printf(string.format("KeyCount: Started recording for %s %d.", name, activeKeystoneLevel))
+    printf(string.format("Started recording for %s %d.", name, activeKeystoneLevel))
     self.current.keyDetails.level = activeKeystoneLevel
     self.current.startedTimestamp = time()
     self.current.party = GetPartyMemberInfo()
     self.current.keyDetails.affixes = {}
-    self.current.usedOwnKey = wasActiveKeystoneCharged
     self.current.timeLimit = timeLimit
     self.current.name = name
     for _, affixID in ipairs(activeAffixIDs) do
@@ -313,12 +312,8 @@ function GetDungeonSuccessRate(dungeons)
         return a.successRate > b.successRate
     end)
     for _, d in ipairs(resRate) do
-        local fmt = Defaults.colors.chatError
-        if d.successRate > 66 then
-            fmt = Defaults.colors.chatSuccess
-        elseif d.successRate > 33 then
-            fmt = Defaults.colors.chatWarning
-        end
+        local colorIdx = math.floor(d.successRate/20) + 1
+        local fmt = Defaults.colors.rating[colorIdx]
         printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed), fmt)
     end
 end
