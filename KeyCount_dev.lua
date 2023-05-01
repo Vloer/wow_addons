@@ -84,7 +84,7 @@ end
 function KeyCount:SetKeyStart()
     Log("Called SetKeyStart")
     KeyCount:AddDungeonEvents()
-    local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+    local activeKeystoneLevel, activeAffixIDs = C_ChallengeMode.GetActiveKeystoneInfo()
     local challengeMapID = C_ChallengeMode.GetActiveChallengeMapID()
     local name, _, timeLimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
@@ -93,7 +93,6 @@ function KeyCount:SetKeyStart()
     self.current.startedTimestamp = time()
     self.current.party = GetPartyMemberInfo()
     self.current.keyDetails.affixes = {}
-    self.current.usedOwnKey = wasActiveKeystoneCharged
     self.current.timeLimit = timeLimit
     self.current.name = name
     for _, affixID in ipairs(activeAffixIDs) do
@@ -253,7 +252,7 @@ function KeyCount:InitSelf()
 end
 
 function KeyCount:SetTimeToComplete(timeStart, timeEnd)
-    self.current.date = date(DateFormat)
+    self.current.date = date(Defaults.dateFormat)
     if self.current.time == 0 then
         timeStart = timeStart or self.current.startedTimestamp or 0
         timeEnd = timeEnd or self.current.completedTimestamp or 0

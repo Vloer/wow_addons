@@ -37,7 +37,6 @@ Defaults = {
             level = 0,
             affixes = {}
         },
-        usedOwnKey = false,
         timeLimit = 0,
         date = ""
     },
