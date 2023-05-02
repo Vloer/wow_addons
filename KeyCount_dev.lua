@@ -91,10 +91,10 @@ function KeyCount:InitDungeon()
         end
     end
     if KeyCountDB.current ~= {} and not table.equal(self.current, Defaults.dungeonDefault) then
-        Log("Current dungeon copied from db")
+        printf("Dungeon state restored")
         table.copy(self.current, KeyCountDB.current)
     else
-        Log("Current dungeon set to default")
+        Log("Dungeon state set to default values")
         self.current = table.copy({}, Defaults.dungeonDefault)
     end
     Log("Finished InitDungeon")
