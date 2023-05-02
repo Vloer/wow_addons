@@ -1,7 +1,6 @@
 --globals
 AddonName = "KeyCount_dev"
 KeyCount = CreateFrame("Frame", "KeyCount")
-KeystoneCurrentlyRunning = false
 
 
 -- Event behaviour
@@ -12,6 +11,7 @@ end
 function KeyCount:PLAYER_LOGOUT(event)
     -- Update current table in DB if it is not set to the default values
     KeyCount:SaveDungeons()
+    if self.keystoneActive then KeyCountDB.keystoneActive = true else KeyCountDB.keystoneActive = false end
     if self.current and not AreTablesEqual(self.current, Defaults.dungeonDefault) then
         table.copy(KeyCountDB.current, self.current)
     end
@@ -32,8 +32,8 @@ function KeyCount:ZONE_CHANGED_NEW_AREA(event)
 end
 
 function KeyCount:CHALLENGE_MODE_START(event, mapID)
-    if KeystoneCurrentlyRunning then return end -- allow player to re-enter
-    KeystoneCurrentlyRunning = true
+    if self.keystoneActive then return end -- allow player to re-enter
+    self.keystoneActive = true
     KeyCount:SetKeyStart()
 end
 
@@ -42,14 +42,14 @@ function KeyCount:CHALLENGE_MODE_COMPLETED(event)
 end
 
 function KeyCount:GROUP_LEFT(event)
-    if not KeystoneCurrentlyRunning then return end
+    if not self.keystoneActive then return end
     if KeyCount:CheckIfKeyFailed() then
         KeyCount:SetKeyFailed()
     end
 end
 
 function KeyCount:GROUP_ROSTER_UPDATE(event)
-    if not KeystoneCurrentlyRunning then return end
+    if not self.keystoneActive then return end
     if KeyCount:CheckIfKeyFailed() then
         KeyCount:SetKeyFailed()
     end
@@ -57,7 +57,7 @@ end
 
 function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
     local timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, destGUID, destName =
-    CombatLogGetCurrentEventInfo()
+        CombatLogGetCurrentEventInfo()
     if event == "UNIT_DIED" and UnitInParty(destName) then
         if AuraUtil.FindAuraByName("Feign Death", destName) then return end
         self.current.deaths[destName] = (self.current.deaths[destName] or 0) + 1
@@ -79,7 +79,7 @@ end
 
 function KeyCount:InitDungeon()
     Log("Called InitDungeon")
-    if KeystoneCurrentlyRunning then return end
+    if self.keystoneActive then return end
     if KeyCountDB.current ~= {} and not AreTablesEqual(self.current, Defaults.dungeonDefault) then
         Log("Current dungeon copied from db")
         table.copy(self.current, KeyCountDB.current)
@@ -137,7 +137,7 @@ function KeyCount:SetKeyEnd()
     local mapChallengeModeID, level, finalTime, onTime, keystoneUpgradeLevels, practiceRun,
     oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord,
     PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
-    KeystoneCurrentlyRunning = false
+    self.keystoneActive = false
     local totalTime = math.floor(finalTime / 1000 + 0.5)
     self.current.completed = true
     self.current.completedTimestamp = time()
@@ -255,6 +255,7 @@ function KeyCount:InitSelf()
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
     self.current.player = UnitName("player")
     PreviousRunsDB = PreviousRunsDB or {}
+    if KeyCountDB.keystoneActive then self.keystoneActive = true else self.keystoneActive = false end
     if next(KeyCountDB.current) ~= nil and not AreTablesEqual(self.current, Defaults.dungeonDefault) then
         Log("Setting current dungeon to value from DB")
         table.copy(self.current, KeyCountDB.current)
