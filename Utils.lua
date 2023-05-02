@@ -34,27 +34,20 @@ function FormatTimestamp(seconds)
     return string.format("%02d:%02d", minutes, remainingSeconds)
 end
 
-function AreTablesEqual(table1, table2)
-    if table1 == nil or table2 == nil then return table1 == table2 end
-    return table.concat(table1) == table.concat(table2)
-end
-
-table.equal = function (t1, t2)
-  for k, v in pairs(t1) do
-    if t2[k] ~= v then
-        print(string.format("%s != %s", tostring(t2[k]), tostring(v)))
-      return false
+table.equal = function(t1, t2)
+    for k, v in pairs(t1) do
+        if t2[k] ~= v then
+            return false
+        end
     end
-  end
 
-  for k, v in pairs(t2) do
-    if t1[k] ~= v then
-        print(string.format("%s != %s", tostring(t1[k]), tostring(v)))
-      return false
+    for k, v in pairs(t2) do
+        if t1[k] ~= v then
+            return false
+        end
     end
-  end
 
-  return true
+    return true
 end
 
 table.copy = function(destination, source)
