@@ -39,6 +39,24 @@ function AreTablesEqual(table1, table2)
     return table.concat(table1) == table.concat(table2)
 end
 
+table.equal = function (t1, t2)
+  for k, v in pairs(t1) do
+    if t2[k] ~= v then
+        print(string.format("%s != %s", tostring(t2[k]), tostring(v)))
+      return false
+    end
+  end
+
+  for k, v in pairs(t2) do
+    if t1[k] ~= v then
+        print(string.format("%s != %s", tostring(t1[k]), tostring(v)))
+      return false
+    end
+  end
+
+  return true
+end
+
 table.copy = function(destination, source)
     destination = destination or {}
     for key, value in pairs(source) do
