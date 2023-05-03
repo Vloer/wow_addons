@@ -20,9 +20,18 @@ Defaults = {
         SBG = "Shadowmoon Burial Grounds",
         COS = "Court of Stars",
         TJS = "Temple of the Jade Serpent",
-        AA = "Algeth'ar Academy"
+        AA = "Algeth'ar Academy",
+        BH = "Brackenhide Hollow",
+        HOI = "Halls of Infusion",
+        NEL = "Neltharus",
+        ULD = "Uldaman",
+        FH = "Freehold",
+        NL = "Neltharion's Lair",
+        UR = "The Underrot",
+        VP = "Vortex Pinnacle"
     },
     dungeonDefault = {
+        season = "Dragonflight-1",
         player = "",
         name = "",
         party = {},
@@ -46,7 +55,7 @@ Defaults = {
         chatWarning = colors.yellow,
         chatError = colors.red,
         chatSuccess = colors.green,
-        rating = { 
+        rating = {
             colors.red,
             colors.orange,
             colors.yellow2,
