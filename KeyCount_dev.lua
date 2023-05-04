@@ -1,7 +1,6 @@
 --globals
 AddonName = "KeyCount_dev"
 KeyCount = CreateFrame("Frame", "KeyCount")
-KeystoneCurrentlyRunning = false
 
 
 -- Event behaviour
@@ -12,16 +11,17 @@ end
 function KeyCount:PLAYER_LOGOUT(event)
     -- Update current table in DB if it is not set to the default values
     KeyCount:SaveDungeons()
-    if self.current and not AreTablesEqual(self.current, Defaults.dungeonDefault) then
+    if self.keystoneActive then KeyCountDB.keystoneActive = true else KeyCountDB.keystoneActive = false end
+    if self.current and not table.equal(self.current, Defaults.dungeonDefault) then
         table.copy(KeyCountDB.current, self.current)
     end
 end
 
 function KeyCount:ADDON_LOADED(event, addonName)
     if addonName == AddonName then
-        KeyCount:InitSelf()
         KeyCountDB.sessions = (KeyCountDB.sessions or 0) + 1
         print(string.format("Loaded %s for the %dth time.", addonName, KeyCountDB.sessions))
+        KeyCount:InitSelf()
     end
 end
 
@@ -32,8 +32,8 @@ function KeyCount:ZONE_CHANGED_NEW_AREA(event)
 end
 
 function KeyCount:CHALLENGE_MODE_START(event, mapID)
-    if KeystoneCurrentlyRunning then return end -- allow player to re-enter
-    KeystoneCurrentlyRunning = true
+    if self.keystoneActive then return end -- allow player to re-enter
+    self.keystoneActive = true
     KeyCount:SetKeyStart()
 end
 
@@ -42,14 +42,14 @@ function KeyCount:CHALLENGE_MODE_COMPLETED(event)
 end
 
 function KeyCount:GROUP_LEFT(event)
-    if not KeystoneCurrentlyRunning then return end
+    if not self.keystoneActive then return end
     if KeyCount:CheckIfKeyFailed() then
         KeyCount:SetKeyFailed()
     end
 end
 
 function KeyCount:GROUP_ROSTER_UPDATE(event)
-    if not KeystoneCurrentlyRunning then return end
+    if not self.keystoneActive then return end
     if KeyCount:CheckIfKeyFailed() then
         KeyCount:SetKeyFailed()
     end
@@ -57,11 +57,11 @@ end
 
 function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
     local timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, destGUID, destName =
-    CombatLogGetCurrentEventInfo()
+        CombatLogGetCurrentEventInfo()
     if event == "UNIT_DIED" and UnitInParty(destName) then
         if AuraUtil.FindAuraByName("Feign Death", destName) then return end
         self.current.deaths[destName] = (self.current.deaths[destName] or 0) + 1
-        printf(string.format("%s died!", destName), Defaults.colors.chatWarning)
+        printf(string.format("%s died!", destName), Defaults.colors.chatError)
     end
 end
 
@@ -79,12 +79,22 @@ end
 
 function KeyCount:InitDungeon()
     Log("Called InitDungeon")
-    if KeystoneCurrentlyRunning then return end
-    if KeyCountDB.current ~= {} and not AreTablesEqual(self.current, Defaults.dungeonDefault) then
-        Log("Current dungeon copied from db")
+    local keystoneStillRunning = C_ChallengeMode.IsChallengeModeActive()
+    if self.keystoneActive then
+        if not keystoneStillRunning then
+            -- Likely reset instance without ending key
+            KeyCount:FinishDungeon()
+            return
+        else
+            Log("Keystone still active!")
+            return
+        end
+    end
+    if KeyCountDB.current ~= {} and not table.equal(self.current, Defaults.dungeonDefault) then
+        printf("Dungeon state restored")
         table.copy(self.current, KeyCountDB.current)
     else
-        Log("Current dungeon set to default")
+        Log("Dungeon state set to default values")
         self.current = table.copy({}, Defaults.dungeonDefault)
     end
     Log("Finished InitDungeon")
@@ -137,7 +147,7 @@ function KeyCount:SetKeyEnd()
     local mapChallengeModeID, level, finalTime, onTime, keystoneUpgradeLevels, practiceRun,
     oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord,
     PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
-    KeystoneCurrentlyRunning = false
+    self.keystoneActive = false
     local totalTime = math.floor(finalTime / 1000 + 0.5)
     self.current.completed = true
     self.current.completedTimestamp = time()
@@ -163,6 +173,8 @@ end
 
 function KeyCount:FinishDungeon()
     Log("Called FinishDungeon")
+    self.keystoneActive = false
+    KeyCountDB.keystoneActive = false
     KeyCount:SetTimeToComplete()
     Log(string.format("Key %s %s %s", self.current.name, self.current.keyDetails.level, self.current.timeToComplete))
     KeyCount:SaveAndReset()
@@ -253,21 +265,27 @@ function KeyCount:InitSelf()
     KeyCountDB = KeyCountDB or {}
     KeyCountDB.current = KeyCountDB.current or {}
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
-    self.current.player = UnitName("player")
     PreviousRunsDB = PreviousRunsDB or {}
-    if next(KeyCountDB.current) ~= nil and not AreTablesEqual(self.current, Defaults.dungeonDefault) then
+    if KeyCountDB.keystoneActive then self.keystoneActive = true else self.keystoneActive = false end
+    if not table.equal(KeyCountDB.current, Defaults.dungeonDefault) and self.keystoneActive then
         Log("Setting current dungeon to value from DB")
         table.copy(self.current, KeyCountDB.current)
     end
     Log("Finished InitSelf")
 end
 
-function KeyCount:SetTimeToComplete(timeStart, timeEnd)
+function KeyCount:SetTimeToComplete()
     self.current.date = date(Defaults.dateFormat)
     if self.current.time == 0 then
-        timeStart = timeStart or self.current.startedTimestamp or 0
-        timeEnd = timeEnd or self.current.completedTimestamp or 0
-        local timeLost = select(2, C_ChallengeMode.GetDeathCount()) or self.current.totalDeaths * 5
+        local timeStart = self.current.startedTimestamp
+        local timeEnd = self.current.completedTimestamp
+        if timeEnd == 0 then
+            timeEnd = time()
+        end
+        local timeLost = select(2, C_ChallengeMode.GetDeathCount())
+        if self.current.totalDeaths > 0 and timeLost == 0 then
+            timeLost = self.current.totalDeaths * 5
+        end
         self.current.time = timeEnd - timeStart + timeLost
     end
     self.current.timeToComplete = FormatTimestamp(self.current.time)
