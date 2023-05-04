@@ -1,10 +1,10 @@
 local colors = {
-    red = "|cffff0000",
+    red = "|cffff3333",
     green = "|cff00ff00",
-    yellow = "|cffffff00",
+    yellow = "|cffcccc00",
     blue = "|cff0000ff",
     magenta = "|cffff00ff",
-    cyan = "|cff00ffff",
+    cyan = "|cff00e5e5",
     orange = "|cffffa700",
     yellow2 = "|cfffff400",
     lightgreen = "|cffa3ff00",
