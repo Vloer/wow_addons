@@ -38,3 +38,16 @@ function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
         GetDungeonSuccessRate(dungeons)
     end
 end
+
+SLASH_KEYCOUNT_HELP1 = "/kchelp"
+SLASH_KEYCOUNT_HELP2 = "/kch"
+function SlashCmdList.KEYCOUNT_HELP(msg)
+    printf("options:")
+    printf("  [/kcl] | [/kclist]")
+    printf("       List all dungeons without filtering", Defaults.colors.chatWarning)
+    printf("  [/kcf] | [/kcfilter]")
+    printf("       List all dungeons with applied filter. You can filter for any key/value pair present in the dungeon object. For specific dungeon filtering, only type the dungeon abbreviation like so: ", Defaults.colors.chatWarning)
+    printf("       /kcf ULD", Defaults.colors.chatWarning)
+    printf("  [/kcr] | [/kcrate]")
+    printf("       Show the success rate of all dungeons", Defaults.colors.chatWarning)
+end
