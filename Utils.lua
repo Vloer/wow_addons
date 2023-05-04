@@ -71,7 +71,7 @@ end
 
 function printf(msg, fmt)
     fmt = fmt or Defaults.colors.chatAnnounce
-    print(string.format("%sKeyCount: %s|r", fmt, msg))
+    print(string.format("%s%s|r", fmt, msg))
 end
 
 function SumTbl(tbl)
