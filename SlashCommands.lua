@@ -30,7 +30,7 @@ end
 
 SLASH_KEYCOUNT_SUCCESSRATE1 = "/kcrate"
 function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
-    printf("printing stats")
+    printf("===PRINTING STATS===")
     local _dungeons = GetStoredDungeons()
     if _dungeons then
         local key, value = ParseMsg(msg)
@@ -42,12 +42,17 @@ end
 SLASH_KEYCOUNT_HELP1 = "/kchelp"
 SLASH_KEYCOUNT_HELP2 = "/kch"
 function SlashCmdList.KEYCOUNT_HELP(msg)
-    printf("options:")
-    printf("  [/kcl] | [/kclist]")
-    printf("       List all dungeons without filtering", Defaults.colors.chatWarning)
-    printf("  [/kcf] | [/kcfilter]")
-    printf("       List all dungeons with applied filter. You can filter for any key/value pair present in the dungeon object. For specific dungeon filtering, only type the dungeon abbreviation like so: ", Defaults.colors.chatWarning)
-    printf("       /kcf ULD", Defaults.colors.chatWarning)
-    printf("  [/kcr] | [/kcrate]")
-    printf("       Show the success rate of all dungeons", Defaults.colors.chatWarning)
+    printf("===OPTIONS===")
+    printf("")
+    printf("[/kcl] | [/kclist]")
+    printf("     List all dungeons without filtering", Defaults.colors.chatWarning)
+    printf("")
+    printf("[/kcf] | [/kcfilter]")
+    printf("     List all dungeons with applied filter. You can filter for any key/value pair present in the dungeon object. Example:", Defaults.colors.chatWarning)
+    printf("     /kcf player YOURNAME", Defaults.colors.chatWarning)
+    printf("     For specific dungeon filtering, only type the dungeon abbreviation like so: ", Defaults.colors.chatWarning)
+    printf("     /kcf ULD", Defaults.colors.chatWarning)
+    printf("")
+    printf("[/kcr] | [/kcrate]")
+    printf("     Show the success rate of all dungeons. Can be paired with filters.", Defaults.colors.chatWarning)
 end

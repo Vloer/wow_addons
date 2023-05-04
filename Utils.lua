@@ -8,11 +8,17 @@ function Filter(tbl, key, value)
     if #key == 0 and #value == 0 then return tbl end
     local result = {}
     if key == "name" and #value <= 3 then
-        value = Defaults.DungeonNamesShort[value]
+        value = Defaults.dungeonNamesShort[value]
     end
     for _, entry in ipairs(tbl) do
-        if entry[key] == value then
-            table.insert(result, entry)
+        if key == "season" then
+            if entry[key] == value then
+                table.insert(result, entry)
+            end
+        else
+            if entry[key] == value and entry["season"] == Defaults.dungeonDefault.season then
+                table.insert(result, entry)
+            end
         end
     end
     return result

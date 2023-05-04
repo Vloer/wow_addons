@@ -11,6 +11,12 @@ local colors = {
     darkgreen = "|cff2cba00",
     reset = "|r"
 }
+local seasons = {
+    Dragonflight = {
+        "Dragonflight-1",
+        "Dragonflight-2"
+    }
+}
 Defaults = {
     dungeonNamesShort = {
         AV = "The Azure Vault",
@@ -31,7 +37,7 @@ Defaults = {
         VP = "Vortex Pinnacle"
     },
     dungeonDefault = {
-        season = "Dragonflight-1",
+        season = seasons.Dragonflight[1],
         player = "",
         name = "",
         party = {},
