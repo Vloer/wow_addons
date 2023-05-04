@@ -293,12 +293,16 @@ end
 
 function ListDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
-        local result = "Failed"
         if dungeon.completedInTime then
-            result = "Timed"
+            printf(string.format("[%s] %d: Timed %s %d (%d deaths)", dungeon.player, i, dungeon.name,
+                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.rating[5])
+        elseif dungeon.completed then
+            printf(string.format("[%s] %d: Failed to time %s %d (%d deaths)", dungeon.player, i, dungeon.name,
+                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.rating[3])
+        else
+            printf(string.format("[%s] %d: Abandoned %s %d (%d deaths)", dungeon.player, i, dungeon.name,
+                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.rating[1])
         end
-        printf(string.format("[%s] %d: %s %s %d (%d deaths)", dungeon.player, i, result, dungeon.name,
-            dungeon.keyDetails.level, dungeon.totalDeaths))
     end
 end
 
@@ -359,7 +363,7 @@ end
 
 function GetStoredDungeons()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
-        printf("No dungeons stored.", Defaults.colors.chatWarning)
+        printf("No dungeons stored.", Defaults.colors.chatError)
         return nil
     end
     return KeyCountDB.dungeons
