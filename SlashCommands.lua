@@ -39,19 +39,20 @@ function SlashCmdList.KEYCOUNT_FILTER(msg)
     local _dungeons = GetStoredDungeons()
     if _dungeons then
         printf("KeyCount: ===PRINTING DUNGEONS===")
-        local dungeons = Filter(_dungeons, key, value)
+        local dungeons = FilterData(_dungeons, key, value)
         ListDungeons(dungeons)
     end
 end
 
 SLASH_KEYCOUNT_SUCCESSRATE1 = "/kcrate"
+SLASH_KEYCOUNT_SUCCESSRATE2 = "/kcr"
 function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
     print(" ")
     printf("KeyCount: ===PRINTING STATS===")
     local _dungeons = GetStoredDungeons()
     if _dungeons then
         local key, value = ParseMsg(msg)
-        local dungeons = Filter(_dungeons, key, value)
+        local dungeons = FilterData(_dungeons, key, value)
         GetDungeonSuccessRate(dungeons)
     end
 end
@@ -76,3 +77,28 @@ function SlashCmdList.KEYCOUNT_HELP(msg)
     printf(" [/kcr]  |  [/kcrate]")
     printf(" Show the success rate of all dungeons. Can be paired with filters.", Defaults.colors.chatWarning)
 end
+
+SLASH_KEYCOUNT_FILTEROPTS1 = "/kcfilteroptions"
+SLASH_KEYCOUNT_FILTEROPTS2 = "/kco"
+SLASH_KEYCOUNT_FILTEROPTS3 = "/kcoptions"
+function SlashCmdList.KEYCOUNT_FILTEROPTS(msg)
+    print(" ")
+    printf("KeyCount: ===FILTER OPTIONS===")
+    printf(" Format is /kcf or /kcrate <key> <value>")
+    print(string.format("%s [<nothing>] %sDungeon name or abbreviation (ex: RLP)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [season] %sMythic+ season (ex: Dragonflight-1)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [player] %sPlayer name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [name] %sDungeon name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [completed] %sOnly completed runs|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [inTime] %sOnly runs completed in time|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [time] %sOnly runs longer than x seconds|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [deathsGT] %sOnly runs more than x deaths|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [deathsLT] %sOnly runs less than x deaths|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [level] %sOnly specific dungeon level|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [date] %sSpecific date (format 1999-12-31)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning)) 
+    print(string.format("%s [affix] %sSpecific affix (comma = AND, | = OR)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s Example: %saffix raging,quaking = raging AND quaking|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s Example: %saffix volcanic||necrotic = either volcanic or necrotic or both|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+end
+
+

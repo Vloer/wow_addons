@@ -4,7 +4,7 @@ function Log(message)
     end
 end
 
-function Filter(tbl, key, value)
+function FilterData(tbl, key, value)
     if #key == 0 and #value == 0 then return tbl end
     local result = {}
     if string.lower(key) == "name" and #value <= 3 then
