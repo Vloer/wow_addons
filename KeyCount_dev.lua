@@ -112,7 +112,7 @@ function KeyCount:SetKeyStart()
     self.current.startedTimestamp = time()
     self.current.party = GetPartyMemberInfo()
     self.current.keyDetails.affixes = {}
-    self.current.timeLimit = timeLimit
+    self.current.keyDetails.timeLimit = timeLimit
     self.current.name = name
     if self.current.player == "" then self.current.player = UnitName("player") end
     for _, affixID in ipairs(activeAffixIDs) do
@@ -154,8 +154,8 @@ function KeyCount:SetKeyEnd()
     self.current.completedInTime = onTime
     self.current.time = totalTime
     self.current.totalDeaths = SumTbl(self.current.deaths) or 0
-    if self.current.timeLimit == 0 then
-        _, _, self.current.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
+    if self.current.keyDetails.timeLimit == 0 then
+        _, _, self.current.keyDetails.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
     end
     KeyCount:FinishDungeon()
     Log("Finished SetKeyEnd")
