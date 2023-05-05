@@ -4,20 +4,97 @@ function Log(message)
     end
 end
 
+local filterConditions = {
+    ["player"] = function(entry, value)
+        return string.lower(entry["player"]) == string.lower(value)
+    end,
+    ["name"] = function(entry, value)
+        return string.lower(entry["name"]) == string.lower(value)
+    end,
+    ["completed"] = function(entry, value)
+        return entry["completed"] == value
+    end,
+    ["completedInTime"] = function(entry, value)
+        print(entry["completedInTime"],value)
+        return entry["completedInTime"] == value
+    end,
+    ["time"] = function(entry, value)
+        local res = entry["time"] or 0
+        return res >= value
+    end,
+    ["deathsgt"] = function(entry, value)
+        local res = entry["totalDeaths"] or 0
+        return res >= value
+    end,
+    ["deathslt"] = function(entry, value)
+        local res = entry["totalDeaths"] or 0
+        return res <= value
+    end,
+    ["level"] = function(entry, value)
+        return entry.keyDetails.level >= value
+    end,
+    ["affix"] = function(entry, value)
+        local affixes = string.lower(table.concat(entry.keyDetails.affixes))
+        local found = 0
+        for i = 2, #value do
+            if string.find(affixes, value[i]) then
+                if value[1] == "OR" then
+                    found = (#value - 1)
+                    break
+                elseif value[1] == "AND" then
+                    found = found + 1
+                end
+            end
+        end
+        return found == (#value - 1)
+    end
+}
+
 function FilterData(tbl, key, value)
     if #key == 0 and #value == 0 then return tbl end
     local result = {}
-    if string.lower(key) == "name" and #value <= 3 then
-        value = Defaults.dungeonNamesShort[value]
+
+    -- Argument cleaning
+    local _key = string.lower(key)
+    if _key == "player" and #value == 0 then
+        value = UnitName("player")
+    elseif #_key <= 3 and #value == 0 then
+        value = Defaults.dungeonNamesShort[key]
+        _key = "name"
+    elseif _key == "completed" then
+        value = true
+    elseif _key == "intime" then
+        _key = "completedInTime"
+        value = true
+    elseif _key == "time" or _key == "deathsgt" or _key == "deathslt" or _key == "level" then
+        value = tonumber(value) or 0
+    elseif _key == "affix" and #value ~= 0 then
+        local values = {}
+        if string.find(value, ',') then
+            values[1] = "AND"
+        else
+            values[1] = "OR"
+        end
+
+        for substring in string.gmatch(value, "[^|,]+") do
+            table.insert(values, string.lower(substring))
+        end
+        value = values
     end
+    print(key, value, type(value))
+    -- Table filtering
     for _, entry in ipairs(tbl) do
-        if string.lower(key) == "season" then
-            if string.lower(entry[key]) == string.lower(value) then
+        if _key == "season" and entry[_key] ~= nil then
+            if string.lower(entry[_key]) == string.lower(value) then
                 table.insert(result, entry)
             end
-        else
-            if string.lower(entry[key]) == string.lower(value) and entry["season"] == Defaults.dungeonDefault.season then
-                table.insert(result, entry)
+        elseif entry["season"] == Defaults.dungeonDefault.season then
+            for conditionKey, conditionFunc in pairs(filterConditions) do
+                if _key == conditionKey then
+                    if conditionFunc(entry, value) then
+                        table.insert(result, entry)
+                    end
+                end
             end
         end
     end
@@ -27,14 +104,6 @@ end
 function ParseMsg(msg)
     if not msg or #msg == 0 then return "", "" end
     local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
-    if #value == 0 then
-        if string.lower(key) == "player" then
-            value = UnitName("player")
-        else
-            value = key
-            key = "name"
-        end
-    end
     return key, value
 end
 
