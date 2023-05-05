@@ -12,7 +12,7 @@ function Filter(tbl, key, value)
     end
     for _, entry in ipairs(tbl) do
         if string.lower(key) == "season" then
-            if string.lower(entry[key]) == string.lower(value) then
+            if string.lower(value) == "all" or string.lower(entry[key]) == string.lower(value) then
                 table.insert(result, entry)
             end
         else
