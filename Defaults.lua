@@ -51,9 +51,9 @@ Defaults = {
         totalDeaths = 0,
         keyDetails = {
             level = 0,
-            affixes = {}
+            affixes = {},
+            timeLimit = 0,
         },
-        timeLimit = 0,
         date = ""
     },
     colors = {
