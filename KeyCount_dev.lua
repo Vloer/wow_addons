@@ -212,9 +212,8 @@ function GetPlayerInfo()
     return { name = name, class = class, role = specRole }
 end
 
-function ShowPastDungeons(addToDB)
+function ShowPastDungeons()
     PreviousRunsDB = PreviousRunsDB or {}
-    addToDB = addToDB or false
     local runs = C_MythicPlus.GetRunHistory(true, true) -- This only captures finished dungeons
     local previousDungeons = {}
     for i, run in ipairs(runs) do
@@ -228,10 +227,6 @@ function ShowPastDungeons(addToDB)
         dungeon.keyDetails.level = level
         dungeon.completed = completed
         table.insert(previousDungeons, dungeon)
-    end
-
-    if addToDB then
-        table.move(previousDungeons, 1, #previousDungeons, #KeyCountDB + 1, KeyCountDB)
     end
 end
 
