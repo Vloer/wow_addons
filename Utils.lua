@@ -28,8 +28,12 @@ function ParseMsg(msg)
     if not msg or #msg == 0 then return "", "" end
     local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
     if #value == 0 then
-        value = key
-        key = "name"
+        if string.lower(key) == "player" then
+            value = UnitName("player")
+        else
+            value = key
+            key = "name"
+        end
     end
     return key, value
 end
