@@ -61,6 +61,8 @@ function FilterData(tbl, key, value)
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
         _key = "name"
+    elseif _key == "name" and #value <= 3 then
+        value = Defaults.dungeonNamesShort[value]
     elseif _key == "completed" then
         value = true
     elseif _key == "intime" then
