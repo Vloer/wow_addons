@@ -16,32 +16,17 @@ SLASH_KEYCOUNT_LIST3 = "/kcl"
 SLASH_KEYCOUNT_LIST4 = "/kclist"
 function SlashCmdList.KEYCOUNT_LIST()
     print(" ")
-    local dungeons = GetStoredDungeons()
-    local dl = {}
-    if dungeons then
-        printf("KeyCount: ===PRINTING DUNGEONS===")
-        for _, dungeon in pairs(dungeons) do
-            local player = dungeon.player
-            if not dl[player] then dl[player] = {} end
-            table.insert(dl[player], dungeon)
-        end
-        for _, dungeons in pairs(dl) do
-            ListDungeons(dungeons)
-        end
-    end
+    printf("KeyCount: ===PRINTING DUNGEONS===")
+    Filter.list()
 end
 
 SLASH_KEYCOUNT_FILTER1 = "/kcfilter"
 SLASH_KEYCOUNT_FILTER2 = "/kcf"
 function SlashCmdList.KEYCOUNT_FILTER(msg)
     print(" ")
+    printf("KeyCount: ===PRINTING DUNGEONS===")
     local key, value = ParseMsg(msg)
-    local _dungeons = GetStoredDungeons()
-    if _dungeons then
-        printf("KeyCount: ===PRINTING DUNGEONS===")
-        local dungeons = FilterData(_dungeons, key, value)
-        ListDungeons(dungeons)
-    end
+    Filter.filter(key, value)
 end
 
 SLASH_KEYCOUNT_SUCCESSRATE1 = "/kcrate"
@@ -49,12 +34,8 @@ SLASH_KEYCOUNT_SUCCESSRATE2 = "/kcr"
 function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
     print(" ")
     printf("KeyCount: ===PRINTING STATS===")
-    local _dungeons = GetStoredDungeons()
-    if _dungeons then
-        local key, value = ParseMsg(msg)
-        local dungeons = FilterData(_dungeons, key, value)
-        GetDungeonSuccessRate(dungeons)
-    end
+    local key, value = ParseMsg(msg)
+    Filter.rate(key, value)
 end
 
 SLASH_KEYCOUNT_HELP1 = "/kchelp"
@@ -67,11 +48,12 @@ function SlashCmdList.KEYCOUNT_HELP(msg)
     printf(" List all dungeons without filtering", Defaults.colors.chatWarning)
     printf(" ")
     printf(" [/kcf]  |  [/kcfilter]")
-    printf(" List all dungeons with applied filter. You can filter for any key/value pair present in the dungeon object. Example:",
-    Defaults.colors.chatWarning)
+    printf(
+        " List all dungeons with applied filter. You can filter for any key/value pair present in the dungeon object. Example:",
+        Defaults.colors.chatWarning)
     printf(" /kcf player YOURNAME", Defaults.colors.chatWarning)
     printf(" For specific dungeon filtering, only type the dungeon abbreviation like so: ",
-    Defaults.colors.chatWarning)
+        Defaults.colors.chatWarning)
     printf(" /kcf ULD", Defaults.colors.chatWarning)
     printf(" ")
     printf(" [/kcr]  |  [/kcrate]")
@@ -85,20 +67,30 @@ function SlashCmdList.KEYCOUNT_FILTEROPTS(msg)
     print(" ")
     printf("KeyCount: ===FILTER OPTIONS===")
     printf(" Format is /kcf or /kcrate <key> <value>")
-    print(string.format("%s [<nothing>] %sDungeon name or abbreviation (ex: RLP)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [season] %sMythic+ season (ex: Dragonflight-1)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [<nothing>] %sDungeon name or abbreviation (ex: RLP)|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [season] %sMythic+ season (ex: Dragonflight-1)|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
     print(string.format("%s [player] %sPlayer name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
     print(string.format("%s [name] %sDungeon name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [completed] %sOnly completed runs|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [inTime] %sOnly runs completed in time|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [time] %sOnly runs longer than x seconds|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [deathsGT] %sOnly runs more than x deaths|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [deathsLT] %sOnly runs less than x deaths|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [level] %sOnly runs above specific level|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s [date] %sSpecific date (format 1999-12-31)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning)) 
-    print(string.format("%s [affix] %sSpecific affix (comma = AND, | = OR)|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s Example: %saffix raging,quaking = raging AND quaking|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
-    print(string.format("%s Example: %saffix volcanic||necrotic = either volcanic or necrotic or both|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [completed] %sOnly completed runs|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [inTime] %sOnly runs completed in time|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [time] %sOnly runs longer than x seconds|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [deathsGT] %sOnly runs more than x deaths|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [deathsLT] %sOnly runs less than x deaths|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [level] %sOnly runs above specific level|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [date] %sSpecific date (format 1999-12-31)|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s [affix] %sSpecific affix (comma = AND, | = OR)|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s Example: %saffix raging,quaking = raging AND quaking|r", Defaults.colors.chatAnnounce,
+        Defaults.colors.chatWarning))
+    print(string.format("%s Example: %saffix volcanic||necrotic = either volcanic or necrotic or both|r",
+        Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
 end
-
-

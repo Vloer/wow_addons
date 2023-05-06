@@ -1,4 +1,3 @@
---globals
 AddonName = "KeyCount_dev"
 KeyCount = CreateFrame("Frame", "KeyCount")
 
