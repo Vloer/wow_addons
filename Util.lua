@@ -143,7 +143,8 @@ end
 table.copy = function(destination, source)
     destination = destination or {}
     for key, value in pairs(source) do
-        if type(value) == "table" and type(destination[key]) == "table" and destination[key] ~= {} then
+        if type(value) == "table" then
+            --if type(value) == "table" and type(destination[key]) == "table" and destination[key] ~= {} then
             destination[key] = {}
             table.copy(destination[key], value)
         else
