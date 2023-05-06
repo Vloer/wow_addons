@@ -22,16 +22,12 @@ end
 local fFilter = function(key, value)
     local _dungeons = GetStoredDungeons()
     if _dungeons then
-        if #key == 0 and #value == 0 then
-            local dl = orderByPlayer(_dungeons)
-            for _, dungeons in pairs(dl) do
-                ListDungeons(dungeons)
-            end
-        else
-            local filteredDungeons = FilterData(_dungeons, key, value)
-            ListDungeons(filteredDungeons)
+        local filteredDungeons = FilterData(_dungeons, key, value)
+        if not filteredDungeons then return end
+        local dl = orderByPlayer(filteredDungeons)
+        for _, dungeons in pairs(dl) do
+            ListDungeons(dungeons)
         end
-
     end
 end
 
@@ -39,6 +35,7 @@ local fRate = function(key, value)
     local _dungeons = GetStoredDungeons()
     if _dungeons then
         local filteredDungeons = FilterData(_dungeons, key, value)
+        if not filteredDungeons then return end
         GetDungeonSuccessRate(filteredDungeons)
     end
 end

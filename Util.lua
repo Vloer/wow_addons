@@ -109,6 +109,10 @@ function FilterData(tbl, key, value)
             end
         end
     end
+    if #result == 0 then
+        printf("No dungeons matched your filter criteria!", Defaults.colors.chatWarning)
+        return nil
+    end
     return result
 end
 
