@@ -24,7 +24,6 @@ Filter = {
     rate = function(key, value)
         local _dungeons = GetStoredDungeons()
         if _dungeons then
-            local key, value = ParseMsg(msg)
             local dungeons = FilterData(_dungeons, key, value)
             GetDungeonSuccessRate(dungeons)
         end
