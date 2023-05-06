@@ -15,7 +15,7 @@ local filterConditions = {
         return entry["completed"] == value
     end,
     ["completedInTime"] = function(entry, value)
-        print(entry["completedInTime"],value)
+        print(entry["completedInTime"], value)
         return entry["completedInTime"] == value
     end,
     ["time"] = function(entry, value)
@@ -86,12 +86,16 @@ function FilterData(tbl, key, value)
             table.insert(values, string.lower(substring))
         end
         value = values
+    elseif _key == "player" then
+        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+    elseif _key == "season" then
+        if #value == 0 then value = Defaults.dungeonDefault.season end
+        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
     end
 
     -- Table filtering
     for _, entry in ipairs(tbl) do
         if _key == "season" and entry[_key] ~= nil then
-            print(string.format("FILTER <%s> <%s>", key, tostring(value)))
             if string.lower(entry[_key]) == string.lower(value) then
                 table.insert(result, entry)
             end
