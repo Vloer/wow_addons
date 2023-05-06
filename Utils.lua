@@ -58,18 +58,24 @@ function FilterData(tbl, key, value)
     local _key = string.lower(key)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
+        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
         _key = "name"
+        print(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "completed" then
         value = true
+        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "intime" then
         _key = "completedInTime"
         value = true
+        print(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "time" or _key == "deathsgt" or _key == "deathslt" or _key == "level" then
         value = tonumber(value) or 0
+        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "affix" and #value ~= 0 then
         local values = {}
+        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
         if string.find(value, ',') then
             values[1] = "AND"
         else
@@ -81,10 +87,11 @@ function FilterData(tbl, key, value)
         end
         value = values
     end
-    print(key, value, type(value))
+
     -- Table filtering
     for _, entry in ipairs(tbl) do
         if _key == "season" and entry[_key] ~= nil then
+            print(string.format("FILTER <%s> <%s>", key, tostring(value)))
             if string.lower(entry[_key]) == string.lower(value) then
                 table.insert(result, entry)
             end
