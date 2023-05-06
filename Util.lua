@@ -11,6 +11,9 @@ local filterConditions = {
     ["name"] = function(entry, value)
         return string.lower(entry["name"]) == string.lower(value)
     end,
+    ["dungeon"] = function(entry, value)
+        return string.lower(entry["name"]) == string.lower(value)
+    end,
     ["completed"] = function(entry, value)
         return entry["completed"] == value
     end,

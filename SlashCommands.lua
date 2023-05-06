@@ -35,7 +35,7 @@ function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
     print(" ")
     printf("KeyCount: ===PRINTING STATS===")
     local key, value = ParseMsg(msg)
-    FilterFunc.rate(key, value)
+    FilterFunc["rate"](key, value)
 end
 
 SLASH_KEYCOUNT_HELP1 = "/kchelp"
@@ -73,6 +73,7 @@ function SlashCmdList.KEYCOUNT_FILTEROPTS(msg)
         Defaults.colors.chatWarning))
     print(string.format("%s [player] %sPlayer name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
     print(string.format("%s [name] %sDungeon name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
+    print(string.format("%s [dungeon] %sDungeon name|r", Defaults.colors.chatAnnounce, Defaults.colors.chatWarning))
     print(string.format("%s [completed] %sOnly completed runs|r", Defaults.colors.chatAnnounce,
         Defaults.colors.chatWarning))
     print(string.format("%s [inTime] %sOnly runs completed in time|r", Defaults.colors.chatAnnounce,
