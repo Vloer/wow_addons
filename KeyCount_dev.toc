@@ -7,4 +7,5 @@
 KeyCount_dev.lua
 Defaults.lua
 SlashCommands.lua
-Utils.lua
+Util.lua
+UtilStats.lua
