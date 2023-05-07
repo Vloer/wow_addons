@@ -2,27 +2,30 @@ GUI = {}
 function GUI:ConstructGUI()
     self.key = ""
     self.value = ""
-    local filtertype = Defaults.guiDefaultFilterType
+    self.filtertype = Defaults.guiDefaultFilterType
+    self.widgets = {}
+    self.tables = {}
     local fillTable = function()
-        local dungs = FilterFunc[filtertype](self.key, self.value)
+        local dungs = FilterFunc[self.filtertype](self.key, self.value)
         if not dungs then return end
-        local data = PrepareData[filtertype](dungs)
-        if filtertype == "rate" then
-            stL:Hide()
-            stR:Show()
-            stR:SetData(data)
-            stR:Refresh()
+        local data = PrepareData[self.filtertype](dungs)
+        if self.filtertype == "rate" then
+            self.tables.stL:Hide()
+            self.tables.stR:Show()
+            self.tables.stR:SetData(data)
+            self.tables.stR:Refresh()
         else
-            stR:Hide()
-            stL:Show()
-            stL:SetData(data)
-            stL:Refresh()
+            self.tables.stR:Hide()
+            self.tables.stL:Show()
+            self.tables.stL:SetData(data)
+            self.tables.stL:Refresh()
         end
     end
 
-    local function disableWidgets(setting, widgets)
-        for _, w in ipairs(widgets) do
+    local function disableWidgets(setting)
+        for _, w in pairs(self.widgets) do
             w:SetDisabled(setting)
+            w:SetText("")
         end
     end
 
@@ -42,40 +45,40 @@ function GUI:ConstructGUI()
     dropdownBox:AddItem("filter", "Filter")
     dropdownBox:AddItem("rate", "Success rate")
     dropdownBox:SetCallback("OnValueChanged", function(widget, event, item)
-        filtertype = item
+        self.filtertype = item
         if item == "list" then
-            disableWidgets(true, FilterWidgets)
-            stL:Show()
-            stR:Hide()
+            disableWidgets(true)
+            self.tables.stL:Show()
+            self.tables.stR:Hide()
+            self.key = ""
+            self.value = ""
         else
-            disableWidgets(false, FilterWidgets)
+            disableWidgets(false)
             if item == "filter" then
-                stL:Show()
-                stR:Hide()
+                self.tables.stL:Show()
+                self.tables.stR:Hide()
             elseif item == "rate" then
-                stL:Hide()
-                stR:Show()
+                self.tables.stL:Hide()
+                self.tables.stR:Show()
             end
         end
     end)
     dropdownBox:SetValue("list")
     frame:AddChild(dropdownBox)
 
-    local editboxKey = AceGUI:Create("EditBox")
-    editboxKey:SetLabel("Filter key")
-    editboxKey:SetWidth(200)
-    editboxKey:SetCallback("OnEnterPressed", function(widget, event, text) self.key = text end)
-    editboxKey:SetDisabled(true)
-    frame:AddChild(editboxKey)
+    self.widgets.editboxKey = AceGUI:Create("EditBox")
+    self.widgets.editboxKey:SetLabel("Filter key")
+    self.widgets.editboxKey:SetWidth(200)
+    self.widgets.editboxKey:SetCallback("OnEnterPressed", function(widget, event, text) self.key = text end)
+    self.widgets.editboxKey:SetDisabled(true)
+    frame:AddChild(self.widgets.editboxKey)
 
-    local editboxVal = AceGUI:Create("EditBox")
-    editboxVal:SetLabel("Filter value")
-    editboxVal:SetWidth(200)
-    editboxVal:SetCallback("OnEnterPressed", function(widget, event, text) self.value = text end)
-    editboxVal:SetDisabled(true)
-    frame:AddChild(editboxVal)
-
-    FilterWidgets = { editboxKey, editboxVal }
+    self.widgets.editboxVal = AceGUI:Create("EditBox")
+    self.widgets.editboxVal:SetLabel("Filter value")
+    self.widgets.editboxVal:SetWidth(200)
+    self.widgets.editboxVal:SetCallback("OnEnterPressed", function(widget, event, text) self.value = text end)
+    self.widgets.editboxVal:SetDisabled(true)
+    frame:AddChild(self.widgets.editboxVal)
 
     local button = AceGUI:Create("Button")
     button:SetText("Show data")
@@ -103,20 +106,20 @@ function GUI:ConstructGUI()
         { ["name"] = "Best",         ["width"] = 55, },
     }
 
-    stL = ScrollingTable:CreateST(columnsList, 16, 16, nil, window);
-    stL.frame:SetPoint("TOP", window, "TOP", 0, -100);
-    stL.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
-    stL:EnableSelection(true)
+    self.tables.stL = ScrollingTable:CreateST(columnsList, 16, 16, nil, window);
+    self.tables.stL.frame:SetPoint("TOP", window, "TOP", 0, -100);
+    self.tables.stL.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
+    self.tables.stL:EnableSelection(true)
 
-    stR = ScrollingTable:CreateST(columnsRate, 8, 16, nil, window);
-    stR.frame:SetPoint("TOP", window, "TOP", 0, -100);
-    stR.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
-    stR:EnableSelection(true)
-    stR:Hide()
+    self.tables.stR = ScrollingTable:CreateST(columnsRate, 8, 16, nil, window);
+    self.tables.stR.frame:SetPoint("TOP", window, "TOP", 0, -100);
+    self.tables.stR.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
+    self.tables.stR:EnableSelection(true)
+    self.tables.stR:Hide()
 
     frame:SetCallback("OnClose", function()
-        stL:Hide()
-        stR:Hide()
+        self.tables.stL:Hide()
+        self.tables.stR:Hide()
     end)
 
     -- Required to exit interface on escape press
