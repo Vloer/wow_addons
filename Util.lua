@@ -61,3 +61,25 @@ function SumTbl(tbl)
     end
     return res
 end
+
+function ConvertRgb(colorTable)
+    local normalizedTable = {}
+    for key, value in pairs(colorTable) do
+        if type(value) == "number" and value > 1 then
+            normalizedTable[key] = value / 255
+        else
+            normalizedTable[key] = value
+        end
+    end
+    return normalizedTable
+end
+
+function OrderListByPlayer(dungeons)
+    local dl = {}
+    for _, dungeon in pairs(dungeons) do
+        local player = dungeon.player
+        if not dl[player] then dl[player] = {} end
+        table.insert(dl[player], dungeon)
+    end
+    return dl
+end

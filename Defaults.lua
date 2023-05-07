@@ -77,5 +77,16 @@ Defaults = {
         }
     },
     dateFormat = "%Y-%m-%d",
-    dateTimeFormat = "%Y-%m-%d %H:%M:%S"
+    dateTimeFormat = "%Y-%m-%d %H:%M:%S",
+    dataTblFormat = {
+        cols = {
+            value = "",
+            color = {
+                r = 1,
+                g = 1,
+                b = 1,
+                a = 1
+            }
+        }
+    }
 }

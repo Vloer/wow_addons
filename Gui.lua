@@ -45,57 +45,70 @@ frame:AddChild(button)
 _G["KeyCountFrame"] = frame.frame
 tinsert(UISpecialFrames, "KeyCountFrame")
 
+local function getLevelColor(level)
+   local idx = math.floor(level / 5) + 1
+   local r, g, b, hex = GetItemQualityColor(idx)
+   local color = { r = r, g = g, b = b, a = 1 }
+   return { color = color, hex = hex }
+end
+
+local function getResultString(dungeon)
+   if dungeon.completedInTime then
+      return { result = "Timed", color = ConvertRgb(Defaults.colors.rating[5]) }
+   elseif dungeon.completed then
+      return { result = "Failed to time", color = ConvertRgb(Defaults.colors.rating[3]) }
+   else
+      return { result = "Abandoned", color = ConvertRgb(Defaults.colors.rating[1]) }
+   end
+end
+
+local function getDeathsColor(deaths)
+   if deaths == 0 then return ConvertRgb(Defaults.colors.rating[5]) end
+   local idx = math.floor(6 - deaths / 4)
+   if idx == 0 then idx = 1 end
+   return ConvertRgb(Defaults.colors.rating[idx])
+end
+
+local function prepareRow(dungeon)
+   local row = {}
+   local player = dungeon.player
+   local name = dungeon.name
+   local level = dungeon.keyDetails.level
+   local result = getResultString(dungeon)
+   local deaths = dungeon.totalDeaths or 0
+   table.insert(row, { value = player })
+   table.insert(row, { value = name })
+   table.insert(row, { value = level, color = getLevelColor(level).color })
+   table.insert(row, { value = result.result, color = result.color })
+   table.insert(row, { value = deaths, color = getDeathsColor(deaths) })
+   return { cols = row }
+end
+
+local function prepareList()
+   local data = {}
+   local _dungeons = GetStoredDungeons()
+   if _dungeons then
+      local dl = OrderListByPlayer(_dungeons)
+      for _, dungeons in pairs(dl) do
+         for _, dungeon in ipairs(dungeons) do
+            local row = prepareRow(dungeon)
+            table.insert(data, row)
+         end
+      end
+   end
+   return data
+end
+
+
 local window = frame.frame
 local columns = {
-   { ["name"] = "Name", ["width"] = 113 }, 
-   { ["name"] = "Dungeon", ["width"] = 113, }, 
+   { ["name"] = "Name", ["width"] = 100 }, 
+   { ["name"] = "Dungeon", ["width"] = 150, }, 
    { ["name"] = "Level", ["width"] = 55,   },
-   { ["name"] = "Result", ["width"] = 55,  }, 
-   { ["name"] = "Deaths", ["width"] = 55,  },
+   { ["name"] = "Result", ["width"] = 113,  }, 
+   { ["name"] = "Deaths", ["width"] = 55, ["defaultsort"]="dsc" },
 };
-local row =
-{
-   ["cols"] = {
-      {
-         ["value"] = "Bafke",
-      }, -- [1] Column 1
-      {
-         ["value"] = "Ruby Life Pools",
-         ["color"] = {
-            ["r"] = 1.0,
-            ["g"] = 1.0,
-            ["b"] = 1.0,
-            ["a"] = 1.0,
-         },  -- Cell color
-      }, -- [2] Column 2
-      {
-         ["value"] = 15,
-         ["color"] = {
-            ["r"] = 1.0,
-            ["g"] = 0.0,
-            ["b"] = 1.0,
-            ["a"] = 1.0,
-         },  -- Cell color
-      }, -- [2] Column 2
-      {
-         ["value"] = "Timed",
-         
-      }, -- [2] Column 2
-      {
-         ["value"] = 15,
-         
-      }, 
-   },
-   ["color"] = {
-      ["r"] = 1.0,
-      ["g"] = 1.0,
-      ["b"] = 1.0,
-      ["a"] = 1.0,
-   },
-}
-local data = {
-   row
-}
+local data = prepareList()
 local ScrollingTable = LibStub("ScrollingTable");
 st = ScrollingTable:CreateST(columns, 12, 16, nil, window);
 st.frame:SetPoint("TOP", window, "CENTER", 0, 46);
@@ -104,3 +117,5 @@ st:EnableSelection(true)
 st:SetData(data)
 st:Refresh()
 frame:SetCallback("OnClose", function() st:Hide() end)
+
+

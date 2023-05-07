@@ -1,15 +1,23 @@
-function ListDungeons(dungeons)
+function PrintDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
         if dungeon.completedInTime then
             printf(string.format("[%s] %d: Timed %s %d (%d deaths)", dungeon.player, i, dungeon.name,
-                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.rating[5])
+                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.chatRating[5])
         elseif dungeon.completed then
             printf(string.format("[%s] %d: Failed to time %s %d (%d deaths)", dungeon.player, i, dungeon.name,
-                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.rating[3])
+                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.chatRating[3])
         else
             printf(string.format("[%s] %d: Abandoned %s %d (%d deaths)", dungeon.player, i, dungeon.name,
-                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.rating[1])
+                dungeon.keyDetails.level, dungeon.totalDeaths), Defaults.colors.chatRating[1])
         end
+    end
+end
+
+function PrintDungeonSuccessRate(tbl)
+    for _, d in ipairs(tbl) do
+        local colorIdx = math.floor(d.successRate / 20) + 1
+        local fmt = Defaults.colors.chatRating[colorIdx]
+        printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed), fmt)
     end
 end
 
@@ -42,11 +50,7 @@ function GetDungeonSuccessRate(dungeons)
     table.sort(resRate, function(a, b)
         return a.successRate > b.successRate
     end)
-    for _, d in ipairs(resRate) do
-        local colorIdx = math.floor(d.successRate / 20) + 1
-        local fmt = Defaults.colors.rating[colorIdx]
-        printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed), fmt)
-    end
+    return resRate
 end
 
 function GetPLayerList(dungeons)

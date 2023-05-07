@@ -1,44 +1,39 @@
-local orderByPlayer = function(dungeons)
-    local dl = {}
-    for _, dungeon in pairs(dungeons) do
-        local player = dungeon.player
-        if not dl[player] then dl[player] = {} end
-        table.insert(dl[player], dungeon)
-    end
-    return dl
+local filterDungeons = function(key, value)
+    local _dungeons = GetStoredDungeons()
+    if not _dungeons then return end
+    local filteredDungeons = FilterData(_dungeons, key, value)
+    if not filteredDungeons then return end
+    return filteredDungeons
 end
 
-local fList = function()
-    local _dungeons = GetStoredDungeons()
-    if _dungeons then
-        local dl = orderByPlayer(_dungeons)
-        -- local dl = _dungeons
-        for _, dungeons in pairs(dl) do
-            ListDungeons(dungeons)
-        end
+local fListPrint = function()
+    local _dungeons = filterDungeons("", "")
+    if not _dungeons then return end
+    local dl = OrderListByPlayer(_dungeons)
+    for _, dungeons in pairs(dl) do
+        PrintDungeons(dungeons)
     end
 end
 
-local fFilter = function(key, value)
-    local _dungeons = GetStoredDungeons()
-    if _dungeons then
-        local filteredDungeons = FilterData(_dungeons, key, value)
-        if not filteredDungeons then return end
-        local dl = orderByPlayer(filteredDungeons)
-        for _, dungeons in pairs(dl) do
-            ListDungeons(dungeons)
-        end
+local fFilterPrint = function(key, value)
+    local _dungeons = filterDungeons(key, value)
+    if not _dungeons then return end
+    local dl = OrderListByPlayer(_dungeons)
+    for _, dungeons in pairs(dl) do
+        PrintDungeons(dungeons)
     end
 end
 
 local fRate = function(key, value)
-    local _dungeons = GetStoredDungeons()
-    if _dungeons then
-        local filteredDungeons = FilterData(_dungeons, key, value)
-        if not filteredDungeons then return end
-        GetDungeonSuccessRate(filteredDungeons)
-    end
+    local dungeons = filterDungeons(key, value)
+    if dungeons then return GetDungeonSuccessRate(dungeons) end
 end
+
+local fRatePrint = function(key, value)
+    local dungeons = fRate(key,value)
+    if dungeons then PrintDungeonSuccessRate(dungeons) end
+end
+
 
 local filterConditions = {
     ["player"] = function(entry, value)
@@ -156,7 +151,11 @@ function FilterData(tbl, key, value)
 end
 
 FilterFunc = {
-    listAll = fList,
-    filter = fFilter,
+    print = { 
+        listAll = fListPrint,
+        filter = fFilterPrint,
+        rate = fRatePrint
+    },
+    filter = filterDungeons,
     rate = fRate
 }
