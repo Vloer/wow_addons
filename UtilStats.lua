@@ -26,26 +26,40 @@ function GetDungeonSuccessRate(dungeons)
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
         if not res[dungeon.name] then
-            res[dungeon.name] = {}
-            res[dungeon.name].success = 0
-            res[dungeon.name].failed = 0
+            res[dungeon.name] = {success = 0, failed = 0, outOfTime = 0, best = 0}
         end
         if dungeon.completedInTime then
             res[dungeon.name].success = (res[dungeon.name].success or 0) + 1
+            local level = dungeon.keyDetails.level
+            if level > res[dungeon.name].best then
+                res[dungeon.name].best = level
+            end
         else
-            res[dungeon.name].failed = (res[dungeon.name].failed or 0) + 1
+            if dungeon.completed then
+                res[dungeon.name].outOfTime = (res[dungeon.name].outOfTime or 0) + 1
+            else
+                res[dungeon.name].failed = (res[dungeon.name].failed or 0) + 1
+            end
         end
     end
     for name, d in pairs(res) do
         local successRate = 0
-        if d.failed == 0 then
+        if (d.failed + d.outOfTime) == 0 then
             successRate = 100
         elseif d.success == 0 then
             successRate = 0
         else
-            successRate = d.success / (d.success + d.failed) * 100
+            successRate = d.success / (d.success + d.failed + d.outOfTime) * 100
         end
-        table.insert(resRate, { name = name, successRate = successRate, success = d.success, failed = d.failed })
+        table.insert(resRate,
+            {
+                name = name,
+                successRate = successRate,
+                success = d.success,
+                outOfTime = d.outOfTime,
+                failed = d.failed,
+                best = d.best
+            })
     end
     table.sort(resRate, function(a, b)
         return a.successRate > b.successRate
