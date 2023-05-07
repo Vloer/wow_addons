@@ -18,6 +18,8 @@ end
 
 function KeyCount:ADDON_LOADED(event, addonName)
     if addonName == AddonName then
+        self.gui = {}
+        self.guiCreated = false
         KeyCountDB.sessions = (KeyCountDB.sessions or 0) + 1
         print(string.format("Loaded %s for the %dth time.", addonName, KeyCountDB.sessions))
         KeyCount:InitSelf()
@@ -84,7 +86,6 @@ KeyCount:RegisterEvent("ADDON_LOADED")
 KeyCount:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 KeyCount:RegisterEvent("CHALLENGE_MODE_START")
 KeyCount:SetScript("OnEvent", KeyCount.OnEvent)
-
 
 function KeyCount:InitSelf()
     Log("Called InitSelf")

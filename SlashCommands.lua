@@ -1,13 +1,20 @@
 SLASH_KEYCOUNT1 = "/keycount"
 SLASH_KEYCOUNT2 = "/kc"
 function SlashCmdList.KEYCOUNT()
-    print(" ")
-    printf("KeyCount: ===WELCOME===")
-    printf("Type /kch or /kchelp for available options!")
-    local dungeons = GetStoredDungeons()
-    if dungeons then
-        printf(string.format("There are %d dungeons stored in your database.", #dungeons))
+    if not KeyCount.guiCreated then
+        print(" ")
+        printf("KeyCount: ===WELCOME===")
+        printf("Type /kch or /kchelp for available options! Alternatively, just use the GUI.")
+        local dungeons = GetStoredDungeons()
+        if dungeons then
+            printf(string.format("There are %d dungeons stored in your database.", #dungeons))
+        end
+        printf("This message will be hidden from now on.")
+
+        KeyCount.gui = ConstructGUI()
+        KeyCount.guiCreated = true
     end
+    KeyCount.gui:Show()
 end
 
 SLASH_KEYCOUNT_LIST1 = "/keycount_list"
