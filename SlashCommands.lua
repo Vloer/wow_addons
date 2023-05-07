@@ -17,7 +17,7 @@ SLASH_KEYCOUNT_LIST4 = "/kclist"
 function SlashCmdList.KEYCOUNT_LIST()
     print(" ")
     printf("KeyCount: ===PRINTING DUNGEONS===")
-    FilterFunc.print.listAll()
+    FilterFunc.print.list()
 end
 
 SLASH_KEYCOUNT_FILTER1 = "/kcfilter"

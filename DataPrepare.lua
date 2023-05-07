@@ -1,0 +1,68 @@
+local function getLevelColor(level)
+    local idx = math.floor(level / 5) + 1
+    local r, g, b, hex = GetItemQualityColor(idx)
+    local color = { r = r, g = g, b = b, a = 1 }
+    return { color = color, hex = hex }
+end
+
+local function getResultString(dungeon)
+    if dungeon.completedInTime then
+        return { result = "Timed", color = ConvertRgb(Defaults.colors.rating[5]) }
+    elseif dungeon.completed then
+        return { result = "Failed to time", color = ConvertRgb(Defaults.colors.rating[3]) }
+    else
+        return { result = "Abandoned", color = ConvertRgb(Defaults.colors.rating[1]) }
+    end
+end
+
+local function getDeathsColor(deaths)
+    if deaths == 0 then return ConvertRgb(Defaults.colors.rating[5]) end
+    local idx = math.floor(6 - deaths / 4)
+    if idx == 0 then idx = 1 end
+    return ConvertRgb(Defaults.colors.rating[idx])
+end
+
+local function prepareRowList(dungeon)
+    local row = {}
+    local player = dungeon.player
+    local name = dungeon.name
+    local level = dungeon.keyDetails.level
+    local result = getResultString(dungeon)
+    local deaths = dungeon.totalDeaths or 0
+    local affixes = ConcatTable(dungeon.keyDetails.affixes, ", ")
+    table.insert(row, { value = player })
+    table.insert(row, { value = name })
+    table.insert(row, { value = level, color = getLevelColor(level).color })
+    table.insert(row, { value = result.result, color = result.color })
+    table.insert(row, { value = deaths, color = getDeathsColor(deaths) })
+    table.insert(row, { value = affixes })
+    return { cols = row }
+end
+
+local function prepareRowRate(dungeon)
+
+end
+
+local function prepareList(dungeons)
+    local data = {}
+    for _, dungeon in ipairs(dungeons) do
+        local row = prepareRowList(dungeon)
+        table.insert(data, row)
+    end
+    return data
+end
+
+local function prepareRate(dungeons)
+    local data = {}
+    for _, dungeon in ipairs(dungeons) do
+        local row = prepareRowRate(dungeon)
+        table.insert(data, row)
+    end
+    return data
+end
+
+PrepareData = {
+    list = prepareList,
+    filter = prepareList,
+    rate = prepareRate
+}

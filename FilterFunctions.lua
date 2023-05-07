@@ -151,11 +151,12 @@ function FilterData(tbl, key, value)
 end
 
 FilterFunc = {
-    print = { 
-        listAll = fListPrint,
+    print = {
+        list = fListPrint,
         filter = fFilterPrint,
         rate = fRatePrint
     },
+    list = filterDungeons,
     filter = filterDungeons,
     rate = fRate
 }

@@ -83,3 +83,14 @@ function OrderListByPlayer(dungeons)
     end
     return dl
 end
+
+function ConcatTable(table, delimiter)
+    local concatenatedString = ""
+    for i, value in ipairs(table) do
+        concatenatedString = concatenatedString .. tostring(value)
+        if i < #table then
+            concatenatedString = concatenatedString .. delimiter
+        end
+    end
+    return concatenatedString
+end
