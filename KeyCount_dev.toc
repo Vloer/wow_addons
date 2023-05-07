@@ -4,7 +4,16 @@
 ## Version: 0.0.1
 ## SavedVariables: KeyCountDB
 
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\lib-st\lib-st.xml
+
 KeyCount_dev.lua
 Defaults.lua
 SlashCommands.lua
-Utils.lua
+Util.lua
+UtilStats.lua
+FilterFunctions.lua
+DataPrepare.lua
+Gui.lua

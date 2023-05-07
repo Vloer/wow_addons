@@ -1,8 +1,39 @@
-function Log(message)
-    if DLAPI then
-        DLAPI.DebugLog(AddonName, message)
+local filterDungeons = function(key, value)
+    local _dungeons = GetStoredDungeons()
+    if not _dungeons then return end
+    local filteredDungeons = FilterData(_dungeons, key, value)
+    if not filteredDungeons then return end
+    return filteredDungeons
+end
+
+local fListPrint = function()
+    local _dungeons = filterDungeons("", "")
+    if not _dungeons then return end
+    local dl = OrderListByPlayer(_dungeons)
+    for _, dungeons in pairs(dl) do
+        PrintDungeons(dungeons)
     end
 end
+
+local fFilterPrint = function(key, value)
+    local _dungeons = filterDungeons(key, value)
+    if not _dungeons then return end
+    local dl = OrderListByPlayer(_dungeons)
+    for _, dungeons in pairs(dl) do
+        PrintDungeons(dungeons)
+    end
+end
+
+local fRate = function(key, value)
+    local dungeons = filterDungeons(key, value)
+    if dungeons then return GetDungeonSuccessRate(dungeons) end
+end
+
+local fRatePrint = function(key, value)
+    local dungeons = fRate(key,value)
+    if dungeons then PrintDungeonSuccessRate(dungeons) end
+end
+
 
 local filterConditions = {
     ["player"] = function(entry, value)
@@ -11,11 +42,13 @@ local filterConditions = {
     ["name"] = function(entry, value)
         return string.lower(entry["name"]) == string.lower(value)
     end,
+    ["dungeon"] = function(entry, value)
+        return string.lower(entry["name"]) == string.lower(value)
+    end,
     ["completed"] = function(entry, value)
         return entry["completed"] == value
     end,
     ["completedInTime"] = function(entry, value)
-        print(entry["completedInTime"],value)
         return entry["completedInTime"] == value
     end,
     ["time"] = function(entry, value)
@@ -58,24 +91,24 @@ function FilterData(tbl, key, value)
     local _key = string.lower(key)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
         _key = "name"
-        print(string.format("FILTER <%s> <%s>", _key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "completed" then
         value = true
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "intime" then
         _key = "completedInTime"
         value = true
-        print(string.format("FILTER <%s> <%s>", _key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "time" or _key == "deathsgt" or _key == "deathslt" or _key == "level" then
         value = tonumber(value) or 0
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "affix" and #value ~= 0 then
         local values = {}
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
         if string.find(value, ',') then
             values[1] = "AND"
         else
@@ -86,12 +119,16 @@ function FilterData(tbl, key, value)
             table.insert(values, string.lower(substring))
         end
         value = values
+    elseif _key == "player" then
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
+    elseif _key == "season" then
+        if #value == 0 then value = Defaults.dungeonDefault.season end
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     end
 
     -- Table filtering
     for _, entry in ipairs(tbl) do
         if _key == "season" and entry[_key] ~= nil then
-            print(string.format("FILTER <%s> <%s>", key, tostring(value)))
             if string.lower(entry[_key]) == string.lower(value) then
                 table.insert(result, entry)
             end
@@ -105,62 +142,20 @@ function FilterData(tbl, key, value)
             end
         end
     end
+    if #result == 0 then
+        printf("No dungeons matched your filter criteria!", Defaults.colors.chatWarning)
+        return nil
+    end
     return result
 end
 
-function ParseMsg(msg)
-    if not msg or #msg == 0 then return "", "" end
-    local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
-    return key, value
-end
-
-function FormatTimestamp(seconds)
-    local minutes = math.floor(seconds / 60)
-    local remainingSeconds = seconds - (minutes * 60)
-    return string.format("%02d:%02d", minutes, remainingSeconds)
-end
-
-table.equal = function(t1, t2)
-    for k, v in pairs(t1) do
-        if t2[k] ~= v then
-            return false
-        end
-    end
-
-    for k, v in pairs(t2) do
-        if t1[k] ~= v then
-            return false
-        end
-    end
-
-    return true
-end
-
-table.copy = function(destination, source)
-    destination = destination or {}
-    for key, value in pairs(source) do
-        if type(value) == "table" and type(destination[key]) == "table" and destination[key] ~= {} then
-            destination[key] = {}
-            table.copy(destination[key], value)
-        else
-            destination[key] = value
-        end
-    end
-    return destination
-end
-
-function printf(msg, fmt)
-    fmt = fmt or Defaults.colors.chatAnnounce
-    print(string.format("%s%s|r", fmt, msg))
-end
-
-function SumTbl(tbl)
-    if type(tbl) ~= "table" then return end
-    local res = 0
-    for k, v in pairs(tbl) do
-        if type(v) == "number" then
-            res = res + v
-        end
-    end
-    return res
-end
+FilterFunc = {
+    print = {
+        list = fListPrint,
+        filter = fFilterPrint,
+        rate = fRatePrint
+    },
+    list = filterDungeons,
+    filter = filterDungeons,
+    rate = fRate
+}
