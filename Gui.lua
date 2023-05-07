@@ -1,9 +1,10 @@
-ConstructGUI = function()
-    local key = ""
-    local value = ""
-    local filtertype = "list"
+GUI = {}
+function GUI:ConstructGUI()
+    self.key = ""
+    self.value = ""
+    local filtertype = Defaults.guiDefaultFilterType
     local fillTable = function()
-        local dungs = FilterFunc[filtertype](key, value)
+        local dungs = FilterFunc[filtertype](self.key, self.value)
         if not dungs then return end
         local data = PrepareData[filtertype](dungs)
         if filtertype == "rate" then
@@ -63,14 +64,14 @@ ConstructGUI = function()
     local editboxKey = AceGUI:Create("EditBox")
     editboxKey:SetLabel("Filter key")
     editboxKey:SetWidth(200)
-    editboxKey:SetCallback("OnEnterPressed", function(widget, event, text) key = text end)
+    editboxKey:SetCallback("OnEnterPressed", function(widget, event, text) self.key = text end)
     editboxKey:SetDisabled(true)
     frame:AddChild(editboxKey)
 
     local editboxVal = AceGUI:Create("EditBox")
     editboxVal:SetLabel("Filter value")
     editboxVal:SetWidth(200)
-    editboxVal:SetCallback("OnEnterPressed", function(widget, event, text) value = text end)
+    editboxVal:SetCallback("OnEnterPressed", function(widget, event, text) self.value = text end)
     editboxVal:SetDisabled(true)
     frame:AddChild(editboxVal)
 
@@ -82,9 +83,7 @@ ConstructGUI = function()
     button:SetCallback("OnClick", fillTable)
     frame:AddChild(button)
 
-    _G["KeyCountFrame"] = frame.frame
-    tinsert(UISpecialFrames, "KeyCountFrame")
-
+    -- Tables
     local window = frame.frame
     local ScrollingTable = LibStub("ScrollingTable");
     local columnsList = {
@@ -119,6 +118,10 @@ ConstructGUI = function()
         stL:Hide()
         stR:Hide()
     end)
+
+    -- Required to exit interface on escape press
+    _G["KeyCountFrame"] = frame.frame
+    tinsert(UISpecialFrames, "KeyCountFrame")
 
     frame:Hide()
     return frame

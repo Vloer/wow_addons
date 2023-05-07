@@ -1,7 +1,7 @@
 SLASH_KEYCOUNT1 = "/keycount"
 SLASH_KEYCOUNT2 = "/kc"
 function SlashCmdList.KEYCOUNT()
-    if not KeyCount.guiCreated then
+    if not KeyCount.gui then
         print(" ")
         printf("KeyCount: ===WELCOME===")
         printf("Type /kch or /kchelp for available options! Alternatively, just use the GUI.")
@@ -11,8 +11,7 @@ function SlashCmdList.KEYCOUNT()
         end
         printf("This message will be hidden from now on.")
 
-        KeyCount.gui = ConstructGUI()
-        KeyCount.guiCreated = true
+        KeyCount.gui = GUI:ConstructGUI()
     end
     KeyCount.gui:Show()
 end

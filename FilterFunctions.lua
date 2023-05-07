@@ -49,7 +49,6 @@ local filterConditions = {
         return entry["completed"] == value
     end,
     ["completedInTime"] = function(entry, value)
-        print(entry["completedInTime"], value)
         return entry["completedInTime"] == value
     end,
     ["time"] = function(entry, value)
@@ -92,24 +91,24 @@ function FilterData(tbl, key, value)
     local _key = string.lower(key)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
         _key = "name"
-        print(string.format("FILTER <%s> <%s>", _key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "completed" then
         value = true
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "intime" then
         _key = "completedInTime"
         value = true
-        print(string.format("FILTER <%s> <%s>", _key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "time" or _key == "deathsgt" or _key == "deathslt" or _key == "level" then
         value = tonumber(value) or 0
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "affix" and #value ~= 0 then
         local values = {}
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
         if string.find(value, ',') then
             values[1] = "AND"
         else
@@ -121,10 +120,10 @@ function FilterData(tbl, key, value)
         end
         value = values
     elseif _key == "player" then
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "season" then
         if #value == 0 then value = Defaults.dungeonDefault.season end
-        print(string.format("FILTER <%s> <%s>", key, tostring(value)))
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     end
 
     -- Table filtering
