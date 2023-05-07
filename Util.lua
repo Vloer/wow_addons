@@ -4,8 +4,6 @@ function Log(message)
     end
 end
 
-
-
 function ParseMsg(msg)
     if not msg or #msg == 0 then return "", "" end
     local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
