@@ -4,11 +4,11 @@ function SlashCmdList.KEYCOUNT()
     if not KeyCount.gui then
         print(" ")
         printf("KeyCount: ===WELCOME===")
-        printf("Type /kch or /kchelp for available options! Alternatively, just use the GUI.")
         local dungeons = GetStoredDungeons()
         if dungeons then
             printf(string.format("There are %d dungeons stored in your database.", #dungeons))
         end
+        printf("Type /kch or /kchelp for available options, or use the GUI (opens on this command).")
         printf("This message will be hidden from now on.")
 
         KeyCount.gui = GUI:ConstructGUI()
