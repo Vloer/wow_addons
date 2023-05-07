@@ -276,5 +276,3 @@ function GetPlayerInfo()
     local class = UnitClass("player")
     return { name = name, class = class, role = specRole }
 end
-
--- Utils
