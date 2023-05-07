@@ -304,7 +304,7 @@ function GetDungeonSuccessRate(dungeons)
     end)
     for _, d in ipairs(resRate) do
         local colorIdx = math.floor(d.successRate/20) + 1
-        local fmt = Defaults.colors.rating[colorIdx]
+        local fmt = Defaults.colors.chatRating[colorIdx]
         printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed), fmt)
     end
 end
