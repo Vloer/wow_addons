@@ -1,4 +1,4 @@
-local function getPlayerClassColor(dungeon)
+local function getPlayerRoleAndColor(dungeon)
     for _, i in ipairs(dungeon.party) do
         if i.name == dungeon.player then
             local _class = i.class
@@ -6,7 +6,15 @@ local function getPlayerClassColor(dungeon)
             local class = string.gsub(classUppercase, " ", "")
             local tbl = RAID_CLASS_COLORS[class]
             local color = { r = tbl.r, g = tbl.g, b = tbl.b, a = 1 }
-            return { color = color, hex = tbl.colorStr }
+            local role = i.role
+            if role == "TANK" then
+                role = "Tank"
+            elseif role == "DAMAGER" then
+                role = "DPS"
+            else
+                role = "Heal"
+            end
+            return { color = color, hex = tbl.colorStr, role = role }
         end
     end
 end
@@ -54,7 +62,10 @@ local function prepareRowList(dungeon)
     local deaths = dungeon.totalDeaths or 0
     local time = dungeon.timeToComplete
     local affixes = ConcatTable(dungeon.keyDetails.affixes, ", ")
-    table.insert(row, { value = player, color = getPlayerClassColor(dungeon).color })
+
+    local p = getPlayerRoleAndColor(dungeon)
+    local playerString = string.format("(%s) %s", p.role, player)
+    table.insert(row, { value = playerString, color = p.color })
     table.insert(row, { value = name })
     table.insert(row, { value = level, color = getLevelColor(level).color })
     table.insert(row, { value = result.result, color = result.color })
