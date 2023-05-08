@@ -34,6 +34,10 @@ local fRatePrint = function(key, value)
     if dungeons then PrintDungeonSuccessRate(dungeons) end
 end
 
+local function noResult()
+    printf("No dungeons matched your filter criteria!", Defaults.colors.chatWarning)
+    return nil
+end
 
 local filterConditions = {
     ["player"] = function(entry, value)
@@ -83,6 +87,9 @@ local filterConditions = {
             end
         end
         return found == (#value - 1)
+    end,
+    ["role"] = function(entry, value)
+        return
     end
 }
 
@@ -97,6 +104,7 @@ function FilterData(tbl, key, value)
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
+        if not value then return noResult() end
         _key = "name"
         Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "completed" then
@@ -130,6 +138,9 @@ function FilterData(tbl, key, value)
     elseif _key == "date" then
         if #value == 0 then value = date(Defaults.dateFormat) end
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
+    elseif _key == "role" then
+        printf("Role filter is not yet implemented!", Defaults.colors.chatWarning)
+        return nil
     end
 
     -- Table filtering
@@ -151,8 +162,7 @@ function FilterData(tbl, key, value)
         end
     end
     if #result == 0 then
-        printf("No dungeons matched your filter criteria!", Defaults.colors.chatWarning)
-        return nil
+        return noResult()
     end
     return result
 end

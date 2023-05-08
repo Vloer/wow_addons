@@ -5,6 +5,19 @@ function GUI:ConstructGUI()
     self.filtertype = Defaults.guiDefaultFilterType
     self.widgets = {}
     self.tables = {}
+
+    local function disableWidgets(setting)
+        for _, w in pairs(self.widgets) do
+            w:SetDisabled(setting)
+            w:SetText("")
+        end
+    end
+
+    local function setBoxText()
+        self.widgets.editboxKey:SetText(self.key)
+        self.widgets.editboxVal:SetText(self.value)
+    end
+
     local fillTable = function()
         local dungs = FilterFunc[self.filtertype](self.key, self.value)
         if not dungs then return end
@@ -20,18 +33,7 @@ function GUI:ConstructGUI()
             self.tables.stL:SetData(data)
             self.tables.stL:Refresh()
         end
-    end
-
-    local function disableWidgets(setting)
-        for _, w in pairs(self.widgets) do
-            w:SetDisabled(setting)
-            w:SetText("")
-        end
-    end
-
-    local function setBoxText()
-        self.widgets.editboxKey:SetText(self.key)
-        self.widgets.editboxVal:SetText(self.value)
+        setBoxText()
     end
 
     AceGUI = LibStub("AceGUI-3.0")
