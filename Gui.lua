@@ -29,6 +29,11 @@ function GUI:ConstructGUI()
         end
     end
 
+    local function setBoxText()
+        self.widgets.editboxKey:SetText(self.key)
+        self.widgets.editboxVal:SetText(self.value)
+    end
+
     AceGUI = LibStub("AceGUI-3.0")
     local frame = AceGUI:Create("Frame")
     frame:SetTitle("KeyCount")
@@ -54,6 +59,7 @@ function GUI:ConstructGUI()
             self.value = ""
         else
             disableWidgets(false)
+            setBoxText()
             if item == "filter" then
                 self.tables.stL:Show()
                 self.tables.stR:Hide()
