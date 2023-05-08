@@ -30,7 +30,7 @@ local fRate = function(key, value)
 end
 
 local fRatePrint = function(key, value)
-    local dungeons = fRate(key,value)
+    local dungeons = fRate(key, value)
     if dungeons then PrintDungeonSuccessRate(dungeons) end
 end
 
@@ -65,6 +65,9 @@ local filterConditions = {
     end,
     ["level"] = function(entry, value)
         return entry.keyDetails.level >= value
+    end,
+    ["date"] = function(entry, value)
+        return entry.date == value
     end,
     ["affix"] = function(entry, value)
         local affixes = string.lower(table.concat(entry.keyDetails.affixes))
@@ -124,12 +127,17 @@ function FilterData(tbl, key, value)
     elseif _key == "season" then
         if #value == 0 then value = Defaults.dungeonDefault.season end
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
+    elseif _key == "date" then
+        if #value == 0 then value = date(Defaults.dateFormat) end
+        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     end
 
     -- Table filtering
     for _, entry in ipairs(tbl) do
         if _key == "season" and entry[_key] ~= nil then
-            if string.lower(entry[_key]) == string.lower(value) then
+            if value == "all" then
+                table.insert(result, entry)
+            elseif string.lower(entry[_key]) == string.lower(value) then
                 table.insert(result, entry)
             end
         elseif entry["season"] == Defaults.dungeonDefault.season then
