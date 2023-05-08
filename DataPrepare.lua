@@ -39,12 +39,14 @@ local function prepareRowList(dungeon)
     local level = dungeon.keyDetails.level
     local result = getResultString(dungeon)
     local deaths = dungeon.totalDeaths or 0
+    local time = dungeon.timeToComplete
     local affixes = ConcatTable(dungeon.keyDetails.affixes, ", ")
     table.insert(row, { value = player })
     table.insert(row, { value = name })
     table.insert(row, { value = level, color = getLevelColor(level).color })
     table.insert(row, { value = result.result, color = result.color })
     table.insert(row, { value = deaths, color = getDeathsColor(deaths) })
+    table.insert(row, { value = time, color = result.color })
     table.insert(row, { value = affixes })
     return { cols = row }
 end

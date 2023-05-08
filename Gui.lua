@@ -38,7 +38,7 @@ function GUI:ConstructGUI()
     local frame = AceGUI:Create("Frame")
     frame:SetTitle("KeyCount")
     frame:SetStatusText("Retrieve some data for your mythic+ runs!")
-    frame:SetWidth(750)
+    frame:SetWidth(770)
     frame:SetHeight(420)
     frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
     frame:SetLayout("Flow")
@@ -101,6 +101,7 @@ function GUI:ConstructGUI()
         { ["name"] = "Level",   ["width"] = 55, },
         { ["name"] = "Result",  ["width"] = 90, },
         { ["name"] = "Deaths",  ["width"] = 55,  ["defaultsort"] = "dsc" },
+        { ["name"] = "Time",    ["width"] = 55, },
         { ["name"] = "Affixes", ["width"] = 200, },
     }
     local columnsRate = {
