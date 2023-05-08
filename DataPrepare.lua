@@ -1,5 +1,5 @@
 local function getPlayerRoleAndColor(dungeon)
-    for _, i in ipairs(dungeon.party) do
+    for _, i in pairs(dungeon.party) do
         if i.name == dungeon.player then
             local _class = i.class
             local classUppercase = string.upper(_class)
