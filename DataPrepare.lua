@@ -92,7 +92,6 @@ local function prepareRowRate(dungeon)
     local outtime = dungeon.outOfTime
     local failed = dungeon.failed
     local best = dungeon.best
-    print(name, rate, rateString, intime, outtime, failed, best)
     table.insert(row, { value = name })
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })

@@ -55,6 +55,12 @@ local filterConditions = {
     ["completedInTime"] = function(entry, value)
         return entry["completedInTime"] == value
     end,
+    ["outOfTime"] = function(entry, value)
+        if entry["completedInTime"] == value and entry["completed"] == true then return true end
+    end,
+    ["failed"] = function(entry, value)
+        return entry["completed"] == value
+    end,
     ["time"] = function(entry, value)
         local res = entry["time"] or 0
         return res >= value
@@ -97,22 +103,22 @@ local function cleanFilterArgs(key, value)
     local _key = string.lower(key)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
-        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
         if not value then return nil, nil end
         _key = "name"
-        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "completed" then
         value = true
-        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "intime" or _key == "completedintime" then
         _key = "completedInTime"
         value = true
-        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
+    elseif _key == "outoftime" then
+        _key = "outOfTime"
+        value = false
+    elseif _key == "failed" then
+        value = false
     elseif _key == "time" or _key == "deathsgt" or _key == "deathslt" or _key == "level" then
         value = tonumber(value) or 0
-        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "affix" and #value ~= 0 then
         local values = {}
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
@@ -126,17 +132,16 @@ local function cleanFilterArgs(key, value)
             table.insert(values, string.lower(substring))
         end
         value = values
-    elseif _key == "player" then
-        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "season" then
         if #value == 0 then value = Defaults.dungeonDefault.season end
-        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "date" then
         if #value == 0 then value = date(Defaults.dateFormat) end
-        Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "role" then
         printf("Role filter is not yet implemented!", Defaults.colors.chatWarning)
         return nil, nil
+    end
+    if _key ~= "affix" then
+        Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     end
     return _key, value
 end
@@ -189,7 +194,9 @@ FilterKeys = {
     ["dungeon"] = { key = "dungeon", value = "name", name = "Dungeon" },
     ["season"] = { key = "season", value = "season", name = "Season" },
     ["completed"] = { key = "completed", value = "completed", name = "Completed" },
-    ["inTime"] = { key = "inTime", value = "completedInTime", name = "Completed In Time" },
+    ["inTime"] = { key = "inTime", value = "completedInTime", name = "Completed in time" },
+    ["outTime"] = { key = "outTime", value = "outOfTime", name = "Completed out of time" },
+    ["failed"] = { key = "failed", value = "failed", name = "Abandoned" },
     ["time"] = { key = "time", value = "time", name = "Time" },
     ["date"] = { key = "date", value = "date", name = "Date" },
     ["affix"] = { key = "affix", value = "affix", name = "Affixes" },

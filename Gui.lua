@@ -25,7 +25,9 @@ function GUI:ConstructGUI()
     local function setFilterKeyValue()
         self.boxes.filterKey:SetText(self.filter.name)
         self.boxes.filterKey:SetValue(self.filter.key)
-        if self.value == "" and self.previousValue ~= "" then self.value = self.previousValue end
+        if self.value == "" and self.previousValue ~= "" and self.filter.key ~= "player" then
+            self.value = self.previousValue
+        end
         self.widgets.filterValue:SetText(self.value)
     end
 
