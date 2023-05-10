@@ -93,24 +93,20 @@ local filterConditions = {
     end
 }
 
-function FilterData(tbl, key, value)
-    if #key == 0 and #value == 0 then return tbl end
-    local result = {}
-
-    -- Argument cleaning
+local function cleanFilterArgs(key, value)
     local _key = string.lower(key)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif #_key <= 3 and #value == 0 then
         value = Defaults.dungeonNamesShort[key]
-        if not value then return noResult() end
+        if not value then return nil, nil end
         _key = "name"
         Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
     elseif _key == "completed" then
         value = true
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
-    elseif _key == "intime" then
+    elseif _key == "intime" or _key == "completedintime" then
         _key = "completedInTime"
         value = true
         Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
@@ -140,21 +136,30 @@ function FilterData(tbl, key, value)
         Log(string.format("FILTER <%s> <%s>", key, tostring(value)))
     elseif _key == "role" then
         printf("Role filter is not yet implemented!", Defaults.colors.chatWarning)
-        return nil
+        return nil, nil
     end
+    return _key, value
+end
+
+function FilterData(tbl, key, value)
+    if #key == 0 and #value == 0 then return tbl end
+    local result = {}
+
+    local _key, _value = cleanFilterArgs(key, value)
+    if not _key and not _value then return noResult() end
 
     -- Table filtering
     for _, entry in ipairs(tbl) do
         if _key == "season" and entry[_key] ~= nil then
-            if value == "all" then
+            if _value == "all" then
                 table.insert(result, entry)
-            elseif string.lower(entry[_key]) == string.lower(value) then
+            elseif string.lower(entry[_key]) == string.lower(_value) then
                 table.insert(result, entry)
             end
         elseif entry["season"] == Defaults.dungeonDefault.season then
             for conditionKey, conditionFunc in pairs(filterConditions) do
                 if _key == conditionKey then
-                    if conditionFunc(entry, value) then
+                    if conditionFunc(entry, _value) then
                         table.insert(result, entry)
                     end
                 end
@@ -176,4 +181,16 @@ FilterFunc = {
     list = filterDungeons,
     filter = filterDungeons,
     rate = fRate
+}
+
+FilterKeys = {
+    ["alldata"] = { key = "alldata", value = "", name = "All data" },
+    ["player"] = { key = "player", value = "player", name = "Player" },
+    ["dungeon"] = { key = "dungeon", value = "name", name = "Dungeon" },
+    ["season"] = { key = "season", value = "season", name = "Season" },
+    ["completed"] = { key = "completed", value = "completed", name = "Completed" },
+    ["inTime"] = { key = "inTime", value = "completedInTime", name = "Completed In Time" },
+    ["time"] = { key = "time", value = "time", name = "Time" },
+    ["date"] = { key = "date", value = "date", name = "Date" },
+    ["affix"] = { key = "affix", value = "affix", name = "Affixes" },
 }
