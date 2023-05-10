@@ -1,6 +1,6 @@
 function Log(message)
     if DLAPI then
-        DLAPI.DebugLog(AddonName, message)
+        DLAPI.DebugLog("KeyCount_dev", message)
     end
 end
 

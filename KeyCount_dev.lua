@@ -1,6 +1,4 @@
-AddonName = "KeyCount_dev"
 KeyCount = CreateFrame("Frame", "KeyCount")
-
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
@@ -17,7 +15,7 @@ function KeyCount:PLAYER_LOGOUT(event)
 end
 
 function KeyCount:ADDON_LOADED(event, addonName)
-    if addonName == AddonName then
+    if addonName == "KeyCount_dev" then
         KeyCount:InitSelf()
         KeyCountDB.sessions = (KeyCountDB.sessions or 0) + 1
         print(string.format("Loaded %s for the %dth time.", addonName, KeyCountDB.sessions))
