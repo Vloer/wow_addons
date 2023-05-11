@@ -114,6 +114,9 @@ local function cleanFilterArgs(key, value)
         value = Defaults.dungeonNamesShort[key]
         if not value then return nil, nil end
         _key = "name"
+    elseif _key == "name" and #value <= 3 and #value > 0 then
+        value = Defaults.dungeonNamesShort[string.upper(value)]
+        if not value then return nil, nil end
     elseif _key == "completed" then
         value = true
     elseif _key == "intime" or _key == "completedintime" then
@@ -156,25 +159,25 @@ end
 function FilterData(tbl, key, value)
     local result = {}
     local _key, _value = cleanFilterArgs(key, value)
-    --@degbug@
-    Log(string.format("cleaned args are [%s] [%s]", _key, _value))
-    --@end-debug@
     if not _key and not _value then return noResult() end
+    --@debug@
+    Log(string.format("FilterData: cleaned args are [%s] [%s]", _key, tostring(_value)))
+    --@end-debug@
 
     -- Table filtering
     for _, entry in ipairs(tbl) do
         if _key == "season" and entry[_key] ~= nil then
             --@debug@
-            Log(string.format("[%s] [%s]", entry.name, entry.season))
+            Log(string.format("FilterData: dungeon [%s] season [%s]", entry.name, entry.season))
             --@end-debug@
             if _value == "all" or string.lower(entry[_key]) == string.lower(_value) then
                 table.insert(result, entry)
             end
         elseif entry["season"] == Defaults.dungeonDefault.season then
+            --@debug@
+            Log(string.format("FilterData: dungeon [%s] _key [%s] _value [%s]", entry.name, _key, tostring(_value)))
+            --@end-debug@
             for conditionKey, conditionFunc in pairs(filterConditions) do
-                --@debug@
-                Log(string.format("dungeon [%s] conditionKey [%s] _key [%s]", entry.name, conditionKey, _key))
-                --@end-debug@
                 if _key == conditionKey then
                     if conditionFunc(entry, _value) then
                         table.insert(result, entry)
