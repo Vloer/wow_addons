@@ -1,7 +1,7 @@
 ## Interface: 100100
 ## Title: KeyCount_dev
 ## Author: Klanx
-## Version: 0.0.1
+## Version: @project-version@
 ## SavedVariables: KeyCountDB
 
 Libs\LibStub\LibStub.lua
@@ -14,5 +14,5 @@ SlashCommands.lua
 Util.lua
 UtilStats.lua
 FilterFunctions.lua
-DataPrepare.lua
 Gui.lua
+GuiPrepareData.lua
