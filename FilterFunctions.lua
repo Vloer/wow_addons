@@ -111,7 +111,7 @@ local function cleanFilterArgs(key, value)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
     elseif #_key <= 3 and #value == 0 then
-        value = Defaults.dungeonNamesShort[key]
+        value = Defaults.dungeonNamesShort[string.upper(key)]
         if not value then return nil, nil end
         _key = "name"
     elseif _key == "name" and #value <= 3 and #value > 0 then
