@@ -37,6 +37,9 @@ function GUI:ConstructGUI()
     end
 
     local function fillTable()
+        --@debug@
+        Log(string.format("Calling filterfunc with [%s] [%s] [%s]", self.filtertype, self.key, self.value))
+        --@end-debug@
         local dungs = FilterFunc[self.filtertype](self.key, self.value)
         if not dungs then return end
         local data = PrepareData[self.filtertype](dungs)

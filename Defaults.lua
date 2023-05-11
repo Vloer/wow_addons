@@ -81,5 +81,6 @@ Defaults = {
     gui = {
         filterType = "list",
         filter = "alldata"
-    }
+    },
+    filter = { key = "alldata", value = "" }
 }
