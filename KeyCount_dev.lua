@@ -276,3 +276,11 @@ function KeyCount:GetPlayerInfo()
     }
     return info
 end
+
+function KeyCount:GetStoredDungeons()
+    if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
+        printf("No dungeons stored.", Defaults.colors.chatError)
+        return nil
+    end
+    return KeyCountDB.dungeons
+end
