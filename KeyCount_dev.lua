@@ -2,6 +2,7 @@ KeyCount = CreateFrame("Frame", "KeyCount")
 KeyCount.defaults = {}
 KeyCount.exportdata = {}
 KeyCount.filterfunctions = {}
+KeyCount.filterkeys = {}
 KeyCount.guipreparedata = {}
 KeyCount.util = {}
 KeyCount.utilstats = {}

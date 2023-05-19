@@ -11,7 +11,7 @@ function GUI:ConstructGUI()
     local function resetFilters()
         self.key = ""
         self.value = ""
-        self.filter = FilterKeys[Defaults.gui.filter]
+        self.filter = KeyCount.filterkeys[Defaults.gui.filter]
         self.filtertype = Defaults.gui.filterType
     end
 
@@ -40,7 +40,7 @@ function GUI:ConstructGUI()
         Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.filtertype, tostring(self.key),
             tostring(self.value)))
         --@end-debug@
-        self.dungeons = FilterFunc[self.filtertype](self.key, self.value)
+        self.dungeons = KeyCount.filterfunctions[self.filtertype](self.key, self.value)
         if not self.dungeons then return end
         self.data = KeyCount.guipreparedata[self.filtertype](self.dungeons)
         if self.filtertype == "rate" then
@@ -80,7 +80,7 @@ function GUI:ConstructGUI()
     end
 
     local function c_FilterKey(item)
-        self.filter = FilterKeys[item]
+        self.filter = KeyCount.filterkeys[item]
         self.boxes.filterKey:SetText(self.filter.name)
         self.key = self.filter.value
         resetFilterValue()
@@ -133,7 +133,7 @@ function GUI:ConstructGUI()
     self.boxes.filterKey = AceGUI:Create("Dropdown")
     self.boxes.filterKey:SetLabel(self.defaults.boxes.filterKey.text)
     self.boxes.filterKey:SetWidth(self.defaults.boxes.filterKey.width)
-    for f, v in pairs(FilterKeys) do
+    for f, v in pairs(KeyCount.filterkeys) do
         self.boxes.filterKey:AddItem(f, v.name)
     end
     self.boxes.filterKey:SetCallback("OnValueChanged", function(widget, event, item) c_FilterKey(item) end)

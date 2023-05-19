@@ -192,7 +192,7 @@ function FilterData(tbl, key, value)
     return result
 end
 
-FilterFunc = {
+KeyCount.filterfunctions = {
     print = {
         list = fListPrint,
         filter = fFilterPrint,
@@ -203,7 +203,7 @@ FilterFunc = {
     rate = fRate
 }
 
-FilterKeys = {
+KeyCount.filterkeys = {
     ["alldata"] = { key = "alldata", value = "", name = "All data" },
     ["player"] = { key = "player", value = "player", name = "Player" },
     ["dungeon"] = { key = "dungeon", value = "name", name = "Dungeon" },
