@@ -37,7 +37,8 @@ function GUI:ConstructGUI()
 
     local function fillTable()
         --@debug@
-        Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.filtertype, tostring(self.key), tostring(self.value)))
+        Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.filtertype, tostring(self.key),
+            tostring(self.value)))
         --@end-debug@
         self.dungeons = FilterFunc[self.filtertype](self.key, self.value)
         if not self.dungeons then return end
@@ -61,7 +62,7 @@ function GUI:ConstructGUI()
             disableFilters(true)
             self.tables.stR:Hide()
             self.tables.stL:Show()
-            self.buttons.exportdata:SetDisabled(false)
+            self.buttons.exportdata:SetText("Export to CSV")
         else
             disableFilters(false)
             setFilterKeyValue()
@@ -69,11 +70,11 @@ function GUI:ConstructGUI()
             if self.filtertype == "filter" then
                 self.tables.stR:Hide()
                 self.tables.stL:Show()
-                self.buttons.exportdata:SetDisabled(false)
+                self.buttons.exportdata:SetText("Export to CSV")
             else --rate
                 self.tables.stL:Hide()
                 self.tables.stR:Show()
-                self.buttons.exportdata:SetDisabled(true)
+                self.buttons.exportdata:SetText("Export to party")
             end
         end
     end
@@ -99,11 +100,20 @@ function GUI:ConstructGUI()
         fillTable()
     end
 
-    local frame = AceGUI:Create("Frame")
+    local function c_ExportData()
+        if self.filtertype == "rate" then
+            ChatDungeonSuccessRate(self.dungeons)
+        else
+            CreateDataExportFrame(self.dungeons)
+        end
+    end
+
+    self.frame = AceGUI:Create("Frame")
+    local frame = self.frame
     frame:SetTitle("KeyCount")
     frame:SetStatusText("Retrieve some data for your mythic+ runs!")
-    frame:SetWidth(850)
-    frame:SetHeight(420)
+    frame:SetWidth(self.defaults.frame.size.width)
+    frame:SetHeight(self.defaults.frame.size.height)
     frame:SetCallback("OnClose", function(widget)
         AceGUI:Release(widget)
         resetFilters()
@@ -111,8 +121,8 @@ function GUI:ConstructGUI()
     frame:SetLayout("Flow")
 
     self.boxes.filterType = AceGUI:Create("Dropdown")
-    self.boxes.filterType:SetLabel("Filter type")
-    self.boxes.filterType:SetWidth(100)
+    self.boxes.filterType:SetLabel(self.defaults.boxes.filterType.text)
+    self.boxes.filterType:SetWidth(self.defaults.boxes.filterType.width)
     self.boxes.filterType:AddItem("list", "All data")
     self.boxes.filterType:AddItem("filter", "Filter")
     self.boxes.filterType:AddItem("rate", "Success rate")
@@ -121,8 +131,8 @@ function GUI:ConstructGUI()
     frame:AddChild(self.boxes.filterType)
 
     self.boxes.filterKey = AceGUI:Create("Dropdown")
-    self.boxes.filterKey:SetLabel("Filter key")
-    self.boxes.filterKey:SetWidth(200)
+    self.boxes.filterKey:SetLabel(self.defaults.boxes.filterKey.text)
+    self.boxes.filterKey:SetWidth(self.defaults.boxes.filterKey.width)
     for f, v in pairs(FilterKeys) do
         self.boxes.filterKey:AddItem(f, v.name)
     end
@@ -131,22 +141,22 @@ function GUI:ConstructGUI()
     frame:AddChild(self.boxes.filterKey)
 
     self.widgets.filterValue = AceGUI:Create("EditBox")
-    self.widgets.filterValue:SetLabel("Filter value")
-    self.widgets.filterValue:SetWidth(200)
+    self.widgets.filterValue:SetLabel(self.defaults.widgets.filterValue.text)
+    self.widgets.filterValue:SetWidth(self.defaults.widgets.filterValue.width)
     self.widgets.filterValue:SetCallback("OnEnterPressed", function(widget, event, text) c_FilterValue(text) end)
     self.widgets.filterValue:SetDisabled(true)
     frame:AddChild(self.widgets.filterValue)
 
     self.buttons.showdata = AceGUI:Create("Button")
-    self.buttons.showdata:SetText("Show data")
-    self.buttons.showdata:SetWidth(140)
+    self.buttons.showdata:SetText(self.defaults.buttons.showdata.text)
+    self.buttons.showdata:SetWidth(self.defaults.buttons.showdata.width)
     self.buttons.showdata:SetCallback("OnClick", c_ShowData)
     frame:AddChild(self.buttons.showdata)
 
     self.buttons.exportdata = AceGUI:Create("Button")
-    self.buttons.exportdata:SetText("Export data")
-    self.buttons.exportdata:SetWidth(140)
-    self.buttons.exportdata:SetCallback("OnClick", function() CreateDataExportFrame(self.dungeons) end)
+    self.buttons.exportdata:SetText(self.defaults.buttons.exportdata.text)
+    self.buttons.exportdata:SetWidth(self.defaults.buttons.exportdata.width)
+    self.buttons.exportdata:SetCallback("OnClick", c_ExportData)
     frame:AddChild(self.buttons.exportdata)
 
     -- Tables
@@ -195,3 +205,38 @@ function GUI:ConstructGUI()
     frame:Hide()
     return frame
 end
+
+GUI.defaults = {
+    frame = {
+        size = {
+            height = 420,
+            width = 850,
+        }
+    },
+    widgets = {
+        filterValue = {
+            text = "Filter value",
+            width = 200
+        }
+    },
+    boxes = {
+        filterType = {
+            width = 100,
+            text = "Filter type"
+        },
+        filterKey = {
+            width = 200,
+            text = "Filter key"
+        }
+    },
+    buttons = {
+        exportdata = {
+            width = 140,
+            text = "Export to CSV"
+        },
+        showdata = {
+            width = 140,
+            text = "Show data"
+        }
+    }
+}

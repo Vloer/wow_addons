@@ -86,3 +86,5 @@ Defaults = {
     filter = { key = "alldata", value = "" },
     dungeonPlusChar = "*"
 }
+
+KeyCount.defaults = Defaults

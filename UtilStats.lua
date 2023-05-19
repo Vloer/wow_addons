@@ -21,12 +21,27 @@ function PrintDungeonSuccessRate(tbl)
     end
 end
 
+function ChatDungeonSuccessRate(tbl)
+    local outputchannel = "PARTY"
+    local numgroup = GetNumGroupMembers()
+    if numgroup == 0 then
+        outputchannel = "SAY"
+    elseif numgroup > 5 then
+        outputchannel = "RAID"
+    end
+    for _, d in ipairs(tbl) do
+        SendChatMessage(
+        string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime),
+            outputchannel)
+    end
+end
+
 function GetDungeonSuccessRate(dungeons)
     local res = {}
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
         if not res[dungeon.name] then
-            res[dungeon.name] = {success = 0, failed = 0, outOfTime = 0, best = 0}
+            res[dungeon.name] = { success = 0, failed = 0, outOfTime = 0, best = 0 }
         end
         if dungeon.completedInTime then
             res[dungeon.name].success = (res[dungeon.name].success or 0) + 1
