@@ -1,4 +1,4 @@
-function PrintDungeons(dungeons)
+local function printDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
         if dungeon.completedInTime then
             printf(string.format("[%s] %d: Timed %s %d (%d deaths)", dungeon.player, i, dungeon.name,
@@ -13,7 +13,7 @@ function PrintDungeons(dungeons)
     end
 end
 
-function PrintDungeonSuccessRate(tbl)
+local function printDungeonSuccessRate(tbl)
     for _, d in ipairs(tbl) do
         local colorIdx = math.floor(d.successRate / 20) + 1
         local fmt = Defaults.colors.chatRating[colorIdx]
@@ -21,7 +21,7 @@ function PrintDungeonSuccessRate(tbl)
     end
 end
 
-function ChatDungeonSuccessRate(tbl)
+local function chatDungeonSuccessRate(tbl)
     local outputchannel = "PARTY"
     local numgroup = GetNumGroupMembers()
     if numgroup == 0 then
@@ -31,12 +31,12 @@ function ChatDungeonSuccessRate(tbl)
     end
     for _, d in ipairs(tbl) do
         SendChatMessage(
-        string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime),
+            string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime),
             outputchannel)
     end
 end
 
-function GetDungeonSuccessRate(dungeons)
+local function getDungeonSuccessRate(dungeons)
     local res = {}
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
@@ -82,26 +82,7 @@ function GetDungeonSuccessRate(dungeons)
     return resRate
 end
 
-function GetPLayerList(dungeons)
-    dungeons = dungeons or KeyCountDB.dungeons
-    local pl = {}
-    for _, d in ipairs(dungeons) do
-        local player = d.player
-        for _, p in ipairs(pl) do
-            local found = false
-            if p == player then
-                found = true
-                break
-            end
-            if not found then
-                table.insert(pl, player)
-            end
-        end
-    end
-    return pl
-end
-
-function ShowPastDungeons()
+local function showPastDungeons()
     PreviousRunsDB = PreviousRunsDB or {}
     local runs = C_MythicPlus.GetRunHistory(true, true) -- This only captures finished dungeons
     local previousDungeons = {}
@@ -118,3 +99,11 @@ function ShowPastDungeons()
         table.insert(previousDungeons, dungeon)
     end
 end
+
+KeyCount.utilstats = {
+    printDungeons = printDungeons,
+    printDungeonSuccessRate = printDungeonSuccessRate,
+    chatDungeonSuccessRate = chatDungeonSuccessRate,
+    getDungeonSuccessRate = getDungeonSuccessRate,
+    showPastDungeons = showPastDungeons,
+}

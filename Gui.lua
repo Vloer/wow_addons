@@ -102,7 +102,7 @@ function GUI:ConstructGUI()
 
     local function c_ExportData()
         if self.filtertype == "rate" then
-            ChatDungeonSuccessRate(self.dungeons)
+            KeyCount.utilstats.chatDungeonSuccessRate(self.dungeons)
         else
             CreateDataExportFrame(self.dungeons)
         end
@@ -175,9 +175,9 @@ function GUI:ConstructGUI()
     local columnsRate = {
         { ["name"] = "Dungeon",      ["width"] = 150, },
         { ["name"] = "Success rate", ["width"] = 75, },
-        { ["name"] = "In time",      ["width"] = 55,  color = ConvertRgb(Defaults.colors.rating[5]) },
-        { ["name"] = "Out of time",  ["width"] = 75,  color = ConvertRgb(Defaults.colors.rating[3]) },
-        { ["name"] = "Abandoned",    ["width"] = 60,  color = ConvertRgb(Defaults.colors.rating[1]) },
+        { ["name"] = "In time",      ["width"] = 55,  color = KeyCount.util.convertRgb(Defaults.colors.rating[5]) },
+        { ["name"] = "Out of time",  ["width"] = 75,  color = KeyCount.util.convertRgb(Defaults.colors.rating[3]) },
+        { ["name"] = "Abandoned",    ["width"] = 60,  color = KeyCount.util.convertRgb(Defaults.colors.rating[1]) },
         { ["name"] = "Best",         ["width"] = 55, },
     }
 

@@ -181,7 +181,7 @@ function KeyCount:SetKeyFailed()
     self.current.completedTimestamp = time()
     self.current.completed = false
     self.current.completedInTime = false
-    self.current.totalDeaths = SumTbl(self.current.deaths) or 0
+    self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
     KeyCount:FinishDungeon()
     Log("Finished SetKeyFailed")
 end
@@ -197,7 +197,7 @@ function KeyCount:SetKeyEnd()
     self.current.completedTimestamp = time()
     self.current.completedInTime = onTime
     self.current.time = totalTime
-    self.current.totalDeaths = SumTbl(self.current.deaths) or 0
+    self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
     if self.current.keyDetails.timeLimit == 0 then
         _, _, self.current.keyDetails.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
     end
@@ -230,7 +230,7 @@ function KeyCount:SetTimeToComplete()
         end
         self.current.time = timeEnd - timeStart + timeLost
     end
-    self.current.timeToComplete = FormatTimestamp(self.current.time)
+    self.current.timeToComplete = KeyCount.util.formatTimestamp(self.current.time)
     if self.current.completedInTime then
         local s = ""
         local symbol = Defaults.dungeonPlusChar

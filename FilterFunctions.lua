@@ -9,29 +9,29 @@ end
 local fListPrint = function()
     local _dungeons = filterDungeons("", "")
     if not _dungeons then return end
-    local dl = OrderListByPlayer(_dungeons)
+    local dl = KeyCount.util.orderListByPlayer(_dungeons)
     for _, dungeons in pairs(dl) do
-        PrintDungeons(dungeons)
+        KeyCount.utilstats.printDungeons(dungeons)
     end
 end
 
 local fFilterPrint = function(key, value)
     local _dungeons = filterDungeons(key, value)
     if not _dungeons then return end
-    local dl = OrderListByPlayer(_dungeons)
+    local dl = KeyCount.util.orderListByPlayer(_dungeons)
     for _, dungeons in pairs(dl) do
-        PrintDungeons(dungeons)
+        KeyCount.utilstats.printDungeons(dungeons)
     end
 end
 
 local fRate = function(key, value)
     local dungeons = filterDungeons(key, value)
-    if dungeons then return GetDungeonSuccessRate(dungeons) end
+    if dungeons then return KeyCount.utilstats.getDungeonSuccessRate(dungeons) end
 end
 
 local fRatePrint = function(key, value)
     local dungeons = fRate(key, value)
-    if dungeons then PrintDungeonSuccessRate(dungeons) end
+    if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
 end
 
 local function noResult()
