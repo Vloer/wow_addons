@@ -31,7 +31,7 @@ SLASH_KEYCOUNT_FILTER2 = "/kcf"
 function SlashCmdList.KEYCOUNT_FILTER(msg)
     print(" ")
     printf("KeyCount: ===PRINTING DUNGEONS===")
-    local key, value = ParseMsg(msg)
+    local key, value = KeyCount.util.parseMsg(msg)
     FilterFunc.print.filter(key, value)
 end
 
@@ -40,7 +40,7 @@ SLASH_KEYCOUNT_SUCCESSRATE2 = "/kcr"
 function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
     print(" ")
     printf("KeyCount: ===PRINTING STATS===")
-    local key, value = ParseMsg(msg)
+    local key, value = KeyCount.util.parseMsg(msg)
     FilterFunc.print.rate(key, value)
 end
 
@@ -49,7 +49,7 @@ SLASH_KEYCOUNT_EXPORT2 = "/kce"
 function SlashCmdList.KEYCOUNT_EXPORT(msg)
     print(" ")
     printf("KeyCount: ===CREATING DATA EXPORT===")
-    CreateDataExportFrame()
+    KeyCount.exportdata.createFrame()
 end
 
 SLASH_KEYCOUNT_HELP1 = "/kchelp"

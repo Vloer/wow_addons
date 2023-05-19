@@ -109,8 +109,7 @@ local function formatCSV(_dungeons)
 
     return output
 end
-
-function CreateDataExportFrame(_data)
+local function createDataExportFrame(_data)
     local data = formatCSV(_data)
     local AceGUI = LibStub("AceGUI-3.0")
     local f = AceGUI:Create("Frame")
@@ -131,3 +130,7 @@ function CreateDataExportFrame(_data)
     end)
     f:AddChild(e)
 end
+
+KeyCount.exportdata = {
+    createFrame = createDataExportFrame
+}

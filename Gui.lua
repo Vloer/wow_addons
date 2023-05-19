@@ -104,7 +104,7 @@ function GUI:ConstructGUI()
         if self.filtertype == "rate" then
             KeyCount.utilstats.chatDungeonSuccessRate(self.dungeons)
         else
-            CreateDataExportFrame(self.dungeons)
+            KeyCount.exportdata.createFrame(self.dungeons)
         end
     end
 

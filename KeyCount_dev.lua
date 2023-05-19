@@ -3,7 +3,6 @@ KeyCount.defaults = {}
 KeyCount.exportdata = {}
 KeyCount.filterfunctions = {}
 KeyCount.guipreparedata = {}
-KeyCount.slashcommands = {}
 KeyCount.util = {}
 KeyCount.utilstats = {}
 
