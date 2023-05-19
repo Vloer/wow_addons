@@ -5,7 +5,7 @@ function Log(message)
 end
 
 function printf(msg, fmt)
-    fmt = fmt or Defaults.colors.chatAnnounce
+    fmt = fmt or KeyCount.defaults.colors.chatAnnounce
     print(string.format("%s%s|r", fmt, msg))
 end
 
@@ -125,7 +125,7 @@ local function convertOldDateFormat(date)
             datestring = date.datestring or ""
         }
     else
-        res = Defaults.dungeonDefault.date
+        res = KeyCount.defaults.dungeonDefault.date
     end
     return res
 end

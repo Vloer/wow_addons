@@ -35,13 +35,13 @@ local fRatePrint = function(key, value)
 end
 
 local function noResult()
-    printf("No dungeons matched your filter criteria!", Defaults.colors.chatWarning)
+    printf("No dungeons matched your filter criteria!", KeyCount.defaults.colors.chatWarning)
     return nil
 end
 
 local filterConditions = {
     ["alldata"] = function(entry, value)
-        return entry["season"] == Defaults.dungeonDefault.season
+        return entry["season"] == KeyCount.defaults.dungeonDefault.season
     end,
     ["player"] = function(entry, value)
         return string.lower(entry["player"]) == string.lower(value)
@@ -104,18 +104,18 @@ local filterConditions = {
 
 local function cleanFilterArgs(key, value)
     if #key == 0 and #value == 0 then
-        return Defaults.filter.key, Defaults.filter.value
+        return KeyCount.defaults.filter.key, KeyCount.defaults.filter.value
     end
 
     local _key = string.lower(key)
     if _key == "player" and #value == 0 then
         value = UnitName("player")
     elseif #_key <= 3 and #value == 0 then
-        value = Defaults.dungeonNamesShort[string.upper(key)]
+        value = KeyCount.defaults.dungeonNamesShort[string.upper(key)]
         if not value then return nil, nil end
         _key = "name"
     elseif _key == "name" and #value <= 3 and #value > 0 then
-        value = Defaults.dungeonNamesShort[string.upper(value)]
+        value = KeyCount.defaults.dungeonNamesShort[string.upper(value)]
         if not value then return nil, nil end
     elseif _key == "completed" then
         value = true
@@ -143,11 +143,11 @@ local function cleanFilterArgs(key, value)
         end
         value = values
     elseif _key == "season" then
-        if #value == 0 then value = Defaults.dungeonDefault.season end
+        if #value == 0 then value = KeyCount.defaults.dungeonDefault.season end
     elseif _key == "date" then
-        if #value == 0 then value = date(Defaults.dateFormat) end
+        if #value == 0 then value = date(KeyCount.defaults.dateFormat) end
     elseif _key == "role" then
-        printf("Role filter is not yet implemented!", Defaults.colors.chatWarning)
+        printf("Role filter is not yet implemented!", KeyCount.defaults.colors.chatWarning)
         return nil, nil
     end
     if _key ~= "affix" then
@@ -173,7 +173,7 @@ function FilterData(tbl, key, value)
             if _value == "all" or string.lower(entry[_key]) == string.lower(_value) then
                 table.insert(result, entry)
             end
-        elseif entry["season"] == Defaults.dungeonDefault.season then
+        elseif entry["season"] == KeyCount.defaults.dungeonDefault.season then
             --@debug@
             Log(string.format("FilterData: dungeon [%s] _key [%s] _value [%s]", entry.name, _key, tostring(_value)))
             --@end-debug@

@@ -17,7 +17,7 @@ local seasons = {
         "Dragonflight-2"
     }
 }
-Defaults = {
+local defaults = {
     dungeonNamesShort = {
         AV = "The Azure Vault",
         RLP = "Ruby Life Pools",
@@ -87,4 +87,4 @@ Defaults = {
     dungeonPlusChar = "*"
 }
 
-KeyCount.defaults = Defaults
+KeyCount.defaults = defaults

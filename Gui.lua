@@ -11,8 +11,8 @@ function GUI:ConstructGUI()
     local function resetFilters()
         self.key = ""
         self.value = ""
-        self.filter = KeyCount.filterkeys[Defaults.gui.filter]
-        self.filtertype = Defaults.gui.filterType
+        self.filter = KeyCount.filterkeys[KeyCount.defaults.gui.filter]
+        self.filtertype = KeyCount.defaults.gui.filterType
     end
 
     resetFilters()
@@ -41,8 +41,11 @@ function GUI:ConstructGUI()
             tostring(self.value)))
         --@end-debug@
         self.dungeons = KeyCount.filterfunctions[self.filtertype](self.key, self.value)
-        if not self.dungeons then return end
-        self.data = KeyCount.guipreparedata[self.filtertype](self.dungeons)
+        if not self.dungeons then
+            self.data = {}
+        else
+            self.data = KeyCount.guipreparedata[self.filtertype](self.dungeons)
+        end
         if self.filtertype == "rate" then
             self.tables.stL:Hide()
             self.tables.stR:Show()
@@ -167,7 +170,7 @@ function GUI:ConstructGUI()
         { ["name"] = "Dungeon", ["width"] = 150, },
         { ["name"] = "Level",   ["width"] = 55, },
         { ["name"] = "Result",  ["width"] = 90, },
-        { ["name"] = "Deaths",  ["width"] = 55,  ["defaultsort"] = "dsc" },
+        { ["name"] = "Deaths",  ["width"] = 55,  ["KeyCount.defaultsort"] = "dsc" },
         { ["name"] = "Time",    ["width"] = 55, },
         { ["name"] = "Date",    ["width"] = 80, },
         { ["name"] = "Affixes", ["width"] = 200, },
@@ -175,9 +178,12 @@ function GUI:ConstructGUI()
     local columnsRate = {
         { ["name"] = "Dungeon",      ["width"] = 150, },
         { ["name"] = "Success rate", ["width"] = 75, },
-        { ["name"] = "In time",      ["width"] = 55,  color = KeyCount.util.convertRgb(Defaults.colors.rating[5]) },
-        { ["name"] = "Out of time",  ["width"] = 75,  color = KeyCount.util.convertRgb(Defaults.colors.rating[3]) },
-        { ["name"] = "Abandoned",    ["width"] = 60,  color = KeyCount.util.convertRgb(Defaults.colors.rating[1]) },
+        { ["name"] = "In time",      ["width"] = 55,  color = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
+        [5]) },
+        { ["name"] = "Out of time",  ["width"] = 75,  color = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
+        [3]) },
+        { ["name"] = "Abandoned",    ["width"] = 60,  color = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
+        [1]) },
         { ["name"] = "Best",         ["width"] = 55, },
     }
 

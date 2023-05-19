@@ -42,11 +42,11 @@ end
 
 local function getResultString(dungeon)
     if dungeon.completedInTime then
-        return { result = "Timed", color = KeyCount.util.convertRgb(Defaults.colors.rating[5]) }
+        return { result = "Timed", color = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating[5]) }
     elseif dungeon.completed then
-        return { result = "Failed to time", color = KeyCount.util.convertRgb(Defaults.colors.rating[3]) }
+        return { result = "Failed to time", color = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating[3]) }
     else
-        return { result = "Abandoned", color = KeyCount.util.convertRgb(Defaults.colors.rating[1]) }
+        return { result = "Abandoned", color = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating[1]) }
     end
 end
 
@@ -58,7 +58,7 @@ local function getDeathsColor(deaths)
         idx = math.floor(6 - deaths / 4)
         if idx <= 0 then idx = 1 end
     end
-    return KeyCount.util.convertRgb(Defaults.colors.rating[idx])
+    return KeyCount.util.convertRgb(KeyCount.defaults.colors.rating[idx])
 end
 
 local function getSuccessRateColor(rate)
@@ -71,11 +71,11 @@ local function getSuccessRateColor(rate)
         idx = math.floor(rate / 20) + 1
         if idx <= 0 then idx = 1 end
     end
-    return KeyCount.util.convertRgb(Defaults.colors.rating[idx])
+    return KeyCount.util.convertRgb(KeyCount.defaults.colors.rating[idx])
 end
 
 local function getDungeonTime(dungeon)
-    local symbol = Defaults.dungeonPlusChar
+    local symbol = KeyCount.defaults.dungeonPlusChar
     local s = dungeon.timeToComplete
     local stars = dungeon.stars or nil
     if stars then
