@@ -164,7 +164,7 @@ local function prepareRate(dungeons)
     return data
 end
 
-PrepareData = {
+KeyCount.guipreparedata = {
     list = prepareList,
     filter = prepareList,
     rate = prepareRate

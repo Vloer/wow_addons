@@ -42,7 +42,7 @@ function GUI:ConstructGUI()
         --@end-debug@
         self.dungeons = FilterFunc[self.filtertype](self.key, self.value)
         if not self.dungeons then return end
-        self.data = PrepareData[self.filtertype](self.dungeons)
+        self.data = KeyCount.guipreparedata[self.filtertype](self.dungeons)
         if self.filtertype == "rate" then
             self.tables.stL:Hide()
             self.tables.stR:Show()
