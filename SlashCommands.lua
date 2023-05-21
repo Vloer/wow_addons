@@ -1,5 +1,5 @@
-SLASH_KEYCOUNT1 = "/keycount"
-SLASH_KEYCOUNT2 = "/kc"
+SLASH_KEYCOUNT1 = "/keycountDEV"
+SLASH_KEYCOUNT2 = "/kcDEV"
 function SlashCmdList.KEYCOUNT()
     if not KeyCount.gui then
         print(" ")
