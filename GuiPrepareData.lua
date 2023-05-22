@@ -81,26 +81,23 @@ end
 local function getDungeonTime(dungeon, timetextcolor)
     local symbol = KeyCount.defaults.dungeonPlusChar
     local s = dungeon.timeToComplete
-    local stars = dungeon.stars or nil
-    if not stars then
-        local completed = dungeon.completedInTime
-        local time = dungeon.time
-        local limit = dungeon.keyDetails.timeLimit or 0
-        if completed then
-            if time < (limit * 0.6) then
-                stars = symbol .. symbol .. symbol
-            elseif time < (limit * 0.8) then
-                stars = symbol .. symbol
-            else
-                stars = symbol
-            end
+    local completed = dungeon.completedInTime
+    local time = dungeon.time
+    local limit = dungeon.keyDetails.timeLimit or 0
+    local amount
+    if completed then
+        if time < (limit * 0.6) then
+            amount = 3
+        elseif time < (limit * 0.8) then
+            amount = 2
+        else
+            amount = 1
         end
+    else
+        amount = 0
     end
     s = KeyCount.util.colorText(s, timetextcolor.chat)
-    if stars then
-        local starsColored = KeyCount.util.colorText(stars, KeyCount.defaults.colors.gold.chat)
-        s = s .. starsColored
-    end
+    s = KeyCount.util.addSymbol(s, amount, symbol)
     return s
 end
 
@@ -111,7 +108,11 @@ local function getPlayerDps(dungeon)
     local damage = data["damage"] or {}
     local dps = damage["dps"] or 0
     if dps > 0 then
-        return KeyCount.util.formatK(dps)
+        local dpsString = KeyCount.util.formatK(dps)
+        local topdps = KeyCount.utilstats.getTopDps(party)
+        if player == topdps.player and topdps.dps > 0 then
+            return KeyCount.util.addSymbol(dpsString, 1)
+        end
     end
     return ""
 end

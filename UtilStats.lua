@@ -102,10 +102,22 @@ local function showPastDungeons()
     end
 end
 
+local function getTopDps(party)
+    local dmg = {}
+    for player, data in pairs(party) do
+       local d = data.damage or {}
+       local dps = d.dps or 0
+       table.insert(dmg, {player=player, dps=dps})
+    end
+    table.sort(dmg, function(a,b) return a.dps>b.dps end)
+    return dmg[1]
+ end
+
 KeyCount.utilstats = {
     printDungeons = printDungeons,
     printDungeonSuccessRate = printDungeonSuccessRate,
     chatDungeonSuccessRate = chatDungeonSuccessRate,
     getDungeonSuccessRate = getDungeonSuccessRate,
     showPastDungeons = showPastDungeons,
+    getTopDps = getTopDps,
 }

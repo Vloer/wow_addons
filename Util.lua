@@ -38,6 +38,19 @@ table.copy = function(destination, source)
     return destination
 end
 
+local function sortTbl(tbl, parameter)
+    table.sort(tbl, function(a, b)
+        local x = a[parameter] or 0
+        local y = b[parameter] or 0
+        if type(x) == "number" and type(y) == "number" then
+            return x > y
+        else
+            Log(string.format("Warning: attempting to sort table but %s and/or %s is not a number!", x, y))
+        end
+    end)
+    return tbl
+end
+
 local function parseMsg(msg)
     if not msg or #msg == 0 then return "", "" end
     local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
@@ -157,9 +170,19 @@ local function safeExec(name, func, ...)
     if success then
         return result
     end
-    print(string.format("%sKeyCount: %sWarning! an error occurred in function '%s'! Data may not be correct, check your SavedVariables file.%s", KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, name, KeyCount.defaults.colors.reset))
-    print(string.format("%sKeyCount: %sError: %s%s", KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, result, KeyCount.defaults.colors.reset))
+    print(string.format(
+        "%sKeyCount: %sWarning! an error occurred in function '%s'! Data may not be correct, check your SavedVariables file.%s",
+        KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, name, KeyCount.defaults.colors.reset))
+    print(string.format("%sKeyCount: %sError: %s%s", KeyCount.defaults.colors.chatAnnounce,
+        KeyCount.defaults.colors.chatError, result, KeyCount.defaults.colors.reset))
     return success
+end
+
+local function addSymbol(text, amount, symbol, color)
+    color = color or KeyCount.defaults.colors.gold.chat
+    symbol = symbol or KeyCount.defaults.dungeonPlusChar
+    local symbols = KeyCount.util.colorText(symbol:rep(amount), color)
+    return text .. symbols
 end
 
 KeyCount.util = {
@@ -173,6 +196,8 @@ KeyCount.util = {
     convertOldPartyFormat = convertOldPartyFormat,
     concatTable = concatTable,
     colorText = colorText,
-    getKeyForValue=getKeyForValue,
+    getKeyForValue = getKeyForValue,
     safeExec = safeExec,
+    sortTbl = sortTbl,
+    addSymbol = addSymbol,
 }
