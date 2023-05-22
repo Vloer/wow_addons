@@ -303,7 +303,8 @@ end
 
 function KeyCount:GetStoredDungeons()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
-        printf("No dungeons stored.", self.defaults.colors.chatError)
+        print(string.format("%sKeyCount: %sNo dungeons stored!%s",
+        KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, KeyCount.defaults.colors.reset))
         return nil
     end
     return KeyCountDB.dungeons
