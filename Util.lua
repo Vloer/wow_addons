@@ -38,19 +38,6 @@ table.copy = function(destination, source)
     return destination
 end
 
-local function sortTbl(tbl, parameter)
-    table.sort(tbl, function(a, b)
-        local x = a[parameter] or 0
-        local y = b[parameter] or 0
-        if type(x) == "number" and type(y) == "number" then
-            return x > y
-        else
-            Log(string.format("Warning: attempting to sort table but %s and/or %s is not a number!", x, y))
-        end
-    end)
-    return tbl
-end
-
 local function parseMsg(msg)
     if not msg or #msg == 0 then return "", "" end
     local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
@@ -198,6 +185,5 @@ KeyCount.util = {
     colorText = colorText,
     getKeyForValue = getKeyForValue,
     safeExec = safeExec,
-    sortTbl = sortTbl,
     addSymbol = addSymbol,
 }

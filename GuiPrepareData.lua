@@ -149,6 +149,7 @@ end
 local function prepareRowRate(dungeon)
     local row = {}
     local name = dungeon.name
+    local attempts = dungeon.totalAttempts
     local rate = dungeon.successRate
     local rateString = string.format("%.2f%%", rate)
     local intime = dungeon.success
@@ -156,10 +157,11 @@ local function prepareRowRate(dungeon)
     local failed = dungeon.failed
     local best = dungeon.best
     --@debug@
-    Log(string.format("prepareRowRate: [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, rate, rateString, intime, outtime,
+    Log(string.format("prepareRowRate: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, attempts, rate, rateString, intime, outtime,
         failed, best))
     --@end-debug@
     table.insert(row, { value = name })
+    table.insert(row, {value=attempts})
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })
     table.insert(row, { value = outtime })
