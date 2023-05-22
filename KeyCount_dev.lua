@@ -310,23 +310,23 @@ function KeyCount:GetStoredDungeons()
 end
 
 function KeyCount:SetDetailsData()
-    local detailsParty = KeyCount.details:getAll()
+    local detailsParty = self.details:getAll()
     if detailsParty then
         for player, data in pairs(detailsParty) do
             local d = data.damage or {}
             local h = data.healing or {}
-            local partyplayer = KeyCount.current.party[player] or {}
+            local partyplayer = self.current.party[player] or {}
             if next(partyplayer) then
-                KeyCount.current.party[player].damage = {
+                self.current.party[player].damage = {
                     total = d.total or 0,
                     dps = d.dps or 0
                 }
-                KeyCount.current.party[player].healing = {
+                self.current.party[player].healing = {
                     total = h.total or 0,
                     hps = h.hps or 0
                 }
             else
-                printf(string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player), KeyCount.defaults.colors.chatError)
+                printf(string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player), self.defaults.colors.chatError)
             end
         end
     end
