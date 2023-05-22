@@ -112,6 +112,8 @@ local function getPlayerDps(dungeon)
         local topdps = KeyCount.utilstats.getTopDps(party)
         if player == topdps.player and topdps.dps > 0 then
             return KeyCount.util.addSymbol(dpsString, 1)
+        else
+            return dpsString
         end
     end
     return ""
@@ -157,11 +159,11 @@ local function prepareRowRate(dungeon)
     local failed = dungeon.failed
     local best = dungeon.best
     --@debug@
-    Log(string.format("prepareRowRate: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, attempts, rate, rateString, intime, outtime,
-        failed, best))
+    Log(string.format("prepareRowRate: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, attempts, rate, rateString, intime,
+        outtime, failed, best))
     --@end-debug@
     table.insert(row, { value = name })
-    table.insert(row, {value=attempts})
+    table.insert(row, { value = attempts })
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })
     table.insert(row, { value = outtime })

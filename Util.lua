@@ -160,7 +160,7 @@ local function safeExec(name, func, ...)
     print(string.format(
         "%sKeyCount: %sWarning! an error occurred in function '%s'! Data may not be correct, check your SavedVariables file.%s",
         KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, name, KeyCount.defaults.colors.reset))
-    print(string.format("%sKeyCount: %sError: %s%s", KeyCount.defaults.colors.chatAnnounce,
+    print(string.format("%sKeyCount: %sError: %s%s. Please report the error on the addon's curse page.", KeyCount.defaults.colors.chatAnnounce,
         KeyCount.defaults.colors.chatError, result, KeyCount.defaults.colors.reset))
     return success
 end
