@@ -15,7 +15,7 @@ local function getRoleIcon(role)
 end
 
 local function getPlayerRoleAndColor(dungeon)
-    local party = KeyCount.util.convertOldPartyFormat(dungeon.party, dungeon.deaths)
+    local party = dungeon.party
     local player = party[dungeon.player]
     local _class = player.class
     local classMale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_MALE, _class)
@@ -103,10 +103,10 @@ end
 
 local function getPlayerDps(dungeon)
     local player = dungeon.player
-    local party = KeyCount.util.convertOldPartyFormat(dungeon.party)
-    local data = party[player] or {}
-    local damage = data["damage"] or {}
-    local dps = damage["dps"] or 0
+    local party = dungeon.party
+    -- local data = party[player] or {}
+    -- local damage = data["damage"] or {}
+    local dps = party[player].damage.dps
     if dps > 0 then
         local dpsString = KeyCount.util.formatK(dps)
         local topdps = KeyCount.utilstats.getTopDps(party)
@@ -127,14 +127,14 @@ local function prepareRowList(dungeon)
     local result = getResultString(dungeon)
     local deaths = dungeon.totalDeaths or 0
     local time = getDungeonTime(dungeon, result.color)
-    local date = KeyCount.util.convertOldDateFormat(dungeon.date)
+    local date = dungeon.date.date
     local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDps, dungeon)
     local affixes = KeyCount.util.concatTable(dungeon.keyDetails.affixes, ", ")
     local p = getPlayerRoleAndColor(dungeon)
     local playerString = string.format("%s%s", p.roleIcon, player)
     --@debug@
     Log(string.format("prepareRowList: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", player, name, level, result.result,
-        deaths, time, date.date, dps))
+        deaths, time, date, dps))
     --@end-debug@
     table.insert(row, { value = playerString, color = p.color })
     table.insert(row, { value = name })
@@ -143,7 +143,7 @@ local function prepareRowList(dungeon)
     table.insert(row, { value = deaths, color = getDeathsColor(deaths) })
     table.insert(row, { value = time })
     table.insert(row, { value = dps })
-    table.insert(row, { value = date.date })
+    table.insert(row, { value = date })
     table.insert(row, { value = affixes })
     return { cols = row }
 end

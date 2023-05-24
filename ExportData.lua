@@ -19,7 +19,7 @@ local function flatten(data)
                 out[_k] = _v
             end
         elseif col == "party" and type(v) == "table" then
-            local partydata = KeyCount.util.convertOldPartyFormat(v, data["deaths"])
+            local partydata = v
             local i = 0
             for playername, playerdata in pairs(partydata) do
                 i = i + 1
