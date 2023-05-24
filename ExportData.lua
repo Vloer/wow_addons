@@ -1,3 +1,5 @@
+local e = KeyCount.exportdata
+
 local function flatten(data)
     local out = {}
     for col, v in pairs(data) do
@@ -109,7 +111,8 @@ local function formatCSV(_dungeons)
 
     return output
 end
-local function createDataExportFrame(_data)
+
+function e.createFrame(_data)
     if not _data or next(_data) == nil or #_data == 0 then return end
     local data = formatCSV(_data)
     local AceGUI = LibStub("AceGUI-3.0")
@@ -132,6 +135,6 @@ local function createDataExportFrame(_data)
     f:AddChild(e)
 end
 
-KeyCount.exportdata = {
-    createFrame = createDataExportFrame
-}
+-- KeyCount.exportdata = {
+--     createFrame = createDataExportFrame
+-- }

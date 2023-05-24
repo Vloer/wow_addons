@@ -1,3 +1,5 @@
+local g = KeyCount.guipreparedata
+
 local function rgb(tbl)
     return KeyCount.util.convertRgb(tbl)
 end
@@ -181,7 +183,10 @@ local function prepareList(dungeons)
     return data
 end
 
-local function prepareRate(dungeons)
+g.list = prepareList
+g.filter = prepareList
+
+function g.rate(dungeons)
     local data = {}
     for _, dungeon in ipairs(dungeons) do
         local row = prepareRowRate(dungeon)
@@ -189,9 +194,3 @@ local function prepareRate(dungeons)
     end
     return data
 end
-
-KeyCount.guipreparedata = {
-    list = prepareList,
-    filter = prepareList,
-    rate = prepareRate
-}

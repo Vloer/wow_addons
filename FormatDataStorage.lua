@@ -1,8 +1,10 @@
+local f = KeyCount.formatdata
+
 -- Format the dungeon storage object to the most recent version to avoid any errors
 ---@param dungeonIn table Dungeon data
 ---@param new number Desired version number. Defaults to latest
 ---@return table dungeon Updated dungeon data
-function KeyCount.formatdata.format(dungeonIn, new)
+function f.format(dungeonIn, new)
     local dungeon = table.copy({}, dungeonIn)
     local old = dungeon["version"] or 0
     new = new or KeyCount.defaults.dungeonDefault.version
@@ -75,8 +77,6 @@ function KeyCount.formatdata.format(dungeonIn, new)
 
     return dungeon
 end
-
--- KeyCount.formatdata.format = format
 
 
 --[[
