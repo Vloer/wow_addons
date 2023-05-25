@@ -16,7 +16,7 @@ local function getRoleIcon(role)
     end
 end
 
-local function getPlayerRoleAndColor(dungeon)
+local function getClassAndRoleFromDungeon(dungeon)
     local party = dungeon.party
     local player = party[dungeon.player]
     local class = player.class
@@ -106,15 +106,21 @@ local function getDungeonTime(dungeon, timetextcolor)
     s = KeyCount.util.addSymbol(s, amount, symbol)
     return s
 end
+local function formatDps(dps)
+    local default = ""
+    if type(dps) ~= "number" then return default end
+    if dps > 0 then
+        return KeyCount.util.formatK(dps)
+    end
+    return default
+end
 
 local function getPlayerDps(dungeon)
     local player = dungeon.player
     local party = dungeon.party
-    -- local data = party[player] or {}
-    -- local damage = data["damage"] or {}
     local dps = party[player].damage.dps
     if dps > 0 then
-        local dpsString = KeyCount.util.formatK(dps)
+        local dpsString = formatDps(dps)
         local topdps = KeyCount.utilstats.getTopDps(party)
         if player == topdps.player and topdps.dps > 0 then
             return KeyCount.util.addSymbol(dpsString, 1)
@@ -180,6 +186,9 @@ local function prepareRowRate(dungeon)
 end
 
 local function prepareRowGrouped(player)
+    --@debug@
+    Log("Preparing row for "..player.name)
+    --@end-debug@
     local row = {}
     local name = player.name
     local amount = player.amount
@@ -189,13 +198,12 @@ local function prepareRowGrouped(player)
     local outtime = player.outOfTime
     local failed = player.failed
     local best = player.best
-    local dps = player.maxdps
-    --@debug@
-    Log(string.format("prepareRowGrouped: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, amount, rate, rateString,
-        intime, outtime, failed, best, dps))
-    --@end-debug@
+    local dps = formatDps(player.maxdps)
     local p = getPlayerRoleAndColor(player.class, player.role)
     local playerString = p.roleIcon .. name
+    --@debug@
+    KeyCount.util.printTableOnSameLine(player, "prepareRowGrouped")
+    --@end-debug@
 
     table.insert(row, { value = playerString, color = p.color })
     table.insert(row, { value = amount })
@@ -229,10 +237,10 @@ function g.rate(dungeons)
     return data
 end
 
-function g.grouped(dungeons)
+function g.grouped(players)
     local data = {}
-    for _, player in ipairs(dungeons) do
-        local row = prepareRowGrouped(player)
+    for player, playerdata in ipairs(players) do
+        local row = prepareRowGrouped(playerdata)
         table.insert(data, row)
     end
     return data

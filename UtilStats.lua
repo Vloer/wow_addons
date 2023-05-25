@@ -111,11 +111,12 @@ function stats.getPlayerSuccessRate(dungeons)
     local data = {}
     local rate = {}
     for _, d in ipairs(dungeons) do
-        local party = KeyCount.util.convertOldPartyFormat(d.party, d.deaths)
+        local party = d.party
         for player, playerdata in pairs(party) do
             if not data[player] then
-                data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0}
+                data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0 }
             end
+            data[player].name = data[player].name or player
             data[player].amount = (data[player].amount or 0) + 1
             local dps = KeyCount.utilstats.getPlayerDps(playerdata)
             if dps > data[player].maxdps then
@@ -133,6 +134,7 @@ function stats.getPlayerSuccessRate(dungeons)
             else
                 data[player].failed = (data[player].failed or 0) + 1
             end
+            KeyCount.util.printTableOnSameLine(data[player])
         end
     end
     for player, d in pairs(data) do
@@ -154,11 +156,13 @@ function stats.getPlayerSuccessRate(dungeons)
                 outOfTime = d.outOfTime,
                 failed = d.failed,
                 best = d.best,
-                maxdps = d.maxdps
+                maxdps = d.maxdps,
+                class = d.class,
+                role = d.role
             })
     end
     table.sort(rate, function(a, b)
-        return a.successRate > b.successRate
+        return a.amount > b.amount
     end)
     return rate
 end

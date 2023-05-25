@@ -212,6 +212,7 @@ KeyCount.filterkeys = {
     ["inTime"] = { key = "inTime", value = "completedInTime", name = "Completed in time" },
     ["outTime"] = { key = "outTime", value = "outOfTime", name = "Completed out of time" },
     ["failed"] = { key = "failed", value = "failed", name = "Abandoned" },
+    ["level"] = { key = "level", value = "level", name = "Key level"},
     ["time"] = { key = "time", value = "time", name = "Time" },
     ["deathsgt"] = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
     ["deathslt"] = { key = "deathslt", value = "deathslt", name = "Maximum amount of deaths" },
@@ -221,5 +222,5 @@ KeyCount.filterkeys = {
 
 KeyCount.filterorder = {
     "alldata", "player", "dungeon", "season",
-    "completed", "inTime", "outTime", "failed",
+    "completed", "inTime", "outTime", "failed", "level",
     "time", "deathsgt", "deathslt", "date", "affix" }
