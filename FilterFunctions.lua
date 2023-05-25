@@ -1,3 +1,6 @@
+local f = KeyCount.filterfunctions
+f.print = {}
+
 local function noResult()
     printf("No dungeons matched your filter criteria!", KeyCount.defaults.colors.chatWarning)
     return nil
@@ -44,7 +47,7 @@ local filterConditions = {
         return entry.keyDetails.level >= value
     end,
     ["date"] = function(entry, value)
-        return entry.date == value
+        return entry.date.date == value
     end,
     ["affix"] = function(entry, value)
         local affixes = string.lower(table.concat(entry.keyDetails.affixes))
@@ -155,7 +158,8 @@ local function filterData(tbl, key, value)
     end
     return result
 end
-local filterDungeons = function(key, value)
+
+local function filterDungeons(key, value)
     local _dungeons = KeyCount:GetStoredDungeons()
     if not _dungeons then return end
     local filteredDungeons = filterData(_dungeons, key, value)
@@ -163,7 +167,10 @@ local filterDungeons = function(key, value)
     return filteredDungeons
 end
 
-local fListPrint = function()
+f.list = filterDungeons
+f.filter = filterDungeons
+
+function f.print.list()
     local _dungeons = filterDungeons("", "")
     if not _dungeons then return end
     local dl = KeyCount.util.orderListByPlayer(_dungeons)
@@ -172,7 +179,7 @@ local fListPrint = function()
     end
 end
 
-local fFilterPrint = function(key, value)
+function f.print.filter(key, value)
     local _dungeons = filterDungeons(key, value)
     if not _dungeons then return end
     local dl = KeyCount.util.orderListByPlayer(_dungeons)
@@ -181,32 +188,20 @@ local fFilterPrint = function(key, value)
     end
 end
 
-local fRate = function(key, value)
+function f.rate(key, value)
     local dungeons = filterDungeons(key, value)
     if dungeons then return KeyCount.utilstats.getDungeonSuccessRate(dungeons) end
 end
 
-local fRatePrint = function(key, value)
-    local dungeons = fRate(key, value)
+function f.print.rate(key, value)
+    local dungeons = f.rate(key, value)
     if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
 end
 
-local fGrouped = function(key, value)
-    local dungeons = filterDungeons(key, value)
+function f.grouped(key, value)
+    local dungeons  = filterDungeons(key, value)
     if dungeons then return KeyCount.utilstats.getPlayerSuccessRate(dungeons) end
 end
-
-KeyCount.filterfunctions = {
-    print = {
-        list = fListPrint,
-        filter = fFilterPrint,
-        rate = fRatePrint
-    },
-    list = filterDungeons,
-    filter = filterDungeons,
-    rate = fRate,
-    grouped = fGrouped,
-}
 
 KeyCount.filterkeys = {
     ["alldata"] = { key = "alldata", value = "", name = "All data" },

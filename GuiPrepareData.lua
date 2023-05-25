@@ -1,3 +1,5 @@
+local g = KeyCount.guipreparedata
+
 local function rgb(tbl)
     return KeyCount.util.convertRgb(tbl)
 end
@@ -14,8 +16,8 @@ local function getRoleIcon(role)
     end
 end
 
-local function getClassAndRoleFromDungeon(dungeon)
-    local party = KeyCount.util.convertOldPartyFormat(dungeon.party, dungeon.deaths)
+local function getPlayerRoleAndColor(dungeon)
+    local party = dungeon.party
     local player = party[dungeon.player]
     local class = player.class
     local role = player.role
@@ -107,10 +109,10 @@ end
 
 local function getPlayerDps(dungeon)
     local player = dungeon.player
-    local party = KeyCount.util.convertOldPartyFormat(dungeon.party)
-    local data = party[player] or {}
-    local damage = data["damage"] or {}
-    local dps = damage["dps"] or 0
+    local party = dungeon.party
+    -- local data = party[player] or {}
+    -- local damage = data["damage"] or {}
+    local dps = party[player].damage.dps
     if dps > 0 then
         local dpsString = KeyCount.util.formatK(dps)
         local topdps = KeyCount.utilstats.getTopDps(party)
@@ -131,7 +133,7 @@ local function prepareRowList(dungeon)
     local result = getResultString(dungeon)
     local deaths = dungeon.totalDeaths or 0
     local time = getDungeonTime(dungeon, result.color)
-    local date = KeyCount.util.convertOldDateFormat(dungeon.date)
+    local date = dungeon.date.date
     local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDps, dungeon)
     local affixes = KeyCount.util.concatTable(dungeon.keyDetails.affixes, ", ")
     local class, role = getClassAndRoleFromDungeon(dungeon)
@@ -139,7 +141,7 @@ local function prepareRowList(dungeon)
     local playerString = p.roleIcon .. player
     --@debug@
     Log(string.format("prepareRowList: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", player, name, level, result.result,
-        deaths, time, date.date, dps))
+        deaths, time, date, dps))
     --@end-debug@
     table.insert(row, { value = playerString, color = p.color })
     table.insert(row, { value = name })
@@ -148,7 +150,7 @@ local function prepareRowList(dungeon)
     table.insert(row, { value = deaths, color = getDeathsColor(deaths) })
     table.insert(row, { value = time })
     table.insert(row, { value = dps })
-    table.insert(row, { value = date.date })
+    table.insert(row, { value = date })
     table.insert(row, { value = affixes })
     return { cols = row }
 end
@@ -215,7 +217,10 @@ local function prepareList(dungeons)
     return data
 end
 
-local function prepareRate(dungeons)
+g.list = prepareList
+g.filter = prepareList
+
+function g.rate(dungeons)
     local data = {}
     for _, dungeon in ipairs(dungeons) do
         local row = prepareRowRate(dungeon)
@@ -224,7 +229,7 @@ local function prepareRate(dungeons)
     return data
 end
 
-local function prepareGrouped(dungeons)
+function g.grouped(dungeons)
     local data = {}
     for _, player in ipairs(dungeons) do
         local row = prepareRowGrouped(player)
@@ -232,10 +237,3 @@ local function prepareGrouped(dungeons)
     end
     return data
 end
-
-KeyCount.guipreparedata = {
-    list = prepareList,
-    filter = prepareList,
-    rate = prepareRate,
-    grouped = prepareGrouped,
-}

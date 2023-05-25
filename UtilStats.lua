@@ -1,4 +1,6 @@
-local function printDungeons(dungeons)
+local stats = KeyCount.utilstats
+
+function stats.printDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
         if dungeon.completedInTime then
             printf(string.format("[%s] %d: Timed %s %d (%d deaths)", dungeon.player, i, dungeon.name,
@@ -13,7 +15,7 @@ local function printDungeons(dungeons)
     end
 end
 
-local function printDungeonSuccessRate(tbl)
+function stats.printDungeonSuccessRate(tbl)
     for _, d in ipairs(tbl) do
         local colorIdx = math.floor(d.successRate / 20) + 1
         local fmt = KeyCount.defaults.colors.rating[colorIdx].chat
@@ -22,7 +24,7 @@ local function printDungeonSuccessRate(tbl)
     end
 end
 
-local function chatDungeonSuccessRate(tbl)
+function stats.chatDungeonSuccessRate(tbl)
     local next = next
     if not tbl or next(tbl) == nil or #tbl == 0 then return end
     local outputchannel = "PARTY"
@@ -39,7 +41,7 @@ local function chatDungeonSuccessRate(tbl)
     end
 end
 
-local function getDungeonSuccessRate(dungeons)
+function stats.getDungeonSuccessRate(dungeons)
     local res = {}
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
@@ -87,7 +89,7 @@ local function getDungeonSuccessRate(dungeons)
     return resRate
 end
 
-local function getPlayerList(dungeons)
+function stats.getPlayerList(dungeons)
     local pl = {}
     for _, d in ipairs(dungeons) do
         local player = d.player
@@ -105,7 +107,7 @@ local function getPlayerList(dungeons)
     return pl
 end
 
-local function getPlayerSuccessRate(dungeons)
+function stats.getPlayerSuccessRate(dungeons)
     local data = {}
     local rate = {}
     for _, d in ipairs(dungeons) do
@@ -161,7 +163,7 @@ local function getPlayerSuccessRate(dungeons)
     return rate
 end
 
-local function showPastDungeons()
+function stats.showPastDungeons()
     PreviousRunsDB = PreviousRunsDB or {}
     local runs = C_MythicPlus.GetRunHistory(true, true) -- This only captures finished dungeons
     local previousDungeons = {}
@@ -179,7 +181,7 @@ local function showPastDungeons()
     end
 end
 
-local function getTopDps(party)
+function stats.getTopDps(party)
     local dmg = {}
     for player, data in pairs(party) do
         local d = data.damage or {}
@@ -190,20 +192,8 @@ local function getTopDps(party)
     return dmg[1]
 end
 
-local function getPlayerDps(data)
+function stats.getPlayerDps(data)
     local d = data.damage or {}
     local dps = d.dps or 0
     return dps
 end
-
-KeyCount.utilstats = {
-    printDungeons = printDungeons,
-    printDungeonSuccessRate = printDungeonSuccessRate,
-    chatDungeonSuccessRate = chatDungeonSuccessRate,
-    getDungeonSuccessRate = getDungeonSuccessRate,
-    getPlayerSuccessRate = getPlayerSuccessRate,
-    getPlayerList = getPlayerList,
-    showPastDungeons = showPastDungeons,
-    getTopDps = getTopDps,
-    getPlayerDps = getPlayerDps,
-}
