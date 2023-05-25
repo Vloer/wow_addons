@@ -17,7 +17,8 @@ local function printDungeonSuccessRate(tbl)
     for _, d in ipairs(tbl) do
         local colorIdx = math.floor(d.successRate / 20) + 1
         local fmt = KeyCount.defaults.colors.rating[colorIdx].chat
-        printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime), fmt)
+        printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime),
+            fmt)
     end
 end
 
@@ -86,6 +87,80 @@ local function getDungeonSuccessRate(dungeons)
     return resRate
 end
 
+local function getPlayerList(dungeons)
+    local pl = {}
+    for _, d in ipairs(dungeons) do
+        local player = d.player
+        for _, p in ipairs(pl) do
+            local found = false
+            if p == player then
+                found = true
+                break
+            end
+            if not found then
+                table.insert(pl, player)
+            end
+        end
+    end
+    return pl
+end
+
+local function getPlayerSuccessRate(dungeons)
+    local data = {}
+    local rate = {}
+    for _, d in ipairs(dungeons) do
+        local party = KeyCount.util.convertOldPartyFormat(d.party, d.deaths)
+        for player, playerdata in pairs(party) do
+            if not data[player] then
+                data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0}
+            end
+            data[player].amount = (data[player].amount or 0) + 1
+            local dps = KeyCount.utilstats.getPlayerDps(playerdata)
+            if dps > data[player].maxdps then
+                data[player].maxdps = dps
+            end
+            data[player].role = data[player].role or playerdata.role
+            data[player].class = data[player].class or playerdata.class
+            if d.completedInTime then
+                data[player].success = (data[player].success or 0) + 1
+                if d.keyDetails.level > data[player].best then
+                    data[player].best = d.keyDetails.level
+                end
+            elseif d.completed then
+                data[player].outOfTime = (data[player].outOfTime or 0) + 1
+            else
+                data[player].failed = (data[player].failed or 0) + 1
+            end
+        end
+    end
+    for player, d in pairs(data) do
+        local successRate = 0
+        local total = d.success + d.failed + d.outOfTime
+        if (d.failed + d.outOfTime) == 0 then
+            successRate = 100
+        elseif d.success == 0 then
+            successRate = 0
+        else
+            successRate = d.success / total * 100
+        end
+        table.insert(rate,
+            {
+                name = player,
+                amount = d.amount,
+                successRate = successRate,
+                success = d.success,
+                outOfTime = d.outOfTime,
+                failed = d.failed,
+                best = d.best,
+                maxdps = d.maxdps
+            })
+    end
+    table.sort(rate, function(a, b)
+        return a.successRate > b.successRate
+    end)
+    return rate
+end
+
 local function showPastDungeons()
     PreviousRunsDB = PreviousRunsDB or {}
     local runs = C_MythicPlus.GetRunHistory(true, true) -- This only captures finished dungeons
@@ -107,19 +182,28 @@ end
 local function getTopDps(party)
     local dmg = {}
     for player, data in pairs(party) do
-       local d = data.damage or {}
-       local dps = d.dps or 0
-       table.insert(dmg, {player=player, dps=dps})
+        local d = data.damage or {}
+        local dps = d.dps or 0
+        table.insert(dmg, { player = player, dps = dps })
     end
-    table.sort(dmg, function(a,b) return a.dps>b.dps end)
+    table.sort(dmg, function(a, b) return a.dps > b.dps end)
     return dmg[1]
- end
+end
+
+local function getPlayerDps(data)
+    local d = data.damage or {}
+    local dps = d.dps or 0
+    return dps
+end
 
 KeyCount.utilstats = {
     printDungeons = printDungeons,
     printDungeonSuccessRate = printDungeonSuccessRate,
     chatDungeonSuccessRate = chatDungeonSuccessRate,
     getDungeonSuccessRate = getDungeonSuccessRate,
+    getPlayerSuccessRate = getPlayerSuccessRate,
+    getPlayerList = getPlayerList,
     showPastDungeons = showPastDungeons,
     getTopDps = getTopDps,
+    getPlayerDps = getPlayerDps,
 }

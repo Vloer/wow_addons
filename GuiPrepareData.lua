@@ -14,15 +14,19 @@ local function getRoleIcon(role)
     end
 end
 
-local function getPlayerRoleAndColor(dungeon)
+local function getClassAndRoleFromDungeon(dungeon)
     local party = KeyCount.util.convertOldPartyFormat(dungeon.party, dungeon.deaths)
     local player = party[dungeon.player]
-    local _class = player.class
-    local classMale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_MALE, _class)
-    local classFemale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_FEMALE, _class)
+    local class = player.class
+    local role = player.role
+    return class, role
+end
+
+local function getPlayerRoleAndColor(class, role)
+    local classMale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_MALE, class)
+    local classFemale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_FEMALE, class)
     local tbl = RAID_CLASS_COLORS[classMale or classFemale]
     local color = { r = tbl.r, g = tbl.g, b = tbl.b, a = 1 }
-    local role = player.role
     local roleIcon = getRoleIcon(role)
     if role == "TANK" then
         role = "Tank"
@@ -130,8 +134,9 @@ local function prepareRowList(dungeon)
     local date = KeyCount.util.convertOldDateFormat(dungeon.date)
     local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDps, dungeon)
     local affixes = KeyCount.util.concatTable(dungeon.keyDetails.affixes, ", ")
-    local p = getPlayerRoleAndColor(dungeon)
-    local playerString = string.format("%s%s", p.roleIcon, player)
+    local class, role = getClassAndRoleFromDungeon(dungeon)
+    local p = getPlayerRoleAndColor(class, role)
+    local playerString = p.roleIcon .. player
     --@debug@
     Log(string.format("prepareRowList: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", player, name, level, result.result,
         deaths, time, date.date, dps))
@@ -172,6 +177,35 @@ local function prepareRowRate(dungeon)
     return { cols = row }
 end
 
+local function prepareRowGrouped(player)
+    local row = {}
+    local name = player.name
+    local amount = player.amount
+    local rate = player.successRate
+    local rateString = string.format("%.2f%%", rate)
+    local intime = player.success
+    local outtime = player.outOfTime
+    local failed = player.failed
+    local best = player.best
+    local dps = player.maxdps
+    --@debug@
+    Log(string.format("prepareRowGrouped: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, amount, rate, rateString,
+        intime, outtime, failed, best, dps))
+    --@end-debug@
+    local p = getPlayerRoleAndColor(player.class, player.role)
+    local playerString = p.roleIcon .. name
+
+    table.insert(row, { value = playerString, color = p.color })
+    table.insert(row, { value = amount })
+    table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
+    table.insert(row, { value = intime })
+    table.insert(row, { value = outtime })
+    table.insert(row, { value = failed })
+    table.insert(row, { value = best, color = getLevelColor(best).color })
+    table.insert(row, { value = dps })
+    return { cols = row }
+end
+
 local function prepareList(dungeons)
     local data = {}
     for _, dungeon in ipairs(dungeons) do
@@ -190,8 +224,18 @@ local function prepareRate(dungeons)
     return data
 end
 
+local function prepareGrouped(dungeons)
+    local data = {}
+    for _, player in ipairs(dungeons) do
+        local row = prepareRowGrouped(player)
+        table.insert(data, row)
+    end
+    return data
+end
+
 KeyCount.guipreparedata = {
     list = prepareList,
     filter = prepareList,
-    rate = prepareRate
+    rate = prepareRate,
+    grouped = prepareGrouped,
 }

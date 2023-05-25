@@ -191,6 +191,11 @@ local fRatePrint = function(key, value)
     if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
 end
 
+local fGrouped = function(key, value)
+    local dungeons = filterDungeons(key, value)
+    if dungeons then return KeyCount.utilstats.getPlayerSuccessRate(dungeons) end
+end
+
 KeyCount.filterfunctions = {
     print = {
         list = fListPrint,
@@ -199,7 +204,8 @@ KeyCount.filterfunctions = {
     },
     list = filterDungeons,
     filter = filterDungeons,
-    rate = fRate
+    rate = fRate,
+    grouped = fGrouped,
 }
 
 KeyCount.filterkeys = {
