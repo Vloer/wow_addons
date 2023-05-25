@@ -6,11 +6,15 @@ function Log(message)
     end
 end
 
+---Prints a colored chat message
+---@param msg string Message to print
+---@param fmt string Color format. Defaults to cyan
 function printf(msg, fmt)
     fmt = fmt or KeyCount.defaults.colors.chatAnnounce
     print(string.format("%s%s|r", fmt, msg))
 end
 
+-- Checks two tables for equality
 table.equal = function(t1, t2)
     for k, v in pairs(t1) do
         if t2[k] ~= v then
@@ -27,6 +31,12 @@ table.equal = function(t1, t2)
     return true
 end
 
+--- Shallow copy: table.copy(destination_tbl, source_tbl)
+---
+--- Deep copy: destination_tbl = table.copy({}, source_tbl)
+---@param destination table
+---@param source table
+---@return table
 table.copy = function(destination, source)
     destination = destination or {}
     for key, value in pairs(source) do
@@ -106,42 +116,6 @@ util.concatTable = function(table, delimiter)
     return concatenatedString
 end
 
-util.convertOldPartyFormat = function(_party, _deaths)
-    local party = {}
-    local deaths = _deaths or {}
-    for k, v in pairs(_party) do
-        if type(k) == "number" then
-            party[v.name] = v
-        else
-            party[k] = v
-        end
-    end
-    if type(deaths) == "table" then
-        for player, _ in pairs(party) do
-            party[player].deaths = deaths[player] or 0
-        end
-    end
-    return party
-end
-
-util.convertOldDateFormat = function(date)
-    local res = {}
-    if not date or date == "1900-01-01" then
-        res = { date = "1900-01-01", datetime = "1900-01-01 00:00:00", datestring = "" }
-    elseif #date == 10 and type(date) ~= table then
-        res = { date = date, datetime = string.format("%s 00:00:00", date) }
-    elseif type(date) == "table" then
-        res = {
-            date = date.date or "1900-01-01",
-            datetime = date.datetime or "1900-01-01 00:00:00",
-            datestring = date.datestring or ""
-        }
-    else
-        res = KeyCount.defaults.dungeonDefault.date
-    end
-    return res
-end
-
 util.colorText = function(text, color)
     return color .. text .. KeyCount.defaults.colors.reset
 end
@@ -154,6 +128,9 @@ util.getKeyForValue = function(t, value)
 end
 
 -- Call this function to ensure that the code after it is still executed
+---@param name string Name to display in print statement
+---@param func function Function to executed
+---@param ... any Function arguments seperated by comma
 util.safeExec = function(name, func, ...)
     local success, result = pcall(func, ...)
     if success then
@@ -168,9 +145,46 @@ util.safeExec = function(name, func, ...)
     return success
 end
 
+-- Add symbol to the end of a string
+---@param text string Base string
+---@param amount number Amount of symbols to add
+---@param symbol string Symbol to add. Defaults to *
+---@param color string Formatted color hex string. Defaults to gold
 util.addSymbol = function(text, amount, symbol, color)
     color = color or KeyCount.defaults.colors.gold.chat
     symbol = symbol or KeyCount.defaults.dungeonPlusChar
     local symbols = util.colorText(symbol:rep(amount), color)
     return text .. symbols
+end
+
+-- Print all key,value pairs to the log
+---@param table table Data
+---@param name string Name of the table or function to display
+util.printTableOnSameLine = function(table, name)
+    local output = ""
+    name = name or ""
+    for key, value in pairs(table) do
+        if type(value) == "string" then
+            output = output .. key .. ": " .. value .. ", "
+        else
+            output = output .. key .. ": " .. type(value) .. ", "
+        end
+    end
+    output = output:sub(1, -3)
+    Log(string.format("%s: %s", name, output))
+end
+
+-- Calculate the median of a list of values
+---@param list table List that should not contain nil or nan values
+util.calculateMedian = function(list)
+    table.sort(list)
+
+    local length = #list
+    local middleIndex = math.floor(length / 2)
+
+    if length % 2 == 1 then
+        return list[middleIndex + 1]
+    else
+        return math.ceil((list[middleIndex] + list[middleIndex + 1]) / 2)
+    end
 end

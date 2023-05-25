@@ -213,6 +213,11 @@ function f.print.rate(key, value)
     if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
 end
 
+function f.grouped(key, value)
+    local dungeons  = filterDungeons(key, value)
+    if dungeons then return KeyCount.utilstats.getPlayerSuccessRate(dungeons) end
+end
+
 KeyCount.filterkeys = {
     ["alldata"] = { key = "alldata", value = "", name = "All data" },
     ["player"] = { key = "player", value = "player", name = "Player" },
@@ -223,6 +228,7 @@ KeyCount.filterkeys = {
     ["inTime"] = { key = "inTime", value = "completedInTime", name = "Completed in time" },
     ["outTime"] = { key = "outTime", value = "outOfTime", name = "Completed out of time" },
     ["failed"] = { key = "failed", value = "failed", name = "Abandoned" },
+    ["level"] = { key = "level", value = "level", name = "Key level"},
     ["time"] = { key = "time", value = "time", name = "Time" },
     ["deathsgt"] = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
     ["deathslt"] = { key = "deathslt", value = "deathslt", name = "Maximum amount of deaths" },
@@ -232,5 +238,5 @@ KeyCount.filterkeys = {
 
 KeyCount.filterorder = {
     "alldata", "player", "dungeon", "role", "season",
-    "completed", "inTime", "outTime", "failed",
+    "completed", "inTime", "outTime", "failed", "level",
     "time", "deathsgt", "deathslt", "date", "affix" }
