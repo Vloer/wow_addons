@@ -115,10 +115,10 @@ local function formatDps(dps)
     return default
 end
 
-local function getPlayerDps(dungeon)
+local function getPlayerDpsString(dungeon)
     local player = dungeon.player
     local party = dungeon.party
-    local dps = party[player].damage.dps
+    local dps = KeyCount.utilstats.getPlayerDps(party[player])
     if dps > 0 then
         local dpsString = formatDps(dps)
         local topdps = KeyCount.utilstats.getTopDps(party)
@@ -140,14 +140,13 @@ local function prepareRowList(dungeon)
     local deaths = dungeon.totalDeaths or 0
     local time = getDungeonTime(dungeon, result.color)
     local date = dungeon.date.date
-    local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDps, dungeon)
+    local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDpsString, dungeon)
     local affixes = KeyCount.util.concatTable(dungeon.keyDetails.affixes, ", ")
     local class, role = getClassAndRoleFromDungeon(dungeon)
     local p = getPlayerRoleAndColor(class, role)
     local playerString = p.roleIcon .. player
     --@debug@
-    Log(string.format("prepareRowList: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", player, name, level, result.result,
-        deaths, time, date, dps))
+    KeyCount.util.printTableOnSameLine(dungeon, "prepareRowList")
     --@end-debug@
     table.insert(row, { value = playerString, color = p.color })
     table.insert(row, { value = name })
@@ -174,8 +173,7 @@ local function prepareRowRate(dungeon)
     local median = dungeon.median
     local dps = formatDps(dungeon.maxdps)
     --@debug@
-    Log(string.format("prepareRowRate: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, attempts, rate, rateString, intime,
-        outtime, failed, best))
+    KeyCount.util.printTableOnSameLine(dungeon, "prepareRowRate")
     --@end-debug@
     table.insert(row, { value = name })
     table.insert(row, { value = attempts })
