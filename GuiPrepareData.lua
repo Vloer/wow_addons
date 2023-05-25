@@ -171,6 +171,8 @@ local function prepareRowRate(dungeon)
     local outtime = dungeon.outOfTime
     local failed = dungeon.failed
     local best = dungeon.best
+    local median = dungeon.median
+    local dps = formatDps(dungeon.maxdps)
     --@debug@
     Log(string.format("prepareRowRate: [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]", name, attempts, rate, rateString, intime,
         outtime, failed, best))
@@ -182,12 +184,14 @@ local function prepareRowRate(dungeon)
     table.insert(row, { value = outtime })
     table.insert(row, { value = failed })
     table.insert(row, { value = best, color = getLevelColor(best).color })
+    table.insert(row, { value = median, color = getLevelColor(median).color })
+    table.insert(row, { value = dps })
     return { cols = row }
 end
 
 local function prepareRowGrouped(player)
     --@debug@
-    Log("Preparing row for "..player.name)
+    Log("Preparing row for " .. player.name)
     --@end-debug@
     local row = {}
     local name = player.name
@@ -198,6 +202,7 @@ local function prepareRowGrouped(player)
     local outtime = player.outOfTime
     local failed = player.failed
     local best = player.best
+    local median = player.median
     local dps = formatDps(player.maxdps)
     local p = getPlayerRoleAndColor(player.class, player.role)
     local playerString = p.roleIcon .. name
@@ -212,6 +217,7 @@ local function prepareRowGrouped(player)
     table.insert(row, { value = outtime })
     table.insert(row, { value = failed })
     table.insert(row, { value = best, color = getLevelColor(best).color })
+    table.insert(row, { value = median, color = getLevelColor(median).color })
     table.insert(row, { value = dps })
     return { cols = row }
 end

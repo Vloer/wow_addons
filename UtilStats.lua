@@ -46,7 +46,11 @@ function stats.getDungeonSuccessRate(dungeons)
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
         if not res[dungeon.name] then
-            res[dungeon.name] = { success = 0, failed = 0, outOfTime = 0, best = 0 }
+            res[dungeon.name] = { success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0, allkeys = {} }
+        end
+        local keylevel = dungeon.keyDetails.level or 0
+        if keylevel > 0 then
+            table.insert(res[dungeon.name].allkeys, keylevel)
         end
         if dungeon.completedInTime then
             res[dungeon.name].success = (res[dungeon.name].success or 0) + 1
@@ -61,10 +65,18 @@ function stats.getDungeonSuccessRate(dungeons)
                 res[dungeon.name].failed = (res[dungeon.name].failed or 0) + 1
             end
         end
+        local dps = stats.getPlayerDps(dungeon.party[dungeon.player])
+        if dps > res[dungeon.name].maxdps then
+            res[dungeon.name].maxdps = dps
+        end
+        --@debug@
+        KeyCount.util.printTableOnSameLine(res[dungeon.name], "GetDungeonSuccessRate")
+        --@end-debug@
     end
     for name, d in pairs(res) do
         local successRate = 0
         local total = d.success + d.failed + d.outOfTime
+        local median = KeyCount.util.calculateMedian(d.allkeys)
         if (d.failed + d.outOfTime) == 0 then
             successRate = 100
         elseif d.success == 0 then
@@ -80,7 +92,9 @@ function stats.getDungeonSuccessRate(dungeons)
                 outOfTime = d.outOfTime,
                 failed = d.failed,
                 best = d.best,
-                totalAttempts = total
+                median = median,
+                totalAttempts = total,
+                maxdps = d.maxdps
             })
     end
     table.sort(resRate, function(a, b)
@@ -112,12 +126,16 @@ function stats.getPlayerSuccessRate(dungeons)
     local rate = {}
     for _, d in ipairs(dungeons) do
         local party = d.party
+        local keylevel = d.keyDetails.level or 0
         for player, playerdata in pairs(party) do
             if not data[player] then
-                data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0 }
+                data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0, allkeys = {} }
             end
             data[player].name = data[player].name or player
             data[player].amount = (data[player].amount or 0) + 1
+            if keylevel > 0 then
+                table.insert(data[player].allkeys, keylevel)
+            end
             local dps = KeyCount.utilstats.getPlayerDps(playerdata)
             if dps > data[player].maxdps then
                 data[player].maxdps = dps
@@ -134,12 +152,15 @@ function stats.getPlayerSuccessRate(dungeons)
             else
                 data[player].failed = (data[player].failed or 0) + 1
             end
-            KeyCount.util.printTableOnSameLine(data[player])
+            --@debug@
+            KeyCount.util.printTableOnSameLine(data[player], "GetPlayerSuccessRate")
+            --@end-debug@
         end
     end
     for player, d in pairs(data) do
         local successRate = 0
         local total = d.success + d.failed + d.outOfTime
+        local median = KeyCount.util.calculateMedian(d.allkeys)
         if (d.failed + d.outOfTime) == 0 then
             successRate = 100
         elseif d.success == 0 then
@@ -156,6 +177,7 @@ function stats.getPlayerSuccessRate(dungeons)
                 outOfTime = d.outOfTime,
                 failed = d.failed,
                 best = d.best,
+                median = median,
                 maxdps = d.maxdps,
                 class = d.class,
                 role = d.role
@@ -185,6 +207,9 @@ function stats.showPastDungeons()
     end
 end
 
+-- Get the top dps of the party
+---@param party table Table containing party data
+---@return number dps
 function stats.getTopDps(party)
     local dmg = {}
     for player, data in pairs(party) do
@@ -196,6 +221,9 @@ function stats.getTopDps(party)
     return dmg[1]
 end
 
+-- Get a single players dps
+---@param data table The party table data for the specific player
+---@return number dps Returns 0 if no data found
 function stats.getPlayerDps(data)
     local d = data.damage or {}
     local dps = d.dps or 0

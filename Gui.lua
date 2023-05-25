@@ -79,6 +79,7 @@ function GUI:ConstructGUI()
             disableFilters(true)
             self.tables.rate:Hide()
             self.tables.list:Show()
+            self.tables.grouped:Hide()
             self.buttons.exportdata:SetText("Export to CSV")
         else
             disableFilters(false)
@@ -90,13 +91,13 @@ function GUI:ConstructGUI()
                 self.tables.grouped:Hide()
                 self.buttons.exportdata:SetText("Export to CSV")
             elseif self.filtertype == "rate" then
-                self.tables.list:Hide()
                 self.tables.rate:Show()
+                self.tables.list:Hide()
                 self.tables.grouped:Hide()
                 self.buttons.exportdata:SetText("Export to party")
             elseif self.filtertype == "grouped" then
-                self.tables.list:Hide()
                 self.tables.rate:Hide()
+                self.tables.list:Hide()
                 self.tables.grouped:Show()
                 self.buttons.exportdata:SetText("Export to party")
             end
@@ -222,7 +223,9 @@ function GUI:ConstructGUI()
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [1].rgb)
         },
-        { ["name"] = "Best", ["width"] = 55, },
+        { ["name"] = "Best",    ["width"] = 55, },
+        { ["name"] = "Median",  ["width"] = 55, },
+        { ["name"] = "Max dps", ["width"] = 55, },
     }
 
     local columnsGrouped = {
@@ -248,6 +251,7 @@ function GUI:ConstructGUI()
                 [1].rgb)
         },
         { ["name"] = "Best",    ["width"] = 55, },
+        { ["name"] = "Median",  ["width"] = 55, },
         { ["name"] = "Max dps", ["width"] = 55, },
     }
 

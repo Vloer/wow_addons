@@ -164,8 +164,27 @@ util.printTableOnSameLine = function(table, name)
     local output = ""
     name = name or ""
     for key, value in pairs(table) do
-        output = output .. key .. ": " .. value .. ", "
+        if type(value) == "string" then
+            output = output .. key .. ": " .. value .. ", "
+        else
+            output = output .. key .. ": " .. type(value) .. ", "
+        end
     end
     output = output:sub(1, -3)
     Log(string.format("%s: %s", name, output))
+end
+
+-- Calculate the median of a list of values
+---@param list table List that should not contain nil or nan values
+util.calculateMedian = function(list)
+    table.sort(list)
+
+    local length = #list
+    local middleIndex = math.floor(length / 2)
+
+    if length % 2 == 1 then
+        return list[middleIndex + 1]
+    else
+        return math.ceil((list[middleIndex] + list[middleIndex + 1]) / 2)
+    end
 end
