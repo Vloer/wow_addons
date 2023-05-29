@@ -99,7 +99,7 @@ function GUI:ConstructGUI()
                 self.tables.rate:Hide()
                 self.tables.list:Hide()
                 self.tables.grouped:Show()
-                self.buttons.exportdata:SetText("Export to party")
+                self.buttons.exportdata:SetText("Export to CSV")
             end
         end
     end
@@ -267,7 +267,7 @@ function GUI:ConstructGUI()
     self.tables.rate:EnableSelection(true)
     self.tables.rate:Hide()
 
-    self.tables.grouped = ScrollingTable:CreateST(columnsGrouped, 8, 16, nil, window);
+    self.tables.grouped = ScrollingTable:CreateST(columnsGrouped, 16, 16, nil, window);
     self.tables.grouped.frame:SetPoint("TOP", window, "TOP", 0, -100);
     self.tables.grouped.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
     self.tables.grouped:EnableSelection(true)
