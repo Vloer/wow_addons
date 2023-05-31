@@ -4,13 +4,13 @@ function stats.printDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
         if dungeon.completedInTime then
             printf(string.format("[%s] %d: Timed %s %d (%d deaths)", dungeon.player, i, dungeon.name,
-                dungeon.keyDetails.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[5].chat)
+                dungeon.keydata.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[5].chat)
         elseif dungeon.completed then
             printf(string.format("[%s] %d: Failed to time %s %d (%d deaths)", dungeon.player, i, dungeon.name,
-                dungeon.keyDetails.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[3].chat)
+                dungeon.keydata.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[3].chat)
         else
             printf(string.format("[%s] %d: Abandoned %s %d (%d deaths)", dungeon.player, i, dungeon.name,
-                dungeon.keyDetails.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[1].chat)
+                dungeon.keydata.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[1].chat)
         end
     end
 end
@@ -48,13 +48,13 @@ function stats.getDungeonSuccessRate(dungeons)
         if not res[dungeon.name] then
             res[dungeon.name] = { success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0, allkeys = {} }
         end
-        local keylevel = dungeon.keyDetails.level or 0
+        local keylevel = dungeon.keydata.level or 0
         if keylevel > 0 then
             table.insert(res[dungeon.name].allkeys, keylevel)
         end
         if dungeon.completedInTime then
             res[dungeon.name].success = (res[dungeon.name].success or 0) + 1
-            local level = dungeon.keyDetails.level
+            local level = dungeon.keydata.level
             if level > res[dungeon.name].best then
                 res[dungeon.name].best = level
             end
@@ -126,7 +126,7 @@ function stats.getPlayerSuccessRate(dungeons)
     local rate = {}
     for _, d in ipairs(dungeons) do
         local party = d.party
-        local keylevel = d.keyDetails.level or 0
+        local keylevel = d.keydata.level or 0
         for player, playerdata in pairs(party) do
             if not data[player] then
                 data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0, allkeys = {} }
@@ -144,8 +144,8 @@ function stats.getPlayerSuccessRate(dungeons)
             data[player].class = data[player].class or playerdata.class
             if d.completedInTime then
                 data[player].success = (data[player].success or 0) + 1
-                if d.keyDetails.level > data[player].best then
-                    data[player].best = d.keyDetails.level
+                if d.keydata.level > data[player].best then
+                    data[player].best = d.keydata.level
                 end
             elseif d.completed then
                 data[player].outOfTime = (data[player].outOfTime or 0) + 1
@@ -201,7 +201,7 @@ function stats.showPastDungeons()
         local dungeon = KeyCount.defaults.dungeonDefault
         dungeon.name = map
         dungeon.completedInTime = completed
-        dungeon.keyDetails.level = level
+        dungeon.keydata.level = level
         dungeon.completed = completed
         table.insert(previousDungeons, dungeon)
     end

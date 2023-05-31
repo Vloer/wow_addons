@@ -44,13 +44,13 @@ local filterConditions = {
         return res <= value
     end,
     ["level"] = function(entry, value)
-        return entry.keyDetails.level >= value
+        return entry.keydata.level >= value
     end,
     ["date"] = function(entry, value)
         return entry.date.date == value
     end,
     ["affix"] = function(entry, value)
-        local affixes = string.lower(table.concat(entry.keyDetails.affixes))
+        local affixes = string.lower(table.concat(entry.keydata.affixes))
         local found = 0
         for i = 2, #value do
             if string.find(affixes, value[i]) then

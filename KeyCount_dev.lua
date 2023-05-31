@@ -17,6 +17,7 @@ end
 function KeyCount:PLAYER_LOGOUT(event)
     -- Update current table in DB if it is not set to the default values
     KeyCount:SaveDungeons()
+    KeyCount:SavePlayers()
     if self.keystoneActive then KeyCountDB.keystoneActive = true else KeyCountDB.keystoneActive = false end
     if self.current and not table.equal(self.current, self.defaults.dungeonDefault) then
         table.copy(KeyCountDB.current, self.current)
@@ -101,6 +102,7 @@ function KeyCount:InitSelf()
     KeyCountDB = KeyCountDB or {}
     KeyCountDB.current = KeyCountDB.current or {}
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
+    KeyCountDB.players = KeyCountDB.players or {}
     PreviousRunsDB = PreviousRunsDB or {}
     if KeyCountDB.keystoneActive then self.keystoneActive = true else self.keystoneActive = false end
     if not table.equal(KeyCountDB.current, self.defaults.dungeonDefault) and self.keystoneActive then
@@ -149,19 +151,19 @@ function KeyCount:SetKeyStart()
     KeyCount:AddDungeonEvents()
     local activeKeystoneLevel, activeAffixIDs = C_ChallengeMode.GetActiveKeystoneInfo()
     local challengeMapID = C_ChallengeMode.GetActiveChallengeMapID()
-    local name, _, timeLimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
+    local name, _, timelimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
     printf(string.format("KeyCount: started recording for %s %d.", name, activeKeystoneLevel))
-    self.current.keyDetails.level = activeKeystoneLevel
+    self.current.keydata.level = activeKeystoneLevel
     self.current.startedTimestamp = time()
     self.current.party = self:GetPartyMemberInfo()
-    self.current.keyDetails.affixes = {}
-    self.current.keyDetails.timeLimit = timeLimit
+    self.current.keydata.affixes = {}
+    self.current.keydata.timelimit = timelimit
     self.current.name = name
     if self.current.player == "" then self.current.player = UnitName("player") end
     for _, affixID in ipairs(activeAffixIDs) do
         local affixName = C_ChallengeMode.GetAffixInfo(affixID)
-        table.insert(self.current.keyDetails.affixes, affixName)
+        table.insert(self.current.keydata.affixes, affixName)
     end
     Log("Finished SetKeyStart")
 end
@@ -200,8 +202,8 @@ function KeyCount:SetKeyEnd()
     self.current.completedInTime = onTime
     self.current.time = totalTime
     self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
-    if self.current.keyDetails.timeLimit == 0 then
-        _, _, self.current.keyDetails.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
+    if self.current.keydata.timelimit == 0 then
+        _, _, self.current.keydata.timelimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
     end
     KeyCount.util.safeExec("SetDetailsData", KeyCount.SetDetailsData, KeyCount)
     KeyCount:FinishDungeon()
@@ -213,7 +215,7 @@ function KeyCount:FinishDungeon()
     self.keystoneActive = false
     KeyCountDB.keystoneActive = false
     KeyCount:SetTimeToComplete()
-    Log(string.format("Key %s %s %s", self.current.name, self.current.keyDetails.level, self.current.timeToComplete))
+    Log(string.format("Key %s %s %s", self.current.name, self.current.keydata.level, self.current.timeToComplete))
     KeyCount:SaveAndReset()
     KeyCount:RemoveDungeonEvents()
     Log("Finished FinishDungeon")
@@ -241,9 +243,9 @@ function KeyCount:SetTimeToComplete()
     if self.current.completedInTime then
         local s
         local symbol = self.defaults.dungeonPlusChar
-        if self.current.time < (self.current.keyDetails.timeLimit * 0.6) then
+        if self.current.time < (self.current.keydata.timelimit * 0.6) then
             s = symbol .. symbol .. symbol
-        elseif self.current.time < (self.current.keyDetails.timeLimit * 0.8) then
+        elseif self.current.time < (self.current.keydata.timelimit * 0.8) then
             s = symbol .. symbol
         else
             s = symbol
@@ -265,12 +267,34 @@ end
 function KeyCount:SaveDungeons()
     for _, dungeon in ipairs(self.dungeons) do
         local name = dungeon.name or ""
-        local details = dungeon.keyDetails or {}
+        local details = dungeon.keydata or {}
         local level = details.level or 0
         printf(string.format("Inserting %s %s", name, level))
         table.insert(KeyCountDB.dungeons, dungeon)
     end
     self.dungeons = {}
+end
+
+function KeyCount:SavePlayers()
+    local players = KeyCountDB.players or {}
+    local dungeons = KeyCount:GetStoredDungeons()
+    if not dungeons then return end
+    for _, dungeon in ipairs(dungeons) do
+        local party = dungeon.party or {}
+        for player, playerdata in pairs(party) do
+            if not players[player] then
+                players[player] = KeyCount.defaults.playerDefault
+            end
+            players[player].player = player
+            players[player].timesgrouped = players[player].timesgrouped + 1
+            players[player].damage = playerdata.damage or players[player].damage
+            players[player].healing = playerdata.healing or players[player].healing
+            local key = KeyCount.defaults.playerkey
+            key.name = playerdata.name
+            key.level = playerdata.keydata.level
+            key.affixes = playerdata.keydata.affixes
+        end
+    end
 end
 
 function KeyCount:GetPartyMemberInfo()
@@ -311,7 +335,7 @@ function KeyCount:GetStoredDungeons()
     local stored = {}
     for i, d in ipairs(KeyCountDB.dungeons) do
         --@debug@
-        Log(string.format("Checking data status for dungeon %s: %s %s", i, d.name, d.keyDetails.level))
+        Log(string.format("Checking data status for dungeon %s: %s %s", i, d.name, d.keydata.level))
         --@end-debug@
         local fixed = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.format, d)
         if fixed then

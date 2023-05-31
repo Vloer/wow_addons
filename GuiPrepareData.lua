@@ -89,7 +89,7 @@ local function getDungeonTime(dungeon, timetextcolor)
     local s = dungeon.timeToComplete
     local completed = dungeon.completedInTime
     local time = dungeon.time
-    local limit = dungeon.keyDetails.timeLimit or 0
+    local limit = dungeon.keydata.timelimit or 0
     local amount
     if completed then
         if time < (limit * 0.6) then
@@ -135,13 +135,13 @@ local function prepareRowList(dungeon)
     local row = {}
     local player = dungeon.player
     local name = dungeon.name
-    local level = dungeon.keyDetails.level
+    local level = dungeon.keydata.level
     local result = getResultString(dungeon)
     local deaths = dungeon.totalDeaths or 0
     local time = getDungeonTime(dungeon, result.color)
     local date = dungeon.date.date
     local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDpsString, dungeon)
-    local affixes = KeyCount.util.concatTable(dungeon.keyDetails.affixes, ", ")
+    local affixes = KeyCount.util.concatTable(dungeon.keydata.affixes, ", ")
     local class, role = getClassAndRoleFromDungeon(dungeon)
     local p = getPlayerRoleAndColor(class, role)
     local playerString = p.roleIcon .. player
