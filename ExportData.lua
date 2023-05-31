@@ -26,8 +26,15 @@ local function flatten(data)
             for playername, playerdata in pairs(partydata) do
                 i = i + 1
                 for playerkey, playerval in pairs(playerdata) do
-                    local colname = string.format("party%s%d", playerkey, i)
-                    out[colname] = playerval
+                    if type(playerval) == "table" then
+                        for playervalkey, playervalval in pairs(playerval) do
+                            local colname = string.format("party_%s_%s_%d", playerkey, playervalkey, i)
+                            out[colname] = playervalval
+                        end
+                    else
+                        local colname = string.format("party_%s_%d", playerkey, i)
+                        out[colname] = playerval
+                    end
                 end
             end
         elseif col == "date" and type(v) == "table" then
@@ -68,36 +75,57 @@ local function formatCSV(_dungeons)
     local dungeons = _dungeons or KeyCount:GetStoredDungeons()
     local output = ""
     local columns = {
-        { enabled = true, name = "player",       value = "player" },
-        { enabled = true, name = "dungeon",      value = "name" },
-        { enabled = true, name = "level",        value = "level" },
-        { enabled = true, name = "completed",    value = "completed" },
-        { enabled = true, name = "inTime",       value = "completedInTime" },
-        { enabled = true, name = "timeLimit",    value = "timeLimit" },
-        { enabled = true, name = "time",         value = "time" },
-        { enabled = true, name = "affixes",      value = "affixes" },
-        { enabled = true, name = "deaths",       value = "totalDeaths" },
-        { enabled = true, name = "date",         value = "date" },
-        { enabled = true, name = "partyname1",   value = "partyname1" },
-        { enabled = true, name = "partyname2",   value = "partyname2" },
-        { enabled = true, name = "partyname3",   value = "partyname3" },
-        { enabled = true, name = "partyname4",   value = "partyname4" },
-        { enabled = true, name = "partyname5",   value = "partyname5" },
-        { enabled = true, name = "partyrole1",   value = "partyrole1" },
-        { enabled = true, name = "partyrole2",   value = "partyrole2" },
-        { enabled = true, name = "partyrole3",   value = "partyrole3" },
-        { enabled = true, name = "partyrole4",   value = "partyrole4" },
-        { enabled = true, name = "partyrole5",   value = "partyrole5" },
-        { enabled = true, name = "partyclass1",  value = "partyclass1" },
-        { enabled = true, name = "partyclass2",  value = "partyclass2" },
-        { enabled = true, name = "partyclass3",  value = "partyclass3" },
-        { enabled = true, name = "partyclass4",  value = "partyclass4" },
-        { enabled = true, name = "partyclass5",  value = "partyclass5" },
-        { enabled = true, name = "partydeaths1", value = "partydeaths1" },
-        { enabled = true, name = "partydeaths2", value = "partydeaths2" },
-        { enabled = true, name = "partydeaths3", value = "partydeaths3" },
-        { enabled = true, name = "partydeaths4", value = "partydeaths4" },
-        { enabled = true, name = "partydeaths5", value = "partydeaths5" },
+        { enabled = true, name = "player",                value = "player" },
+        { enabled = true, name = "dungeon",               value = "name" },
+        { enabled = true, name = "level",                 value = "level" },
+        { enabled = true, name = "completed",             value = "completed" },
+        { enabled = true, name = "inTime",                value = "completedInTime" },
+        { enabled = true, name = "timeLimit",             value = "timeLimit" },
+        { enabled = true, name = "time",                  value = "time" },
+        { enabled = true, name = "affixes",               value = "affixes" },
+        { enabled = true, name = "deaths",                value = "totalDeaths" },
+        { enabled = true, name = "date",                  value = "date" },
+        { enabled = true, name = "party_name_1",          value = "party_name_1" },
+        { enabled = true, name = "party_name_2",          value = "party_name_2" },
+        { enabled = true, name = "party_name_3",          value = "party_name_3" },
+        { enabled = true, name = "party_name_4",          value = "party_name_4" },
+        { enabled = true, name = "party_name_5",          value = "party_name_5" },
+        { enabled = true, name = "party_role_1",          value = "party_role_1" },
+        { enabled = true, name = "party_role_2",          value = "party_role_2" },
+        { enabled = true, name = "party_role_3",          value = "party_role_3" },
+        { enabled = true, name = "party_role_4",          value = "party_role_4" },
+        { enabled = true, name = "party_role_5",          value = "party_role_5" },
+        { enabled = true, name = "party_class_1",         value = "party_class_1" },
+        { enabled = true, name = "party_class_2",         value = "party_class_2" },
+        { enabled = true, name = "party_class_3",         value = "party_class_3" },
+        { enabled = true, name = "party_class_4",         value = "party_class_4" },
+        { enabled = true, name = "party_class_5",         value = "party_class_5" },
+        { enabled = true, name = "party_deaths_1",        value = "party_deaths_1" },
+        { enabled = true, name = "party_deaths_2",        value = "party_deaths_2" },
+        { enabled = true, name = "party_deaths_3",        value = "party_deaths_3" },
+        { enabled = true, name = "party_deaths_4",        value = "party_deaths_4" },
+        { enabled = true, name = "party_deaths_5",        value = "party_deaths_5" },
+        { enabled = true, name = "party_damage_total_1",  value = "party_damage_total_1" },
+        { enabled = true, name = "party_damage_total_2",  value = "party_damage_total_2" },
+        { enabled = true, name = "party_damage_total_3",  value = "party_damage_total_3" },
+        { enabled = true, name = "party_damage_total_4",  value = "party_damage_total_4" },
+        { enabled = true, name = "party_damage_total_5",  value = "party_damage_total_5" },
+        { enabled = true, name = "party_damage_dps_1",    value = "party_damage_dps_1" },
+        { enabled = true, name = "party_damage_dps_2",    value = "party_damage_dps_2" },
+        { enabled = true, name = "party_damage_dps_3",    value = "party_damage_dps_3" },
+        { enabled = true, name = "party_damage_dps_4",    value = "party_damage_dps_4" },
+        { enabled = true, name = "party_damage_dps_5",    value = "party_damage_dps_5" },
+        { enabled = true, name = "party_healing_total_1", value = "party_healing_total_1" },
+        { enabled = true, name = "party_healing_total_2", value = "party_healing_total_2" },
+        { enabled = true, name = "party_healing_total_3", value = "party_healing_total_3" },
+        { enabled = true, name = "party_healing_total_4", value = "party_healing_total_4" },
+        { enabled = true, name = "party_healing_total_5", value = "party_healing_total_5" },
+        { enabled = true, name = "party_healing_hps_1",   value = "party_healing_hps_1" },
+        { enabled = true, name = "party_healing_hps_2",   value = "party_healing_hps_2" },
+        { enabled = true, name = "party_healing_hps_3",   value = "party_healing_hps_3" },
+        { enabled = true, name = "party_healing_hps_4",   value = "party_healing_hps_4" },
+        { enabled = true, name = "party_healing_hps_5",   value = "party_healing_hps_5" },
+
     }
     for k, v in pairs(columns) do
         if v.enabled then
