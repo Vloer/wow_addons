@@ -11,7 +11,7 @@ function f.format(dungeonIn, new)
     if old == new then return dungeon end
 
     -- 0 to 1
-    if old == 0 and new == 1 then
+    if old == 0 and new >= 1 then
         dungeon["version"] = old
 
         -- Fix party
@@ -75,10 +75,13 @@ function f.format(dungeonIn, new)
         else
             dungeon["stars"] = ""
         end
+
+        -- Set old version to new so the transformation can continue if needed
+        old = 1
     end
 
     -- 1 to 2
-    if old == 1 and new == 2 then
+    if old == 1 and new >= 2 then
         -- Rename keyDetails and timeLimit
         local keydata = {}
         keydata["name"] = dungeon.name
@@ -97,7 +100,7 @@ function f.format(dungeonIn, new)
             dungeonresult = KeyCount.defaults.keyresult.failed
         end
         dungeon["keyresult"] = dungeonresult
-
+        old = 2
     end
 
     return dungeon

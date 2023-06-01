@@ -20,9 +20,9 @@ local seasons = {
 }
 local keyresult = {
     unknown = 0,
-    intime = 1,
+    failed = 1,
     outtime = 2,
-    failed = 3,
+    intime = 3,
 }
 local keydata = {
     name = "",
@@ -64,7 +64,7 @@ local defaults = {
         }
     },
     dungeonDefault = {
-        version = 1,
+        version = 2,
         season = seasons.Dragonflight[2],
         player = "",
         name = "",
@@ -78,6 +78,7 @@ local defaults = {
         deaths = {},
         totalDeaths = 0,
         keydata = keydata,
+        keyresult = keyresult.unknown,
         date = { ["date"] = "1900-01-01", ["datestring"] = "", ["datetime"] = "1900-01-01 00:00:00" },
         stars = ""
     },
