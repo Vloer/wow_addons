@@ -18,6 +18,18 @@ local seasons = {
         "Dragonflight-2"
     }
 }
+local keyresult = {
+    unknown = { value = 0, name = "Unknown" },
+    abandoned = { value = 1, name = "Abandoned" },
+    outtime = { value = 2, name = "Failed to time" },
+    intime = { value = 3, name = "Timed" },
+}
+local keydata = {
+    name = "",
+    level = 0,
+    affixes = {},
+    timelimit = 0,
+}
 local defaults = {
     dungeonNamesShort = {
         AV = "The Azure Vault",
@@ -52,7 +64,7 @@ local defaults = {
         }
     },
     dungeonDefault = {
-        version = 1,
+        version = 2,
         season = seasons.Dragonflight[2],
         player = "",
         name = "",
@@ -60,34 +72,27 @@ local defaults = {
         startedTimestamp = 0,
         completed = false,
         completedTimestamp = 0,
-        completedInTime = false,
         timeToComplete = "",
         time = 0,
         deaths = {},
         totalDeaths = 0,
-        keyDetails = {
-            level = 0,
-            affixes = {},
-            timeLimit = 0,
-        },
+        keydata = keydata,
+        keyresult = keyresult.unknown,
         date = { ["date"] = "1900-01-01", ["datestring"] = "", ["datetime"] = "1900-01-01 00:00:00" },
         stars = ""
     },
     playerDefault = {
         version = 1,
         player = "",
-        damage = {total = 0, dps = 0},
-        healing = {total = 0, hps = 0},
+        damage = { total = 0, dps = 0 },
+        healing = { total = 0, hps = 0 },
         timesgrouped = 0,
         intime = 0,
         outtime = 0,
         failed = 0,
         keys = {}
     },
-    playerkey = {
-        name = "",
-        level = 0
-    },
+    keyresult = keyresult,
     colors = {
         chatAnnounce = colors.cyan.chat,
         chatWarning = colors.yellow.chat,
@@ -111,11 +116,6 @@ local defaults = {
     },
     filter = { key = "alldata", value = "" },
     dungeonPlusChar = "*",
-    state = {
-        intime = 1,
-        outtime = 2,
-        failed = 3,
-    }
 }
 
 KeyCount.defaults = defaults

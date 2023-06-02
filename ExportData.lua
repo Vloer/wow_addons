@@ -5,7 +5,7 @@ local function flatten(data)
     for col, v in pairs(data) do
         if col == "deaths" then
             --
-        elseif col == "keyDetails" and type(v) == "table" then
+        elseif col == "keydata" and type(v) == "table" then
             for _k, _v in pairs(v) do
                 if _k == "affixes" then
                     local affixstring = ""
@@ -32,6 +32,8 @@ local function flatten(data)
             end
         elseif col == "date" and type(v) == "table" then
             out[col] = v.datetime
+        elseif col == "result" and type(v) == "table" then
+            out[col] = v.name
         else
             out[col] = v
         end
@@ -71,9 +73,8 @@ local function formatCSV(_dungeons)
         { enabled = true, name = "player",       value = "player" },
         { enabled = true, name = "dungeon",      value = "name" },
         { enabled = true, name = "level",        value = "level" },
-        { enabled = true, name = "completed",    value = "completed" },
-        { enabled = true, name = "inTime",       value = "completedInTime" },
-        { enabled = true, name = "timeLimit",    value = "timeLimit" },
+        { enabled = true, name = "result",       value = "keyresult" },
+        { enabled = true, name = "timelimit",    value = "timelimit" },
         { enabled = true, name = "time",         value = "time" },
         { enabled = true, name = "affixes",      value = "affixes" },
         { enabled = true, name = "deaths",       value = "totalDeaths" },
@@ -134,7 +135,3 @@ function e.createFrame(_data)
     end)
     f:AddChild(e)
 end
-
--- KeyCount.exportdata = {
---     createFrame = createDataExportFrame
--- }

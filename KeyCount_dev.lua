@@ -151,19 +151,19 @@ function KeyCount:SetKeyStart()
     KeyCount:AddDungeonEvents()
     local activeKeystoneLevel, activeAffixIDs = C_ChallengeMode.GetActiveKeystoneInfo()
     local challengeMapID = C_ChallengeMode.GetActiveChallengeMapID()
-    local name, _, timeLimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
+    local name, _, timelimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
     printf(string.format("KeyCount: started recording for %s %d.", name, activeKeystoneLevel))
-    self.current.keyDetails.level = activeKeystoneLevel
+    self.current.keydata.level = activeKeystoneLevel
     self.current.startedTimestamp = time()
     self.current.party = self:GetPartyMemberInfo()
-    self.current.keyDetails.affixes = {}
-    self.current.keyDetails.timeLimit = timeLimit
+    self.current.keydata.affixes = {}
+    self.current.keydata.timelimit = timelimit
     self.current.name = name
     if self.current.player == "" then self.current.player = UnitName("player") end
     for _, affixID in ipairs(activeAffixIDs) do
         local affixName = C_ChallengeMode.GetAffixInfo(affixID)
-        table.insert(self.current.keyDetails.affixes, affixName)
+        table.insert(self.current.keydata.affixes, affixName)
     end
     Log("Finished SetKeyStart")
 end
@@ -184,7 +184,7 @@ function KeyCount:SetKeyFailed()
     Log("Called SetKeyFailed")
     self.current.completedTimestamp = time()
     self.current.completed = false
-    self.current.completedInTime = false
+    self.current.keyresult = self.defaults.keyresult.abandoned
     self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
     KeyCount:FinishDungeon()
     Log("Finished SetKeyFailed")
@@ -199,11 +199,15 @@ function KeyCount:SetKeyEnd()
     local totalTime = math.floor(finalTime / 1000 + 0.5)
     self.current.completed = true
     self.current.completedTimestamp = time()
-    self.current.completedInTime = onTime
+    if onTime then
+        self.current.keyresult = self.defaults.keyresult.intime
+    else
+        self.current.keyresult = self.defaults.keyresult.outtime
+    end
     self.current.time = totalTime
     self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
-    if self.current.keyDetails.timeLimit == 0 then
-        _, _, self.current.keyDetails.timeLimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
+    if self.current.keydata.timelimit == 0 then
+        _, _, self.current.keydata.timelimit = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
     end
     KeyCount.util.safeExec("SetDetailsData", KeyCount.SetDetailsData, KeyCount)
     KeyCount:FinishDungeon()
@@ -215,7 +219,7 @@ function KeyCount:FinishDungeon()
     self.keystoneActive = false
     KeyCountDB.keystoneActive = false
     KeyCount:SetTimeToComplete()
-    Log(string.format("Key %s %s %s", self.current.name, self.current.keyDetails.level, self.current.timeToComplete))
+    Log(string.format("Key %s %s %s", self.current.name, self.current.keydata.level, self.current.timeToComplete))
     KeyCount:SaveAndReset()
     KeyCount:RemoveDungeonEvents()
     Log("Finished FinishDungeon")
@@ -240,12 +244,12 @@ function KeyCount:SetTimeToComplete()
         self.current.time = timeEnd - timeStart + timeLost
     end
     self.current.timeToComplete = KeyCount.util.formatTimestamp(self.current.time)
-    if self.current.completedInTime then
+    if self.current.keyresult.value == self.defaults.keyresult.intime.value then
         local s
         local symbol = self.defaults.dungeonPlusChar
-        if self.current.time < (self.current.keyDetails.timeLimit * 0.6) then
+        if self.current.time < (self.current.keydata.timelimit * 0.6) then
             s = symbol .. symbol .. symbol
-        elseif self.current.time < (self.current.keyDetails.timeLimit * 0.8) then
+        elseif self.current.time < (self.current.keydata.timelimit * 0.8) then
             s = symbol .. symbol
         else
             s = symbol
@@ -267,7 +271,7 @@ end
 function KeyCount:SaveDungeons()
     for _, dungeon in ipairs(self.dungeons) do
         local name = dungeon.name or ""
-        local details = dungeon.keyDetails or {}
+        local details = dungeon.keydata or {}
         local level = details.level or 0
         printf(string.format("Inserting %s %s", name, level))
         table.insert(KeyCountDB.dungeons, dungeon)
@@ -291,10 +295,9 @@ function KeyCount:SavePlayers()
             players[player].healing = playerdata.healing or players[player].healing
             local key = KeyCount.defaults.playerkey
             key.name = playerdata.name
-            key.level = playerdata.keyDetails.level
-            key.affixes = playerdata.keyDetails.affixes
+            key.level = playerdata.keydata.level
+            key.affixes = playerdata.keydata.affixes
         end
-        
     end
 end
 
@@ -330,19 +333,18 @@ end
 function KeyCount:GetStoredDungeons()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
         print(string.format("%sKeyCount: %sNo dungeons stored!%s",
-        KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, KeyCount.defaults.colors.reset))
+            KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, KeyCount.defaults.colors.reset))
         return nil
     end
     local stored = {}
     for i, d in ipairs(KeyCountDB.dungeons) do
-        --@debug@
-        Log(string.format("Checking data status for dungeon %s: %s %s", i, d.name, d.keyDetails.level))
-        --@end-debug@
+
         local fixed = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.format, d)
         if fixed then
-           table.insert(stored, fixed)
+
+        table.insert(stored, fixed)
         end
-     end
+    end
     return stored
 end
 
@@ -363,7 +365,9 @@ function KeyCount:SetDetailsData()
                     hps = h.hps or 0
                 }
             else
-                printf(string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player), self.defaults.colors.chatError)
+                printf(
+                string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player),
+                    self.defaults.colors.chatError)
             end
         end
     end

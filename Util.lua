@@ -164,10 +164,10 @@ util.printTableOnSameLine = function(table, name)
     local output = ""
     name = name or ""
     for key, value in pairs(table) do
-        if type(value) == "string" then
-            output = output .. key .. ": " .. value .. ", "
-        else
+        if type(value) == "table" then
             output = output .. key .. ": " .. type(value) .. ", "
+        else
+            output = output .. key .. ": " .. tostring(value) .. ", "
         end
     end
     output = output:sub(1, -3)
