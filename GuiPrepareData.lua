@@ -50,13 +50,13 @@ local function getLevelColor(level)
     return { color = color, hex = hex }
 end
 
-local function getResultString(dungeon)
-    if dungeon.completedInTime then
-        return { result = "Timed", color = KeyCount.defaults.colors.rating[5] }
-    elseif dungeon.completed then
-        return { result = "Failed to time", color = KeyCount.defaults.colors.rating[3] }
-    else
-        return { result = "Abandoned", color = KeyCount.defaults.colors.rating[1] }
+local function getResultColor(dungeon)
+    if dungeon.keyresult.value == KeyCount.defaults.keyresult.intime.value then
+        return KeyCount.defaults.colors.rating[5]
+    elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.outtime.value then
+        return KeyCount.defaults.colors.rating[3]
+    elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.abandoned.value then
+        return KeyCount.defaults.colors.rating[1]
     end
 end
 
@@ -87,11 +87,11 @@ end
 local function getDungeonTime(dungeon, timetextcolor)
     local symbol = KeyCount.defaults.dungeonPlusChar
     local s = dungeon.timeToComplete
-    local completed = dungeon.completedInTime
+    local result = dungeon.keyresult.value
     local time = dungeon.time
     local limit = dungeon.keydata.timelimit or 0
     local amount
-    if completed then
+    if result >= KeyCount.defaults.keyresult.intime.value then
         if time < (limit * 0.6) then
             amount = 3
         elseif time < (limit * 0.8) then
@@ -106,6 +106,7 @@ local function getDungeonTime(dungeon, timetextcolor)
     s = KeyCount.util.addSymbol(s, amount, symbol)
     return s
 end
+
 local function formatDps(dps)
     local default = ""
     if type(dps) ~= "number" then return default end
@@ -136,9 +137,10 @@ local function prepareRowList(dungeon)
     local player = dungeon.player
     local name = dungeon.name
     local level = dungeon.keydata.level
-    local result = getResultString(dungeon)
+    local result = dungeon.keyresult.name
+    local resultColor = getResultColor(dungeon)
     local deaths = dungeon.totalDeaths or 0
-    local time = getDungeonTime(dungeon, result.color)
+    local time = getDungeonTime(dungeon, resultColor)
     local date = dungeon.date.date
     local dps = KeyCount.util.safeExec("GetPlayerDps", getPlayerDpsString, dungeon)
     local affixes = KeyCount.util.concatTable(dungeon.keydata.affixes, ", ")
@@ -151,7 +153,7 @@ local function prepareRowList(dungeon)
     table.insert(row, { value = playerString, color = p.color })
     table.insert(row, { value = name })
     table.insert(row, { value = level, color = getLevelColor(level).color })
-    table.insert(row, { value = result.result, color = rgb(result.color.rgb) })
+    table.insert(row, { value = result, color = rgb(resultColor.rgb) })
     table.insert(row, { value = deaths, color = getDeathsColor(deaths) })
     table.insert(row, { value = time })
     table.insert(row, { value = dps })
@@ -166,9 +168,9 @@ local function prepareRowRate(dungeon)
     local attempts = dungeon.totalAttempts
     local rate = dungeon.successRate
     local rateString = string.format("%.2f%%", rate)
-    local intime = dungeon.success
-    local outtime = dungeon.outOfTime
-    local failed = dungeon.failed
+    local intime = dungeon.intime
+    local outtime = dungeon.outtime
+    local abandoned = dungeon.abandoned
     local best = dungeon.best
     local median = dungeon.median
     local dps = formatDps(dungeon.maxdps)
@@ -180,7 +182,7 @@ local function prepareRowRate(dungeon)
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })
     table.insert(row, { value = outtime })
-    table.insert(row, { value = failed })
+    table.insert(row, { value = abandoned })
     table.insert(row, { value = best, color = getLevelColor(best).color })
     table.insert(row, { value = median, color = getLevelColor(median).color })
     table.insert(row, { value = dps })
@@ -196,9 +198,9 @@ local function prepareRowGrouped(player)
     local amount = player.amount
     local rate = player.successRate
     local rateString = string.format("%.2f%%", rate)
-    local intime = player.success
-    local outtime = player.outOfTime
-    local failed = player.failed
+    local intime = player.intime
+    local outtime = player.outtime
+    local abandoned = player.abandoned
     local best = player.best
     local median = player.median
     local dps = formatDps(player.maxdps)
@@ -213,7 +215,7 @@ local function prepareRowGrouped(player)
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })
     table.insert(row, { value = outtime })
-    table.insert(row, { value = failed })
+    table.insert(row, { value = abandoned })
     table.insert(row, { value = best, color = getLevelColor(best).color })
     table.insert(row, { value = median, color = getLevelColor(median).color })
     table.insert(row, { value = dps })

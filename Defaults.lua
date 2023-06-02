@@ -19,10 +19,10 @@ local seasons = {
     }
 }
 local keyresult = {
-    unknown = 0,
-    failed = 1,
-    outtime = 2,
-    intime = 3,
+    unknown = { value = 0, name = "Unknown" },
+    abandoned = { value = 1, name = "Abandoned" },
+    outtime = { value = 2, name = "Failed to time" },
+    intime = { value = 3, name = "Timed" },
 }
 local keydata = {
     name = "",
@@ -72,7 +72,6 @@ local defaults = {
         startedTimestamp = 0,
         completed = false,
         completedTimestamp = 0,
-        completedInTime = false,
         timeToComplete = "",
         time = 0,
         deaths = {},
@@ -85,8 +84,8 @@ local defaults = {
     playerDefault = {
         version = 1,
         player = "",
-        damage = {total = 0, dps = 0},
-        healing = {total = 0, hps = 0},
+        damage = { total = 0, dps = 0 },
+        healing = { total = 0, hps = 0 },
         timesgrouped = 0,
         intime = 0,
         outtime = 0,

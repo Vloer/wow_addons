@@ -7,6 +7,8 @@ local f = KeyCount.formatdata
 function f.format(dungeonIn, new)
     local dungeon = table.copy({}, dungeonIn)
     local old = dungeon["version"] or 0
+    local level = dungeon.keyDetails.level or dungeon.keydata.level or 0
+    local debuglog = string.format("Formatted data for [%s %s] from version %s", dungeon.name, level, old)
     new = new or KeyCount.defaults.dungeonDefault.version
     if old == new then return dungeon end
 
@@ -78,39 +80,50 @@ function f.format(dungeonIn, new)
 
         -- Set old version to new so the transformation can continue if needed
         old = 1
+        debuglog = string.format("%s to version %s", debuglog, old)
     end
 
     -- 1 to 2
     if old == 1 and new >= 2 then
         -- Rename keyDetails and timeLimit
-        local keydata = {}
-        keydata["name"] = dungeon.name
-        keydata["level"] = dungeon.keyDetails.level
-        keydata["timelimit"] = dungeon.keyDetails.timeLimit
-        keydata["affixes"] = dungeon.keyDetails.affixes
-        dungeon["keydata"] = keydata
+        if not dungeon["keydata"] then
+            local keydata = {}
+            keydata["name"] = dungeon.name
+            keydata["level"] = dungeon.keyDetails.level
+            keydata["timelimit"] = dungeon.keyDetails.timeLimit
+            keydata["affixes"] = dungeon.keyDetails.affixes
+            dungeon["keydata"] = keydata
+        end
 
         -- Store dungeon result
-        local dungeonresult
-        if dungeon.completedInTime then
-            dungeonresult = KeyCount.defaults.keyresult.intime
-        elseif dungeon.completed then
-            dungeonresult = KeyCount.defaults.keyresult.outtime
-        else
-            dungeonresult = KeyCount.defaults.keyresult.failed
+        if not dungeon["keyresult"] then
+            local dungeonresult
+            if dungeon.completedInTime then
+                dungeonresult = KeyCount.defaults.keyresult.intime
+            elseif dungeon.completed then
+                dungeonresult = KeyCount.defaults.keyresult.outtime
+            else
+                dungeonresult = KeyCount.defaults.keyresult.abandoned
+            end
+            dungeon["keyresult"] = dungeonresult
         end
-        dungeon["keyresult"] = dungeonresult
-        old = 2
-    end
 
+        dungeon["completedInTime"] = nil
+        dungeon["keyDetails"] = nil
+
+        old = 2
+        debuglog = string.format("%s to version %s", debuglog, old)
+    end
+    --@debug@
+    Log(debuglog)
+    --@end-debug@
     return dungeon
 end
-
 
 --[[
 Dungeon storage version changelog:
 0 - Everything before implementation of version system
-1 - 
+1 -
     - Added party member name as table name of the party data
     - Added deaths per party member
     - Added damage and healing per party member
@@ -120,7 +133,7 @@ Dungeon storage version changelog:
     - Removed usedOwnKey
     - Added stars
     - Added version
-2 - 
+2 -
     - Changed keyDetails to keydata
     - Changed timeLimit to timelimit
     - Removed completed/completedintime and added keyresult

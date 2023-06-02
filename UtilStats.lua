@@ -2,14 +2,14 @@ local stats = KeyCount.utilstats
 
 function stats.printDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
-        if dungeon.completedInTime then
-            printf(string.format("[%s] %d: Timed %s %d (%d deaths)", dungeon.player, i, dungeon.name,
+        if dungeon.keyresult.value == KeyCount.defaults.keyresult.intime.value then
+            printf(string.format("[%s] %d: %s %s %d (%d deaths)", dungeon.player, i, KeyCount.defaults.keyresult.intime.name, dungeon.name,
                 dungeon.keydata.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[5].chat)
-        elseif dungeon.completed then
-            printf(string.format("[%s] %d: Failed to time %s %d (%d deaths)", dungeon.player, i, dungeon.name,
+        elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.outtime.value then
+            printf(string.format("[%s] %d: %s %s %d (%d deaths)", dungeon.player, i, KeyCount.defaults.keyresult.outtime.name, dungeon.name,
                 dungeon.keydata.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[3].chat)
-        else
-            printf(string.format("[%s] %d: Abandoned %s %d (%d deaths)", dungeon.player, i, dungeon.name,
+        elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.abandoned.value then
+            printf(string.format("[%s] %d: %s %s %d (%d deaths)", dungeon.player, i, KeyCount.defaults.keyresult.abandoned.name, dungeon.name,
                 dungeon.keydata.level, dungeon.totalDeaths), KeyCount.defaults.colors.rating[1].chat)
         end
     end
@@ -19,7 +19,7 @@ function stats.printDungeonSuccessRate(tbl)
     for _, d in ipairs(tbl) do
         local colorIdx = math.floor(d.successRate / 20) + 1
         local fmt = KeyCount.defaults.colors.rating[colorIdx].chat
-        printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime),
+        printf(string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.intime, d.intime + d.outtime + d.abandoned),
             fmt)
     end
 end
@@ -36,7 +36,7 @@ function stats.chatDungeonSuccessRate(tbl)
     end
     for _, d in ipairs(tbl) do
         SendChatMessage(
-            string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.success, d.success + d.failed + d.outOfTime),
+            string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.intime, d.intime + d.outtime + d.abandoned),
             outputchannel)
     end
 end
@@ -46,24 +46,22 @@ function stats.getDungeonSuccessRate(dungeons)
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
         if not res[dungeon.name] then
-            res[dungeon.name] = { success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0, allkeys = {} }
+            res[dungeon.name] = { intime = 0, outtime = 0, abandoned = 0, best = 0, maxdps = 0, allkeys = {} }
         end
         local keylevel = dungeon.keydata.level or 0
         if keylevel > 0 then
             table.insert(res[dungeon.name].allkeys, keylevel)
         end
-        if dungeon.completedInTime then
-            res[dungeon.name].success = (res[dungeon.name].success or 0) + 1
+        if dungeon.keyresult.value == KeyCount.defaults.keyresult.intime.value then
+            res[dungeon.name].intime = (res[dungeon.name].intime or 0) + 1
             local level = dungeon.keydata.level
             if level > res[dungeon.name].best then
                 res[dungeon.name].best = level
             end
+        elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.outtime.value then
+            res[dungeon.name].outtime = (res[dungeon.name].outtime or 0) + 1
         else
-            if dungeon.completed then
-                res[dungeon.name].outOfTime = (res[dungeon.name].outOfTime or 0) + 1
-            else
-                res[dungeon.name].failed = (res[dungeon.name].failed or 0) + 1
-            end
+            res[dungeon.name].abandoned = (res[dungeon.name].abandoned or 0) + 1
         end
         local dps = stats.getPlayerDps(dungeon.party[dungeon.player])
         if dps > res[dungeon.name].maxdps then
@@ -75,22 +73,22 @@ function stats.getDungeonSuccessRate(dungeons)
     end
     for name, d in pairs(res) do
         local successRate = 0
-        local total = d.success + d.failed + d.outOfTime
+        local total = d.intime + d.outtime + d.abandoned
         local median = KeyCount.util.calculateMedian(d.allkeys)
-        if (d.failed + d.outOfTime) == 0 then
+        if (d.outtime + d.abandoned) == 0 then
             successRate = 100
-        elseif d.success == 0 then
+        elseif d.intime == 0 then
             successRate = 0
         else
-            successRate = d.success / total * 100
+            successRate = d.intime / total * 100
         end
         table.insert(resRate,
             {
                 name = name,
                 successRate = successRate,
-                success = d.success,
-                outOfTime = d.outOfTime,
-                failed = d.failed,
+                intime = d.intime,
+                outtime = d.outtime,
+                abandoned = d.abandoned,
                 best = d.best,
                 median = median,
                 totalAttempts = total,
@@ -129,7 +127,7 @@ function stats.getPlayerSuccessRate(dungeons)
         local keylevel = d.keydata.level or 0
         for player, playerdata in pairs(party) do
             if not data[player] then
-                data[player] = { amount = 0, success = 0, failed = 0, outOfTime = 0, best = 0, maxdps = 0, allkeys = {} }
+                data[player] = { amount = 0, intime = 0, abandoned = 0, outtime = 0, best = 0, maxdps = 0, allkeys = {} }
             end
             data[player].name = data[player].name or player
             data[player].amount = (data[player].amount or 0) + 1
@@ -142,15 +140,15 @@ function stats.getPlayerSuccessRate(dungeons)
             end
             data[player].role = data[player].role or playerdata.role
             data[player].class = data[player].class or playerdata.class
-            if d.completedInTime then
-                data[player].success = (data[player].success or 0) + 1
+            if d.keyresult.value == KeyCount.defaults.keyresult.intime.value then
+                data[player].intime = (data[player].intime or 0) + 1
                 if d.keydata.level > data[player].best then
                     data[player].best = d.keydata.level
                 end
             elseif d.completed then
-                data[player].outOfTime = (data[player].outOfTime or 0) + 1
+                data[player].outtime = (data[player].outtime or 0) + 1
             else
-                data[player].failed = (data[player].failed or 0) + 1
+                data[player].abandoned = (data[player].abandoned or 0) + 1
             end
             --@debug@
             KeyCount.util.printTableOnSameLine(data[player], "GetPlayerSuccessRate")
@@ -159,23 +157,23 @@ function stats.getPlayerSuccessRate(dungeons)
     end
     for player, d in pairs(data) do
         local successRate = 0
-        local total = d.success + d.failed + d.outOfTime
+        local total = d.intime + d.abandoned + d.outtime
         local median = KeyCount.util.calculateMedian(d.allkeys)
-        if (d.failed + d.outOfTime) == 0 then
+        if (d.abandoned + d.outtime) == 0 then
             successRate = 100
-        elseif d.success == 0 then
+        elseif d.intime == 0 then
             successRate = 0
         else
-            successRate = d.success / total * 100
+            successRate = d.intime / total * 100
         end
         table.insert(rate,
             {
                 name = player,
                 amount = d.amount,
                 successRate = successRate,
-                success = d.success,
-                outOfTime = d.outOfTime,
-                failed = d.failed,
+                intime = d.intime,
+                outtime = d.outtime,
+                abandoned = d.abandoned,
                 best = d.best,
                 median = median,
                 maxdps = d.maxdps,
@@ -200,7 +198,6 @@ function stats.showPastDungeons()
         Log(string.format("%d: %s level %s %s", i, map, level, tostring(completed)))
         local dungeon = KeyCount.defaults.dungeonDefault
         dungeon.name = map
-        dungeon.completedInTime = completed
         dungeon.keydata.level = level
         dungeon.completed = completed
         table.insert(previousDungeons, dungeon)

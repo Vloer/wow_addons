@@ -35,6 +35,18 @@ function GUI:ConstructGUI()
         self.value = ""
     end
 
+    local function checkDisableFilterValue()
+        if self.filter.key == "intime" or
+            self.filter.key == "outtime" or
+            self.filter.key == "abandoned" or
+            self.filter.key == "completed" or
+            self.filter.key == "alldata" then
+            self.widgets.filterValue:SetDisabled(true)
+        else
+            self.widgets.filterValue:SetDisabled(false)
+        end
+    end
+
     local function fillTable()
         --@debug@
         Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.filtertype, tostring(self.key),
@@ -109,6 +121,7 @@ function GUI:ConstructGUI()
         self.boxes.filterKey:SetText(self.filter.name)
         self.key = self.filter.value
         resetFilterValue()
+        checkDisableFilterValue()
     end
 
     local function c_FilterValue(text)
@@ -206,19 +219,19 @@ function GUI:ConstructGUI()
         { ["name"] = "Attempts",     ["width"] = 55, },
         { ["name"] = "Success rate", ["width"] = 75, },
         {
-            ["name"] = "In time",
+            ["name"] = KeyCount.defaults.keyresult.intime.name,
             ["width"] = 55,
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [5].rgb)
         },
         {
-            ["name"] = "Out of time",
+            ["name"] = KeyCount.defaults.keyresult.outtime.name,
             ["width"] = 75,
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [3].rgb)
         },
         {
-            ["name"] = "Abandoned",
+            ["name"] = KeyCount.defaults.keyresult.abandoned.name,
             ["width"] = 60,
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [1].rgb)
@@ -233,19 +246,19 @@ function GUI:ConstructGUI()
         { ["name"] = "Amount",       ["width"] = 55, },
         { ["name"] = "Success rate", ["width"] = 75, },
         {
-            ["name"] = "In time",
+            ["name"] = KeyCount.defaults.keyresult.intime.name,
             ["width"] = 55,
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [5].rgb)
         },
         {
-            ["name"] = "Out of time",
+            ["name"] = KeyCount.defaults.keyresult.outtime.name,
             ["width"] = 75,
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [3].rgb)
         },
         {
-            ["name"] = "Abandoned",
+            ["name"] = KeyCount.defaults.keyresult.abandoned.name,
             ["width"] = 60,
             ["color"] = KeyCount.util.convertRgb(KeyCount.defaults.colors.rating
                 [1].rgb)
@@ -267,7 +280,7 @@ function GUI:ConstructGUI()
     self.tables.rate:EnableSelection(true)
     self.tables.rate:Hide()
 
-    self.tables.grouped = ScrollingTable:CreateST(columnsGrouped, 8, 16, nil, window);
+    self.tables.grouped = ScrollingTable:CreateST(columnsGrouped, 16, 16, nil, window);
     self.tables.grouped.frame:SetPoint("TOP", window, "TOP", 0, -100);
     self.tables.grouped.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
     self.tables.grouped:EnableSelection(true)

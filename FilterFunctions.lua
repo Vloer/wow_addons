@@ -22,14 +22,8 @@ local filterConditions = {
     ["completed"] = function(entry, value)
         return entry["completed"] == value
     end,
-    ["completedInTime"] = function(entry, value)
-        return entry["completedInTime"] == value
-    end,
-    ["outOfTime"] = function(entry, value)
-        if entry["completedInTime"] == value and entry["completed"] == true then return true end
-    end,
-    ["failed"] = function(entry, value)
-        return entry["completed"] == value
+    ["keyresult"] = function(entry, value)
+        return entry["keyresult"]["value"] == value
     end,
     ["time"] = function(entry, value)
         local res = entry["time"] or 0
@@ -86,14 +80,15 @@ local function cleanFilterArgs(key, value)
         if not value then return nil, nil end
     elseif _key == "completed" then
         value = true
-    elseif _key == "intime" or _key == "completedintime" then
-        _key = "completedInTime"
-        value = true
-    elseif _key == "outoftime" then
-        _key = "outOfTime"
-        value = false
-    elseif _key == "failed" then
-        value = false
+    elseif _key == "intime" then
+        _key = "keyresult"
+        value = KeyCount.defaults.keyresult.intime.value
+    elseif _key == "outtime" then
+        _key = "keyresult"
+        value = KeyCount.defaults.keyresult.outtime.value
+    elseif _key == "abandoned" then
+        _key = "keyresult"
+        value = KeyCount.defaults.keyresult.abandoned.value
     elseif _key == "time" or _key == "deathsgt" or _key == "deathslt" or _key == "level" then
         value = tonumber(value) or 0
     elseif _key == "affix" and #value ~= 0 then
@@ -209,9 +204,9 @@ KeyCount.filterkeys = {
     ["dungeon"] = { key = "dungeon", value = "name", name = "Dungeon" },
     ["season"] = { key = "season", value = "season", name = "Season" },
     ["completed"] = { key = "completed", value = "completed", name = "Completed" },
-    ["inTime"] = { key = "inTime", value = "completedInTime", name = "Completed in time" },
-    ["outTime"] = { key = "outTime", value = "outOfTime", name = "Completed out of time" },
-    ["failed"] = { key = "failed", value = "failed", name = "Abandoned" },
+    ["intime"] = { key = "intime", value = "intime", name = "Completed in time" },
+    ["outtime"] = { key = "outtime", value = "outtime", name = "Completed out of time" },
+    ["abandoned"] = { key = "abandoned", value = "abandoned", name = "Abandoned" },
     ["level"] = { key = "level", value = "level", name = "Key level"},
     ["time"] = { key = "time", value = "time", name = "Time" },
     ["deathsgt"] = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
@@ -222,5 +217,5 @@ KeyCount.filterkeys = {
 
 KeyCount.filterorder = {
     "alldata", "player", "dungeon", "season",
-    "completed", "inTime", "outTime", "failed", "level",
+    "completed", "intime", "outtime", "abandoned", "level",
     "time", "deathsgt", "deathslt", "date", "affix" }

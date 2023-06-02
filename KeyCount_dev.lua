@@ -184,7 +184,7 @@ function KeyCount:SetKeyFailed()
     Log("Called SetKeyFailed")
     self.current.completedTimestamp = time()
     self.current.completed = false
-    self.current.completedInTime = false
+    self.current.keyresult = self.defaults.keyresult.abandoned
     self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
     KeyCount:FinishDungeon()
     Log("Finished SetKeyFailed")
@@ -199,7 +199,11 @@ function KeyCount:SetKeyEnd()
     local totalTime = math.floor(finalTime / 1000 + 0.5)
     self.current.completed = true
     self.current.completedTimestamp = time()
-    self.current.completedInTime = onTime
+    if onTime then
+        self.current.keyresult = self.defaults.keyresult.intime
+    else
+        self.current.keyresult = self.defaults.keyresult.outtime
+    end
     self.current.time = totalTime
     self.current.totalDeaths = self.util.sumTbl(self.current.deaths) or 0
     if self.current.keydata.timelimit == 0 then
@@ -240,7 +244,7 @@ function KeyCount:SetTimeToComplete()
         self.current.time = timeEnd - timeStart + timeLost
     end
     self.current.timeToComplete = KeyCount.util.formatTimestamp(self.current.time)
-    if self.current.completedInTime then
+    if self.current.keyresult.value == self.defaults.keyresult.intime.value then
         local s
         local symbol = self.defaults.dungeonPlusChar
         if self.current.time < (self.current.keydata.timelimit * 0.6) then
@@ -329,19 +333,18 @@ end
 function KeyCount:GetStoredDungeons()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
         print(string.format("%sKeyCount: %sNo dungeons stored!%s",
-        KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, KeyCount.defaults.colors.reset))
+            KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, KeyCount.defaults.colors.reset))
         return nil
     end
     local stored = {}
     for i, d in ipairs(KeyCountDB.dungeons) do
-        --@debug@
-        Log(string.format("Checking data status for dungeon %s: %s %s", i, d.name, d.keydata.level))
-        --@end-debug@
+
         local fixed = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.format, d)
         if fixed then
-           table.insert(stored, fixed)
+
+        table.insert(stored, fixed)
         end
-     end
+    end
     return stored
 end
 
@@ -362,7 +365,9 @@ function KeyCount:SetDetailsData()
                     hps = h.hps or 0
                 }
             else
-                printf(string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player), self.defaults.colors.chatError)
+                printf(
+                string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player),
+                    self.defaults.colors.chatError)
             end
         end
     end
