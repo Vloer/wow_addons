@@ -73,6 +73,21 @@ local defaults = {
         date = { ["date"] = "1900-01-01", ["datestring"] = "", ["datetime"] = "1900-01-01 00:00:00" },
         stars = ""
     },
+    playerDefault = {
+        version = 1,
+        player = "",
+        damage = {total = 0, dps = 0},
+        healing = {total = 0, hps = 0},
+        timesgrouped = 0,
+        intime = 0,
+        outtime = 0,
+        failed = 0,
+        keys = {}
+    },
+    playerkey = {
+        name = "",
+        level = 0
+    },
     colors = {
         chatAnnounce = colors.cyan.chat,
         chatWarning = colors.yellow.chat,
@@ -95,7 +110,12 @@ local defaults = {
         filter = "alldata"
     },
     filter = { key = "alldata", value = "" },
-    dungeonPlusChar = "*"
+    dungeonPlusChar = "*",
+    state = {
+        intime = 1,
+        outtime = 2,
+        failed = 3,
+    }
 }
 
 KeyCount.defaults = defaults

@@ -17,6 +17,7 @@ end
 function KeyCount:PLAYER_LOGOUT(event)
     -- Update current table in DB if it is not set to the default values
     KeyCount:SaveDungeons()
+    KeyCount:SavePlayers()
     if self.keystoneActive then KeyCountDB.keystoneActive = true else KeyCountDB.keystoneActive = false end
     if self.current and not table.equal(self.current, self.defaults.dungeonDefault) then
         table.copy(KeyCountDB.current, self.current)
@@ -101,6 +102,7 @@ function KeyCount:InitSelf()
     KeyCountDB = KeyCountDB or {}
     KeyCountDB.current = KeyCountDB.current or {}
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
+    KeyCountDB.players = KeyCountDB.players or {}
     PreviousRunsDB = PreviousRunsDB or {}
     if KeyCountDB.keystoneActive then self.keystoneActive = true else self.keystoneActive = false end
     if not table.equal(KeyCountDB.current, self.defaults.dungeonDefault) and self.keystoneActive then
@@ -271,6 +273,29 @@ function KeyCount:SaveDungeons()
         table.insert(KeyCountDB.dungeons, dungeon)
     end
     self.dungeons = {}
+end
+
+function KeyCount:SavePlayers()
+    local players = KeyCountDB.players or {}
+    local dungeons = KeyCount:GetStoredDungeons()
+    if not dungeons then return end
+    for _, dungeon in ipairs(dungeons) do
+        local party = dungeon.party or {}
+        for player, playerdata in pairs(party) do
+            if not players[player] then
+                players[player] = KeyCount.defaults.playerDefault
+            end
+            players[player].player = player
+            players[player].timesgrouped = players[player].timesgrouped + 1
+            players[player].damage = playerdata.damage or players[player].damage
+            players[player].healing = playerdata.healing or players[player].healing
+            local key = KeyCount.defaults.playerkey
+            key.name = playerdata.name
+            key.level = playerdata.keyDetails.level
+            key.affixes = playerdata.keyDetails.affixes
+        end
+        
+    end
 end
 
 function KeyCount:GetPartyMemberInfo()
