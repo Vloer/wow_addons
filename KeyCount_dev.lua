@@ -326,7 +326,7 @@ function KeyCount:SavePlayers(dungeons)
             elseif key.result == KeyCount.defaults.keyresult.abandoned.value then
                 players[player].abandoned = players[player].abandoned + 1
             end
-            table.insert(players[player].keys, key)
+            table.insert(players[player].dungeons, key)
         end
     end
     KeyCountDB.players = table.copy({}, players)
