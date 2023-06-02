@@ -226,3 +226,12 @@ function stats.getPlayerDps(data)
     local dps = d.dps or 0
     return dps
 end
+
+-- Get a single players hps
+---@param data table The party table data for the specific player
+---@return number hps Returns 0 if no data found
+function stats.getPlayerHps(data)
+    local h = data.healing or {}
+    local hps = h.hps or 0
+    return hps
+end

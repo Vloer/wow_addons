@@ -16,8 +16,8 @@ end
 
 function KeyCount:PLAYER_LOGOUT(event)
     -- Update current table in DB if it is not set to the default values
+    KeyCount:SavePlayers(self.dungeons)
     KeyCount:SaveDungeons()
-    KeyCount:SavePlayers()
     if self.keystoneActive then KeyCountDB.keystoneActive = true else KeyCountDB.keystoneActive = false end
     if self.current and not table.equal(self.current, self.defaults.dungeonDefault) then
         table.copy(KeyCountDB.current, self.current)
@@ -104,6 +104,7 @@ function KeyCount:InitSelf()
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
     KeyCountDB.players = KeyCountDB.players or {}
     PreviousRunsDB = PreviousRunsDB or {}
+    KeyCount:InitPlayerList()
     if KeyCountDB.keystoneActive then self.keystoneActive = true else self.keystoneActive = false end
     if not table.equal(KeyCountDB.current, self.defaults.dungeonDefault) and self.keystoneActive then
         Log("Setting current dungeon to value from DB")
@@ -279,26 +280,56 @@ function KeyCount:SaveDungeons()
     self.dungeons = {}
 end
 
-function KeyCount:SavePlayers()
+function KeyCount:InitPlayerList()
     local players = KeyCountDB.players or {}
-    local dungeons = KeyCount:GetStoredDungeons()
-    if not dungeons then return end
+    if not next(players) then
+        local dungeons = KeyCount:GetStoredDungeons()
+        if dungeons then
+            printf("KeyCount: building stored player list from existing dungeons", KeyCount.defaults.colors.chatAnnounce)
+            KeyCount:SavePlayers(dungeons)
+        end
+    end
+end
+
+function KeyCount:SavePlayers(dungeons)
+    if not dungeons then print("nothing to save") return end
+    local players = KeyCountDB.players or {}
     for _, dungeon in ipairs(dungeons) do
         local party = dungeon.party or {}
         for player, playerdata in pairs(party) do
             if not players[player] then
-                players[player] = KeyCount.defaults.playerDefault
+                --@debug@
+                Log(string.format("Adding %s to list of players", player))
+                --@end-debug@
+                players[player] = table.copy({}, KeyCount.defaults.playerDefault)
             end
             players[player].player = player
             players[player].timesgrouped = players[player].timesgrouped + 1
-            players[player].damage = playerdata.damage or players[player].damage
-            players[player].healing = playerdata.healing or players[player].healing
-            local key = KeyCount.defaults.playerkey
-            key.name = playerdata.name
-            key.level = playerdata.keydata.level
-            key.affixes = playerdata.keydata.affixes
+            Log(string.format("Changing timesgrouped for player %s from %d to %d", player, players[player].timesgrouped-1, players[player].timesgrouped))
+            local dps = KeyCount.utilstats.getPlayerDps(playerdata)
+            local hps = KeyCount.utilstats.getPlayerHps(playerdata)
+            if dps > players[player].maxdps then players[player].maxdps = dps end
+            if dps > players[player].maxhps then players[player].maxhps = hps end
+            local keydata = dungeon.keydata
+            local key = {
+                name = keydata.name,
+                level = keydata.level,
+                affixes = keydata.affixes,
+                result = dungeon.keyresult.value,
+                resultstring = dungeon.keyresult.name,
+                season = dungeon.season,
+            }
+            if key.result == KeyCount.defaults.keyresult.intime.value then
+                players[player].intime = players[player].intime + 1
+            elseif key.result == KeyCount.defaults.keyresult.outtime.value then
+                players[player].outtime = players[player].outtime + 1
+            elseif key.result == KeyCount.defaults.keyresult.abandoned.value then
+                players[player].abandoned = players[player].abandoned + 1
+            end
+            table.insert(players[player].keys, key)
         end
     end
+    KeyCountDB.players = table.copy({}, players)
 end
 
 function KeyCount:GetPartyMemberInfo()
@@ -338,11 +369,9 @@ function KeyCount:GetStoredDungeons()
     end
     local stored = {}
     for i, d in ipairs(KeyCountDB.dungeons) do
-
         local fixed = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.format, d)
         if fixed then
-
-        table.insert(stored, fixed)
+            table.insert(stored, fixed)
         end
     end
     return stored
@@ -366,7 +395,7 @@ function KeyCount:SetDetailsData()
                 }
             else
                 printf(
-                string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player),
+                    string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player),
                     self.defaults.colors.chatError)
             end
         end

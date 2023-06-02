@@ -84,12 +84,12 @@ local defaults = {
     playerDefault = {
         version = 1,
         player = "",
-        damage = { total = 0, dps = 0 },
-        healing = { total = 0, hps = 0 },
         timesgrouped = 0,
         intime = 0,
         outtime = 0,
-        failed = 0,
+        abandoned = 0,
+        maxdps = 0,
+        maxhps = 0,
         keys = {}
     },
     keyresult = keyresult,
