@@ -2,7 +2,7 @@ local f = KeyCount.filterfunctions
 f.print = {}
 
 local function noResult()
-    printf("No dungeons matched your filter criteria!", KeyCount.defaults.colors.chatWarning)
+    printf("No dungeons matched your filter criteria!", KeyCount.defaults.colors.chatWarning, true)
     return nil
 end
 
@@ -109,7 +109,7 @@ local function cleanFilterArgs(key, value)
     elseif _key == "date" then
         if #value == 0 then value = date(KeyCount.defaults.dateFormat) end
     elseif _key == "role" then
-        printf("Role filter is not yet implemented!", KeyCount.defaults.colors.chatWarning)
+        printf("Role filter is not yet implemented!", KeyCount.defaults.colors.chatWarning, true)
         return nil, nil
     end
     if _key ~= "affix" then

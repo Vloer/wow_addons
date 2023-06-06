@@ -186,7 +186,7 @@ function KeyCount.utilstats.getPlayerSuccessRate(dungeons)
     local rate = {}
     local players = KeyCount.utilstats.getPlayerList(dungeons)
     if not players then
-        printf("No players found in stored dungeons!", KeyCount.defaults.colors.chatError)
+        printf("No players found in stored dungeons!", KeyCount.defaults.colors.chatError, true)
         return
     end
     for player, playerdata in pairs(players) do

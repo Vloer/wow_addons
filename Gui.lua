@@ -6,6 +6,7 @@ function GUI:ConstructGUI()
     self.buttons = {}
     self.dungeons = {}
     self.data = {}
+    self.dataLoadedForExport = false
     local AceGUI = LibStub("AceGUI-3.0")
 
     local function resetFilters()
@@ -83,10 +84,12 @@ function GUI:ConstructGUI()
             self.tables.list:SetData(self.data)
             self.tables.list:Refresh()
         end
+        self.dataLoadedForExport = true
     end
 
     local function c_FilterType(item)
         self.filtertype = item
+        self.dataLoadedForExport = false
         if self.filtertype == "list" then
             disableFilters(true)
             self.tables.rate:Hide()
@@ -139,6 +142,10 @@ function GUI:ConstructGUI()
     end
 
     local function c_ExportData()
+        if not self.dataLoadedForExport then
+            printf("No data is loaded to be exported! Press 'show data' first!", KeyCount.defaults.colors.chatWarning, true)
+            return
+        end
         if self.filtertype == "rate" or self.filtertype == "grouped" then
             KeyCount.utilstats.chatSuccessRate(self.dungeons)
         else

@@ -32,7 +32,7 @@ local function flatten(data)
             end
         elseif col == "date" and type(v) == "table" then
             out[col] = v.datetime
-        elseif col == "result" and type(v) == "table" then
+        elseif col == "keyresult" and type(v) == "table" then
             out[col] = v.name
         else
             out[col] = v

@@ -9,9 +9,15 @@ end
 ---Prints a colored chat message
 ---@param msg string Message to print
 ---@param fmt string|nil Color format. Defaults to cyan
-function printf(msg, fmt)
+---@param includeKeycount boolean|nil Set to true to add "Keycount: " to start of the message
+function printf(msg, fmt, includeKeycount)
     fmt = fmt or KeyCount.defaults.colors.chatAnnounce
-    print(string.format("%s%s|r", fmt, msg))
+    includeKeycount = includeKeycount or false
+    if includeKeycount then
+        print(string.format("%sKeyCount: %s%s|r", KeyCount.defaults.colors.chatAnnounce, fmt, msg))
+    else
+        print(string.format("%s%s|r", fmt, msg))
+    end
 end
 
 -- Checks two tables for equality

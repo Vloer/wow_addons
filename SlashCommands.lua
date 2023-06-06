@@ -22,7 +22,7 @@ SLASH_KEYCOUNT_LIST3 = "/kcl"
 SLASH_KEYCOUNT_LIST4 = "/kclist"
 function SlashCmdList.KEYCOUNT_LIST()
     print(" ")
-    printf("KeyCount: ===PRINTING DUNGEONS===")
+    printf("===PRINTING DUNGEONS===", nil, true)
     KeyCount.filterfunctions.print.list()
 end
 
@@ -30,7 +30,7 @@ SLASH_KEYCOUNT_FILTER1 = "/kcfilter"
 SLASH_KEYCOUNT_FILTER2 = "/kcf"
 function SlashCmdList.KEYCOUNT_FILTER(msg)
     print(" ")
-    printf("KeyCount: ===PRINTING DUNGEONS===")
+    printf("===PRINTING DUNGEONS===", nil, true)
     local key, value = KeyCount.util.parseMsg(msg)
     KeyCount.filterfunctions.print.filter(key, value)
 end
@@ -39,7 +39,7 @@ SLASH_KEYCOUNT_SUCCESSRATE1 = "/kcrate"
 SLASH_KEYCOUNT_SUCCESSRATE2 = "/kcr"
 function SlashCmdList.KEYCOUNT_SUCCESSRATE(msg)
     print(" ")
-    printf("KeyCount: ===PRINTING STATS===")
+    printf("===PRINTING STATS===", nil, true)
     local key, value = KeyCount.util.parseMsg(msg)
     KeyCount.filterfunctions.print.rate(key, value)
 end
@@ -48,7 +48,7 @@ SLASH_KEYCOUNT_EXPORT1 = "/kcexport"
 SLASH_KEYCOUNT_EXPORT2 = "/kce"
 function SlashCmdList.KEYCOUNT_EXPORT(msg)
     print(" ")
-    printf("KeyCount: ===CREATING DATA EXPORT===")
+    printf("===CREATING DATA EXPORT===", nil, true)
     KeyCount.exportdata.createFrame()
 end
 
@@ -56,7 +56,7 @@ SLASH_KEYCOUNT_HELP1 = "/kchelp"
 SLASH_KEYCOUNT_HELP2 = "/kch"
 function SlashCmdList.KEYCOUNT_HELP(msg)
     print(" ")
-    printf("KeyCount: ===OPTIONS===")
+    printf("===OPTIONS===", nil, true)
     printf(" ")
     printf(" [/kcl]  |  [/kclist]")
     printf(" List all dungeons without filtering", KeyCount.defaults.colors.chatWarning)
@@ -82,7 +82,7 @@ SLASH_KEYCOUNT_FILTEROPTS2 = "/kco"
 SLASH_KEYCOUNT_FILTEROPTS3 = "/kcoptions"
 function SlashCmdList.KEYCOUNT_FILTEROPTS(msg)
     print(" ")
-    printf("KeyCount: ===FILTER OPTIONS===")
+    printf("===FILTER OPTIONS===", nil, true)
     printf(" Format is /kcf or /kcrate <key> <value>")
     print(string.format("%s [<nothing>] %sDungeon name or abbreviation (ex: RLP)|r", KeyCount.defaults.colors.chatAnnounce,
         KeyCount.defaults.colors.chatWarning))

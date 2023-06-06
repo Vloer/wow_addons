@@ -69,7 +69,7 @@ function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
         if AuraUtil.FindAuraByName("Feign Death", destName) then return end
         self.current.deaths[destName] = (self.current.deaths[destName] or 0) + 1
         self.current.party[destName].deaths = (self.current.party[destName].deaths or 0) + 1
-        printf(string.format("%s died!", destName), self.defaults.colors.chatError)
+        printf(string.format("%s died!", destName), self.defaults.colors.chatError, true)
     end
 end
 
@@ -154,7 +154,7 @@ function KeyCount:SetKeyStart()
     local challengeMapID = C_ChallengeMode.GetActiveChallengeMapID()
     local name, _, timelimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
-    printf(string.format("KeyCount: started recording for %s %d.", name, activeKeystoneLevel))
+    printf(string.format("started recording for %s %d.", name, activeKeystoneLevel), nil, true)
     self.current.keydata.level = activeKeystoneLevel
     self.current.startedTimestamp = time()
     self.current.party = self:GetPartyMemberInfo()
@@ -274,7 +274,7 @@ function KeyCount:SaveDungeons()
         local name = dungeon.name or ""
         local details = dungeon.keydata or {}
         local level = details.level or 0
-        printf(string.format("Inserting %s %s", name, level))
+        printf(string.format("Inserting %s %s", name, level), nil, true)
         table.insert(KeyCountDB.dungeons, dungeon)
     end
     self.dungeons = {}
@@ -283,7 +283,7 @@ end
 function KeyCount:InitDatabase()
     local dungeons = KeyCount:GetStoredDungeons()
     if dungeons then
-        printf("KeyCount: ensuring database is up to date")
+        printf("Ensuring database is up to date", nil, true)
         local stored = {}
         for i, d in ipairs(dungeons) do
             local fixed = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.format, d)
@@ -292,7 +292,7 @@ function KeyCount:InitDatabase()
             end
         end
         KeyCountDB.dungeons = table.copy({}, stored)
-        printf("KeyCount: database updated")
+        printf("Database updated", nil, true)
     end
 end
 
@@ -301,9 +301,9 @@ function KeyCount:InitPlayerList()
     if not next(players) then
         local dungeons = KeyCount:GetStoredDungeons()
         if dungeons then
-            printf("KeyCount: building stored player list from existing dungeons")
+            printf("Building stored player list from existing dungeons", nil, true)
             KeyCount.util.safeExec("SaveAllPlayers", KeyCount.SaveAllPlayers, KeyCount, dungeons)
-            printf("KeyCount: player list updated")
+            printf("Player list updated", nil, true)
         end
     end
 end
@@ -419,7 +419,7 @@ function KeyCount:SetDetailsData()
             else
                 printf(
                     string.format("Warning: something likely went wrong with the recording of Details data! [%s]", player),
-                    self.defaults.colors.chatError)
+                    self.defaults.colors.chatError, true)
             end
         end
     end
