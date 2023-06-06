@@ -62,7 +62,15 @@ function stats.chatSuccessRate(tbl, maxlines)
     elseif numgroup > 5 then
         outputchannel = "RAID"
     end
-    SendChatMessage("KeyCount: ===Success Rate===")
+    SendChatMessage("KeyCount: ===Success Rate===", outputchannel)
+    local filtermsg
+    if #KeyCount.gui.key > 0 then
+        filtermsg = "FILTER > " .. KeyCount.gui.key
+        if KeyCount.gui.value and #KeyCount.gui.value > 0 then
+            filtermsg = filtermsg .. ": " .. KeyCount.gui.value
+        end
+        SendChatMessage(filtermsg, outputchannel)
+    end
     for i, d in ipairs(tbl) do
         if i > maxlines then break end
         local msg = string.format("%s: %.2f%% [%d/%d]", d.name, d.successRate, d.intime, d.totalEntries)

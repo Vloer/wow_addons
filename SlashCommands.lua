@@ -11,9 +11,10 @@ function SlashCmdList.KEYCOUNT()
         printf("Type /kch or /kchelp for available options, or use the GUI (opens on this command).")
         printf("This message will be hidden from now on.")
 
-        KeyCount.gui = GUI:ConstructGUI()
+        KeyCount.gui = GUI
     end
-    KeyCount.gui:Show()
+    KeyCount.gui.frame = KeyCount.gui:ConstructGUI()
+    KeyCount.gui.frame:Show()
 end
 
 SLASH_KEYCOUNT_LIST1 = "/keycount_list"
