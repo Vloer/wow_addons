@@ -2,15 +2,14 @@ local f = KeyCount.formatdata
 
 -- Format the dungeon storage object to the most recent version to avoid any errors
 ---@param dungeonIn table Dungeon data
----@param new number Desired version number. Defaults to latest
 ---@return table dungeon Updated dungeon data
-function f.format(dungeonIn, new)
+function f.format(dungeonIn)
     local dungeon = table.copy({}, dungeonIn)
     local old = dungeon["version"] or 0
+    local new = KeyCount.defaults.dungeonDefault.version
+    if old == new then return dungeon end
     local level = dungeon.keyDetails.level or dungeon.keydata.level or 0
     local debuglog = string.format("Formatted data for [%s %s] from version %s", dungeon.name, level, old)
-    new = new or KeyCount.defaults.dungeonDefault.version
-    if old == new then return dungeon end
 
     -- 0 to 1
     if old == 0 and new >= 1 then
@@ -80,6 +79,7 @@ function f.format(dungeonIn, new)
 
         -- Set old version to new so the transformation can continue if needed
         old = 1
+        dungeon["version"] = old
         debuglog = string.format("%s to version %s", debuglog, old)
     end
 
@@ -112,6 +112,7 @@ function f.format(dungeonIn, new)
         dungeon["keyDetails"] = nil
 
         old = 2
+        dungeon["version"] = old
         debuglog = string.format("%s to version %s", debuglog, old)
     end
     --@debug@

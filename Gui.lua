@@ -139,8 +139,8 @@ function GUI:ConstructGUI()
     end
 
     local function c_ExportData()
-        if self.filtertype == "rate" then
-            KeyCount.utilstats.chatDungeonSuccessRate(self.dungeons)
+        if self.filtertype == "rate" or self.filtertype == "grouped" then
+            KeyCount.utilstats.chatSuccessRate(self.dungeons)
         else
             KeyCount.exportdata.createFrame(self.dungeons)
         end

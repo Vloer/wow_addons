@@ -194,7 +194,7 @@ function f.print.rate(key, value)
 end
 
 function f.grouped(key, value)
-    local dungeons  = filterDungeons(key, value)
+    local dungeons = filterDungeons(key, value)
     if dungeons then return KeyCount.utilstats.getPlayerSuccessRate(dungeons) end
 end
 
@@ -207,7 +207,7 @@ KeyCount.filterkeys = {
     ["intime"] = { key = "intime", value = "intime", name = "Completed in time" },
     ["outtime"] = { key = "outtime", value = "outtime", name = "Completed out of time" },
     ["abandoned"] = { key = "abandoned", value = "abandoned", name = "Abandoned" },
-    ["level"] = { key = "level", value = "level", name = "Key level"},
+    ["level"] = { key = "level", value = "level", name = "Key level" },
     ["time"] = { key = "time", value = "time", name = "Time" },
     ["deathsgt"] = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
     ["deathslt"] = { key = "deathslt", value = "deathslt", name = "Maximum amount of deaths" },

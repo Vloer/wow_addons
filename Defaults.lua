@@ -84,13 +84,15 @@ local defaults = {
     playerDefault = {
         version = 1,
         player = "",
-        timesgrouped = 0,
+        totalEntries = 0,
         intime = 0,
         outtime = 0,
         abandoned = 0,
         maxdps = 0,
         maxhps = 0,
-        keys = {}
+        role = "",
+        class = "",
+        dungeons = {}
     },
     keyresult = keyresult,
     colors = {

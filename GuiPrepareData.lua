@@ -165,7 +165,7 @@ end
 local function prepareRowRate(dungeon)
     local row = {}
     local name = dungeon.name
-    local attempts = dungeon.totalAttempts
+    local attempts = dungeon.totalEntries
     local rate = dungeon.successRate
     local rateString = string.format("%.2f%%", rate)
     local intime = dungeon.intime
@@ -195,7 +195,7 @@ local function prepareRowGrouped(player)
     --@end-debug@
     local row = {}
     local name = player.name
-    local amount = player.amount
+    local amount = player.totalEntries
     local rate = player.successRate
     local rateString = string.format("%.2f%%", rate)
     local intime = player.intime

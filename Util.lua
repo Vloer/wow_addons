@@ -8,7 +8,7 @@ end
 
 ---Prints a colored chat message
 ---@param msg string Message to print
----@param fmt string Color format. Defaults to cyan
+---@param fmt string|nil Color format. Defaults to cyan
 function printf(msg, fmt)
     fmt = fmt or KeyCount.defaults.colors.chatAnnounce
     print(string.format("%s%s|r", fmt, msg))
@@ -187,4 +187,18 @@ util.calculateMedian = function(list)
     else
         return math.ceil((list[middleIndex] + list[middleIndex + 1]) / 2)
     end
+end
+
+-- Extract all values of a single key in a list of tables
+---@param tbl table The list of tables too look in
+---@param key string The key in the table to get data from
+---@return table|nil ListOfValues
+KeyCount.util.getListOfValues = function(tbl, key)
+    local res = {}
+    for _, data in ipairs(tbl) do
+        local d = data[key]
+        if d then table.insert(res, d) end
+    end
+    if not next(res) then return nil end
+    return res
 end
