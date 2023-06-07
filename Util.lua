@@ -56,19 +56,19 @@ table.copy = function(destination, source)
     return destination
 end
 
-util.parseMsg = function(msg)
+KeyCount.util.parseMsg = function(msg)
     if not msg or #msg == 0 then return "", "" end
     local _, _, key, value = string.find(msg, "%s?(%w+)%s?(.*)")
     return key, value
 end
 
-util.formatTimestamp = function(seconds)
+KeyCount.util.formatTimestamp = function(seconds)
     local minutes = math.floor(seconds / 60)
     local remainingSeconds = seconds - (minutes * 60)
     return string.format("%02d:%02d", minutes, remainingSeconds)
 end
 
-util.formatK = function(num)
+KeyCount.util.formatK = function(num)
     num = tonumber(num)
     if num >= 1000 then
         local formatted = string.format("%.1fK", num / 1000)
@@ -78,7 +78,7 @@ util.formatK = function(num)
     end
 end
 
-util.sumTbl = function(tbl)
+KeyCount.util.sumTbl = function(tbl)
     if type(tbl) ~= "table" then return end
     local res = 0
     for k, v in pairs(tbl) do
@@ -89,7 +89,7 @@ util.sumTbl = function(tbl)
     return res
 end
 
-util.convertRgb = function(colorTable)
+KeyCount.util.convertRgb = function(colorTable)
     local normalizedTable = {}
     for key, value in pairs(colorTable) do
         if type(value) == "number" and value > 1 then
@@ -101,7 +101,7 @@ util.convertRgb = function(colorTable)
     return normalizedTable
 end
 
-util.orderListByPlayer = function(dungeons)
+KeyCount.util.orderListByPlayer = function(dungeons)
     local dl = {}
     for _, dungeon in pairs(dungeons) do
         local player = dungeon.player
@@ -111,7 +111,7 @@ util.orderListByPlayer = function(dungeons)
     return dl
 end
 
-util.concatTable = function(table, delimiter)
+KeyCount.util.concatTable = function(table, delimiter)
     local concatenatedString = ""
     for i, value in ipairs(table) do
         concatenatedString = concatenatedString .. tostring(value)
@@ -122,11 +122,11 @@ util.concatTable = function(table, delimiter)
     return concatenatedString
 end
 
-util.colorText = function(text, color)
+KeyCount.util.colorText = function(text, color)
     return color .. text .. KeyCount.defaults.colors.reset
 end
 
-util.getKeyForValue = function(t, value)
+KeyCount.util.getKeyForValue = function(t, value)
     for k, v in pairs(t) do
         if v == value then return k end
     end
@@ -137,7 +137,7 @@ end
 ---@param name string Name to display in print statement
 ---@param func function Function to executed
 ---@param ... any Function arguments seperated by comma
-util.safeExec = function(name, func, ...)
+KeyCount.util.safeExec = function(name, func, ...)
     local success, result = pcall(func, ...)
     if success then
         return result
@@ -156,17 +156,17 @@ end
 ---@param amount number Amount of symbols to add
 ---@param symbol string Symbol to add. Defaults to *
 ---@param color string Formatted color hex string. Defaults to gold
-util.addSymbol = function(text, amount, symbol, color)
+KeyCount.util.addSymbol = function(text, amount, symbol, color)
     color = color or KeyCount.defaults.colors.gold.chat
     symbol = symbol or KeyCount.defaults.dungeonPlusChar
-    local symbols = util.colorText(symbol:rep(amount), color)
+    local symbols = KeyCount.util.colorText(symbol:rep(amount), color)
     return text .. symbols
 end
 
 -- Print all key,value pairs to the log
 ---@param table table Data
 ---@param name string Name of the table or function to display
-util.printTableOnSameLine = function(table, name)
+KeyCount.util.printTableOnSameLine = function(table, name)
     local output = ""
     name = name or ""
     for key, value in pairs(table) do
@@ -182,7 +182,7 @@ end
 
 -- Calculate the median of a list of values
 ---@param list table List that should not contain nil or nan values
-util.calculateMedian = function(list)
+KeyCount.util.calculateMedian = function(list)
     table.sort(list)
 
     local length = #list

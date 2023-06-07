@@ -1,5 +1,5 @@
 local f = KeyCount.filterfunctions
-f.print = {}
+KeyCount.filterfunctions.print = {}
 
 local function noResult()
     printf("No dungeons matched your filter criteria!", KeyCount.defaults.colors.chatWarning, true)
@@ -177,10 +177,10 @@ local function filterDungeons(key, value)
     return filteredDungeons
 end
 
-f.list = filterDungeons
-f.filter = filterDungeons
+KeyCount.filterfunctions.list = filterDungeons
+KeyCount.filterfunctions.filter = filterDungeons
 
-function f.print.list()
+function KeyCount.filterfunctions.print.list()
     local _dungeons = filterDungeons("", "")
     if not _dungeons then return end
     local dl = KeyCount.util.orderListByPlayer(_dungeons)
@@ -189,7 +189,7 @@ function f.print.list()
     end
 end
 
-function f.print.filter(key, value)
+function KeyCount.filterfunctions.print.filter(key, value)
     local _dungeons = filterDungeons(key, value)
     if not _dungeons then return end
     local dl = KeyCount.util.orderListByPlayer(_dungeons)
@@ -198,17 +198,17 @@ function f.print.filter(key, value)
     end
 end
 
-function f.rate(key, value)
+function KeyCount.filterfunctions.rate(key, value)
     local dungeons = filterDungeons(key, value)
     if dungeons then return KeyCount.utilstats.getDungeonSuccessRate(dungeons) end
 end
 
-function f.print.rate(key, value)
-    local dungeons = f.rate(key, value)
+function KeyCount.filterfunctions.print.rate(key, value)
+    local dungeons = KeyCount.filterfunctions.rate(key, value)
     if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
 end
 
-function f.grouped(key, value)
+function KeyCount.filterfunctions.grouped(key, value)
     local dungeons = filterDungeons(key, value)
     if dungeons then return KeyCount.utilstats.getPlayerSuccessRate(dungeons) end
 end

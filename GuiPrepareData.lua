@@ -231,10 +231,10 @@ local function prepareList(dungeons)
     return data
 end
 
-g.list = prepareList
-g.filter = prepareList
+KeyCount.guipreparedata.list = prepareList
+KeyCount.guipreparedata.filter = prepareList
 
-function g.rate(dungeons)
+function KeyCount.guipreparedata.rate(dungeons)
     local data = {}
     for _, dungeon in ipairs(dungeons) do
         local row = prepareRowRate(dungeon)
@@ -243,7 +243,7 @@ function g.rate(dungeons)
     return data
 end
 
-function g.grouped(players)
+function KeyCount.guipreparedata.grouped(players)
     local data = {}
     for player, playerdata in ipairs(players) do
         local row = prepareRowGrouped(playerdata)

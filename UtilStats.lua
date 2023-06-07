@@ -15,7 +15,7 @@ local function getBestKeyTimed(dungeons)
     return { name = name, level = best }
 end
 
-function stats.printDungeons(dungeons)
+function KeyCount.utilstats.printDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
         if dungeon.keyresult.value == KeyCount.defaults.keyresult.intime.value then
             printf(
@@ -39,7 +39,7 @@ function stats.printDungeons(dungeons)
     end
 end
 
-function stats.printDungeonSuccessRate(tbl)
+function KeyCount.utilstats.printDungeonSuccessRate(tbl)
     for _, d in ipairs(tbl) do
         local colorIdx = math.floor(d.successRate / 20) + 1
         local fmt = KeyCount.defaults.colors.rating[colorIdx].chat
@@ -51,7 +51,7 @@ end
 ---Prints success rate to the appropriate chat window
 ---@param tbl table Data to print
 ---@param maxlines number|nil Maximum mount of lines to print (default 10)
-function stats.chatSuccessRate(tbl, maxlines)
+function KeyCount.utilstats.chatSuccessRate(tbl, maxlines)
     maxlines = maxlines or 10
     local next = next
     if not tbl or next(tbl) == nil or #tbl == 0 then return end
@@ -78,7 +78,7 @@ function stats.chatSuccessRate(tbl, maxlines)
     end
 end
 
-function stats.getDungeonSuccessRate(dungeons)
+function KeyCount.utilstats.getDungeonSuccessRate(dungeons)
     local res = {}
     local resRate = {}
     for _, dungeon in ipairs(dungeons) do
@@ -100,7 +100,7 @@ function stats.getDungeonSuccessRate(dungeons)
         else
             res[dungeon.name].abandoned = (res[dungeon.name].abandoned or 0) + 1
         end
-        local dps = stats.getPlayerDps(dungeon.party[dungeon.player])
+        local dps = KeyCount.utilstats.getPlayerDps(dungeon.party[dungeon.player])
         if dps > res[dungeon.name].maxdps then
             res[dungeon.name].maxdps = dps
         end
@@ -161,8 +161,8 @@ function KeyCount.utilstats.getPlayerList(dungeons)
             players[player][role].role = role
             players[player][role].class = playerdata.class
             players[player][role].totalEntries = players[player][role].totalEntries + 1
-            local dps = stats.getPlayerDps(playerdata)
-            local hps = stats.getPlayerHps(playerdata)
+            local dps = KeyCount.utilstats.getPlayerDps(playerdata)
+            local hps = KeyCount.utilstats.getPlayerHps(playerdata)
             if dps > players[player][role].maxdps then players[player][role].maxdps = dps end
             if dps > players[player][role].maxhps then players[player][role].maxhps = hps end
             local keydata = dungeon.keydata
@@ -232,7 +232,7 @@ function KeyCount.utilstats.getPlayerSuccessRate(dungeons)
     return rate
 end
 
-function stats.showPastDungeons()
+function KeyCount.utilstats.showPastDungeons()
     PreviousRunsDB = PreviousRunsDB or {}
     local runs = C_MythicPlus.GetRunHistory(true, true) -- This only captures finished dungeons
     local previousDungeons = {}
@@ -252,7 +252,7 @@ end
 -- Get the top dps of the party
 ---@param party table Table containing party data
 ---@return number dps
-function stats.getTopDps(party)
+function KeyCount.utilstats.getTopDps(party)
     local dmg = {}
     for player, data in pairs(party) do
         local d = data.damage or {}
@@ -266,7 +266,7 @@ end
 -- Get a single players dps
 ---@param data table The party table data for the specific player
 ---@return number dps Returns 0 if no data found
-function stats.getPlayerDps(data)
+function KeyCount.utilstats.getPlayerDps(data)
     local d = data.damage or {}
     local dps = d.dps or 0
     return dps
@@ -275,7 +275,7 @@ end
 -- Get a single players hps
 ---@param data table The party table data for the specific player
 ---@return number hps Returns 0 if no data found
-function stats.getPlayerHps(data)
+function KeyCount.utilstats.getPlayerHps(data)
     local h = data.healing or {}
     local hps = h.hps or 0
     return hps

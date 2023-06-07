@@ -1,5 +1,3 @@
-local e = KeyCount.exportdata
-
 local function flatten(data)
     local out = {}
     for col, v in pairs(data) do
@@ -77,15 +75,16 @@ local function formatCSV(_dungeons)
     local dungeons = _dungeons or KeyCount:GetStoredDungeons()
     local output = ""
     local columns = {
-        { enabled = true, name = "player",       value = "player" },
-        { enabled = true, name = "dungeon",      value = "name" },
-        { enabled = true, name = "level",        value = "level" },
-        { enabled = true, name = "result",       value = "keyresult" },
-        { enabled = true, name = "timelimit",    value = "timelimit" },
-        { enabled = true, name = "time",         value = "time" },
-        { enabled = true, name = "affixes",      value = "affixes" },
-        { enabled = true, name = "deaths",       value = "totalDeaths" },
-        { enabled = true, name = "date",         value = "date" },
+        { enabled = true, name = "player",                value = "player" },
+        { enabled = true, name = "dungeon",               value = "name" },
+        { enabled = true, name = "level",                 value = "level" },
+        { enabled = true, name = "result",                value = "keyresult" },
+        { enabled = true, name = "timelimit",             value = "timelimit" },
+        { enabled = true, name = "time",                  value = "time" },
+        { enabled = true, name = "affixes",               value = "affixes" },
+        { enabled = true, name = "deaths",                value = "totalDeaths" },
+        { enabled = true, name = "date",                  value = "date" },
+        { enabled = true, name = "season",                value = "season" },
         { enabled = true, name = "party_name_1",          value = "party_name_1" },
         { enabled = true, name = "party_name_2",          value = "party_name_2" },
         { enabled = true, name = "party_name_3",          value = "party_name_3" },
@@ -140,7 +139,7 @@ local function formatCSV(_dungeons)
     return output
 end
 
-function e.createFrame(_data)
+function KeyCount.exportdata.createFrame(_data)
     if not _data or next(_data) == nil or #_data == 0 then return end
     local data = formatCSV(_data)
     local AceGUI = LibStub("AceGUI-3.0")
