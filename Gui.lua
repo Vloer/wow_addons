@@ -114,7 +114,7 @@ function GUI:ConstructGUI()
                 self.tables.rate:Hide()
                 self.tables.list:Hide()
                 self.tables.grouped:Show()
-                self.buttons.exportdata:SetText("Export to party")
+                self.buttons.exportdata:SetText("Export to CSV")
             end
         end
     end

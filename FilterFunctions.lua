@@ -59,7 +59,10 @@ local filterConditions = {
         return found == (#value - 1)
     end,
     ["role"] = function(entry, value)
-        return
+        local player = entry.player
+        local role = entry.party[player].role or ""
+        if value == "all" then return true end
+        return string.lower(role) == string.lower(value)
     end
 }
 
@@ -109,8 +112,20 @@ local function cleanFilterArgs(key, value)
     elseif _key == "date" then
         if #value == 0 then value = date(KeyCount.defaults.dateFormat) end
     elseif _key == "role" then
-        printf("Role filter is not yet implemented!", KeyCount.defaults.colors.chatWarning, true)
-        return nil, nil
+        if #value == 0  then value = "all"
+        else
+            value = string.lower(value)
+            if value == "dps" or value == "damager" or value == "damage" then
+                value = "DAMAGER"
+            elseif value == "tank" then
+                value = "TANK"
+            elseif value == "heal" or value == "healer" or value == "healing" then
+                value = "HEALER"
+            else
+                printf("Role filter accepts values 'tank', 'heal' or 'dps'!", KeyCount.defaults.colors.chatWarning)
+                return nil, nil
+            end
+        end
     end
     if _key ~= "affix" then
         Log(string.format("FILTER <%s> <%s>", _key, tostring(value)))
@@ -202,6 +217,7 @@ KeyCount.filterkeys = {
     ["alldata"] = { key = "alldata", value = "", name = "All data" },
     ["player"] = { key = "player", value = "player", name = "Player" },
     ["dungeon"] = { key = "dungeon", value = "name", name = "Dungeon" },
+    ["role"] = { key = "role", value = "role", name = "Player role" },
     ["season"] = { key = "season", value = "season", name = "Season" },
     ["completed"] = { key = "completed", value = "completed", name = "Completed" },
     ["intime"] = { key = "intime", value = "intime", name = "Completed in time" },
@@ -216,6 +232,6 @@ KeyCount.filterkeys = {
 }
 
 KeyCount.filterorder = {
-    "alldata", "player", "dungeon", "season",
-    "completed", "intime", "outtime", "abandoned", "level",
+    "alldata", "player", "dungeon", "role", "season",
+    "completed", "inTime", "outTime", "failed", "level",
     "time", "deathsgt", "deathslt", "date", "affix" }

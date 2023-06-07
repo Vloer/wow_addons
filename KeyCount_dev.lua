@@ -422,5 +422,6 @@ function KeyCount:SetDetailsData()
                     self.defaults.colors.chatError, true)
             end
         end
+        self.details:resetCombat()
     end
 end
