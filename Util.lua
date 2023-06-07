@@ -154,8 +154,8 @@ end
 -- Add symbol to the end of a string
 ---@param text string Base string
 ---@param amount number Amount of symbols to add
----@param symbol string Symbol to add. Defaults to *
----@param color string Formatted color hex string. Defaults to gold
+---@param symbol string|nil Symbol to add. Defaults to *
+---@param color string|nil Formatted color hex string. Defaults to gold
 KeyCount.util.addSymbol = function(text, amount, symbol, color)
     color = color or KeyCount.defaults.colors.gold.chat
     symbol = symbol or KeyCount.defaults.dungeonPlusChar

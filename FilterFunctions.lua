@@ -66,6 +66,11 @@ local filterConditions = {
     end
 }
 
+---Gets the correct key and values for specified keys and values
+---@param key string
+---@param value any
+---@return string|nil key
+---@return any value
 local function cleanFilterArgs(key, value)
     if #key == 0 and #value == 0 then
         return KeyCount.defaults.filter.key, KeyCount.defaults.filter.value
