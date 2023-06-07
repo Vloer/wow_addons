@@ -5,7 +5,7 @@ local function flatten(data)
     for col, v in pairs(data) do
         if col == "deaths" then
             --
-        elseif col == "keyDetails" and type(v) == "table" then
+        elseif col == "keydata" and type(v) == "table" then
             for _k, _v in pairs(v) do
                 if _k == "affixes" then
                     local affixstring = ""
@@ -39,6 +39,8 @@ local function flatten(data)
             end
         elseif col == "date" and type(v) == "table" then
             out[col] = v.datetime
+        elseif col == "keyresult" and type(v) == "table" then
+            out[col] = v.name
         else
             out[col] = v
         end
@@ -75,16 +77,15 @@ local function formatCSV(_dungeons)
     local dungeons = _dungeons or KeyCount:GetStoredDungeons()
     local output = ""
     local columns = {
-        { enabled = true, name = "player",                value = "player" },
-        { enabled = true, name = "dungeon",               value = "name" },
-        { enabled = true, name = "level",                 value = "level" },
-        { enabled = true, name = "completed",             value = "completed" },
-        { enabled = true, name = "inTime",                value = "completedInTime" },
-        { enabled = true, name = "timeLimit",             value = "timeLimit" },
-        { enabled = true, name = "time",                  value = "time" },
-        { enabled = true, name = "affixes",               value = "affixes" },
-        { enabled = true, name = "deaths",                value = "totalDeaths" },
-        { enabled = true, name = "date",                  value = "date" },
+        { enabled = true, name = "player",       value = "player" },
+        { enabled = true, name = "dungeon",      value = "name" },
+        { enabled = true, name = "level",        value = "level" },
+        { enabled = true, name = "result",       value = "keyresult" },
+        { enabled = true, name = "timelimit",    value = "timelimit" },
+        { enabled = true, name = "time",         value = "time" },
+        { enabled = true, name = "affixes",      value = "affixes" },
+        { enabled = true, name = "deaths",       value = "totalDeaths" },
+        { enabled = true, name = "date",         value = "date" },
         { enabled = true, name = "party_name_1",          value = "party_name_1" },
         { enabled = true, name = "party_name_2",          value = "party_name_2" },
         { enabled = true, name = "party_name_3",          value = "party_name_3" },
@@ -125,7 +126,6 @@ local function formatCSV(_dungeons)
         { enabled = true, name = "party_healing_hps_3",   value = "party_healing_hps_3" },
         { enabled = true, name = "party_healing_hps_4",   value = "party_healing_hps_4" },
         { enabled = true, name = "party_healing_hps_5",   value = "party_healing_hps_5" },
-
     }
     for k, v in pairs(columns) do
         if v.enabled then
@@ -162,7 +162,3 @@ function e.createFrame(_data)
     end)
     f:AddChild(e)
 end
-
--- KeyCount.exportdata = {
---     createFrame = createDataExportFrame
--- }

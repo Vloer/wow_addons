@@ -8,10 +8,16 @@ end
 
 ---Prints a colored chat message
 ---@param msg string Message to print
----@param fmt string Color format. Defaults to cyan
-function printf(msg, fmt)
+---@param fmt string|nil Color format. Defaults to cyan
+---@param includeKeycount boolean|nil Set to true to add "Keycount: " to start of the message
+function printf(msg, fmt, includeKeycount)
     fmt = fmt or KeyCount.defaults.colors.chatAnnounce
-    print(string.format("%s%s|r", fmt, msg))
+    includeKeycount = includeKeycount or false
+    if includeKeycount then
+        print(string.format("%sKeyCount: %s%s|r", KeyCount.defaults.colors.chatAnnounce, fmt, msg))
+    else
+        print(string.format("%s%s|r", fmt, msg))
+    end
 end
 
 -- Checks two tables for equality
@@ -164,10 +170,10 @@ util.printTableOnSameLine = function(table, name)
     local output = ""
     name = name or ""
     for key, value in pairs(table) do
-        if type(value) == "string" then
-            output = output .. key .. ": " .. value .. ", "
-        else
+        if type(value) == "table" then
             output = output .. key .. ": " .. type(value) .. ", "
+        else
+            output = output .. key .. ": " .. tostring(value) .. ", "
         end
     end
     output = output:sub(1, -3)
@@ -187,4 +193,18 @@ util.calculateMedian = function(list)
     else
         return math.ceil((list[middleIndex] + list[middleIndex + 1]) / 2)
     end
+end
+
+-- Extract all values of a single key in a list of tables
+---@param tbl table The list of tables too look in
+---@param key string The key in the table to get data from
+---@return table|nil ListOfValues
+KeyCount.util.getListOfValues = function(tbl, key)
+    local res = {}
+    for _, data in ipairs(tbl) do
+        local d = data[key]
+        if d then table.insert(res, d) end
+    end
+    if not next(res) then return nil end
+    return res
 end
