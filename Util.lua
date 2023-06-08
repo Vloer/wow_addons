@@ -22,6 +22,21 @@ local function pack(...)
     return { n = select("#", ...), ... }
 end
 
+KeyCount.util.welcomeMessage = function(name)
+    local s = KeyCountDB.sessions
+    local num
+    if s == 3 then
+        num = "third"
+    elseif s == 2 then
+        num = "second"
+    elseif s == 1 then
+        num = "first"
+    else
+        num = s .. "th"
+    end
+    printf(string.format("Loaded %s for the %s time.", name, num))
+end
+
 -- Call this function to ensure that the code after it is still executed
 ---@param name string Name to display in print statement
 ---@param func function Function to executed
