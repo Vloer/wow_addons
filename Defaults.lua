@@ -113,7 +113,7 @@ local defaults = {
     dateFormat = "%Y-%m-%d",
     datetimeFormat = "%Y-%m-%d %H:%M:%S",
     gui = {
-        filterType = "list",
+        view = "list",
         filter = "alldata"
     },
     filter = { key = "alldata", value = "" },
