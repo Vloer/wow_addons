@@ -161,6 +161,7 @@ function KeyCount:SetKeyStart()
     self.current.keydata.affixes = {}
     self.current.keydata.timelimit = timelimit
     self.current.name = name
+    self.current.uuid = self.util.uuid()
     if self.current.player == "" then self.current.player = UnitName("player") end
     for _, affixID in ipairs(activeAffixIDs) do
         local affixName = C_ChallengeMode.GetAffixInfo(affixID)
@@ -359,6 +360,8 @@ local function savePlayer(players, player, playerdata, dungeon)
         result = dungeon.keyresult.value,
         resultstring = dungeon.keyresult.name,
         season = dungeon.season,
+        damage = dungeon.party[player].damage,
+        healing = dungeon.party[player].healing
     }
     if key.result == KeyCount.defaults.keyresult.intime.value then
         d.intime = d.intime + 1
@@ -435,6 +438,14 @@ function KeyCount:GetStoredDungeons()
         return nil
     end
     return KeyCountDB.dungeons
+end
+
+function KeyCount:GetStoredPlayers()
+    if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.players) == nil then
+        printf("No players stored!", KeyCount.defaults.colors.chatError, true)
+        return nil
+    end
+    return KeyCountDB.players
 end
 
 function KeyCount:SetDetailsData()

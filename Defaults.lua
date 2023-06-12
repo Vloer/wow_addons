@@ -43,7 +43,7 @@ local defaults = {
         BH = "Brackenhide Hollow",
         HOI = "Halls of Infusion",
         NEL = "Neltharus",
-        ULD = "Uldaman",
+        ULD = "Uldaman: Legacy of Tyr",
         FH = "Freehold",
         NL = "Neltharion's Lair",
         UR = "The Underrot",
@@ -64,7 +64,8 @@ local defaults = {
         }
     },
     dungeonDefault = {
-        version = 2,
+        uuid = "",
+        version = 3,
         season = seasons.Dragonflight[2],
         player = "",
         name = "",
