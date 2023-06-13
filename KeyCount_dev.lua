@@ -288,7 +288,7 @@ function KeyCount:InitDatabase()
         local stored = {}
         local amt = 0
         for i, d in ipairs(dungeons) do
-            local funcresult, fixed, updated = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.format, d)
+            local funcresult, fixed, updated = KeyCount.util.safeExec("FormatData", KeyCount.formatdata.formatdungeon, d)
             if funcresult then
                 if fixed then
                     table.insert(stored, fixed)
@@ -309,11 +309,14 @@ end
 
 function KeyCount:InitPlayerList()
     local players = KeyCountDB.players or {}
+    local dungeons = KeyCount:GetStoredDungeons()
+    printf("Checking player database", nil, true)
     if not next(players) then
-        local dungeons = KeyCount:GetStoredDungeons()
         if dungeons then
             KeyCount:SaveAllPlayers(dungeons)
         end
+    else
+        KeyCount.formatdata.formatplayers(dungeons, players)
     end
 end
 
@@ -361,7 +364,8 @@ local function savePlayer(players, player, playerdata, dungeon)
         resultstring = dungeon.keyresult.name,
         season = dungeon.season,
         damage = dungeon.party[player].damage,
-        healing = dungeon.party[player].healing
+        healing = dungeon.party[player].healing,
+        uuid = dungeon.uuid
     }
     if key.result == KeyCount.defaults.keyresult.intime.value then
         d.intime = d.intime + 1
@@ -377,7 +381,6 @@ end
 
 function KeyCount:SaveAllPlayers(dungeons)
     if not dungeons then return end
-    printf("Checking player database", nil, true)
     local players = KeyCountDB.players or {}
     local amt = 0
     for _, dungeon in ipairs(dungeons) do

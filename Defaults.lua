@@ -83,7 +83,7 @@ local defaults = {
         stars = ""
     },
     playerDefault = {
-        version = 1,
+        version = 2,
         player = "",
         totalEntries = 0,
         intime = 0,

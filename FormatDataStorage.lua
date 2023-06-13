@@ -2,7 +2,7 @@
 ---@param dungeonIn table Dungeon data
 ---@return table dungeon Updated dungeon data
 ---@return boolean updated True if dungeon was updated
-function KeyCount.formatdata.format(dungeonIn)
+function KeyCount.formatdata.formatdungeon(dungeonIn)
     local dungeon = table.copy({}, dungeonIn)
     local old = dungeon["version"] or 0
     local new = KeyCount.defaults.dungeonDefault.version
@@ -133,6 +133,43 @@ function KeyCount.formatdata.format(dungeonIn)
     return dungeon, true
 end
 
+---Format player data to the latest version. If data for one player is off, everything is off and an update occurs. If data is updated we always rebuild the whole player database.
+---The purpose of this function if to check if the database needs to be rebuilt.
+---@param dungeons table All dungeon data
+---@param playersIn table All player data
+function KeyCount.formatdata.formatplayers(dungeons, playersIn)
+    local players = table.copy({}, playersIn)
+    local rebuild = false
+
+    for player, playerdata in pairs(players) do
+        for season, seasondata in pairs(playerdata) do
+            for role, roledata in pairs(seasondata) do
+                if roledata["version"] == 1 then
+                    local uuid = roledata["dungeons"][1]["uuid"] or nil
+                    Log(string.format("Checking %s %s %s", player, season, role))
+                    if not uuid or #uuid == 0 then
+                        --@debug@
+                        Log(string.format("Found that %s %s %s was not compliant with the latest database version",
+                            player, season, role))
+                        --@end-debug@
+                        rebuild = true
+                    end
+                end
+                if rebuild then break end
+            end
+            if rebuild then break end
+        end
+        if rebuild then break end
+    end
+
+    if rebuild then
+        KeyCountDB.players = {}
+        KeyCount:SaveAllPlayers(dungeons)
+    else
+        printf("Player database check completed", nil, true)
+    end
+end
+
 --[[
 Dungeon storage version changelog:
 0 - Everything before implementation of version system
@@ -150,6 +187,13 @@ Dungeon storage version changelog:
     - Changed keyDetails to keydata
     - Changed timeLimit to timelimit
     - Removed completedintime and added keyresult
-3 - 
+3 -
     - Added UUID to dungeon
+]]
+
+--[[
+PLayer storage version changelog:
+1 - Initial
+2 -
+    - Added dungeon UUID, damage and healing to dungeons in player[dungeons]
 ]]

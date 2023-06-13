@@ -54,7 +54,7 @@ KeyCount.util.safeExec = function(name, func, ...)
         KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatError, name, KeyCount.defaults.colors.reset))
     print(string.format("%sKeyCount: %sError: %s%s. Please report the error on the addon's curse page.",
         KeyCount.defaults.colors.chatAnnounce,
-        KeyCount.defaults.colors.chatError, result, KeyCount.defaults.colors.reset))
+        KeyCount.defaults.colors.chatError, result[2], KeyCount.defaults.colors.reset))
     return success
 end
 
