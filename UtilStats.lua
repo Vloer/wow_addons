@@ -280,3 +280,10 @@ function KeyCount.utilstats.getPlayerHps(data)
     local hps = h.hps or 0
     return hps
 end
+
+---Retrieve the data of a single player for the 'searchplayer' view in the GUI
+---@param player string Player name
+---@return nil data Tuple with which we can fill the single row (player stats) and the larger table (player dungeons)
+function KeyCount.utilstats.getPlayerData(player)
+
+end

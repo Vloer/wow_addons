@@ -122,14 +122,19 @@ function GUI:ConstructGUI()
                 self.tables.grouped:Show()
                 self.tables.searchplayer.player:Hide()
                 self.tables.searchplayer.dungeons:Hide()
-                self.buttons.exportdata:SetText("Export to CSV")
+                self.buttons.exportdata:SetText("Export to party")
             elseif self.view == self.views.searchplayer.type then
                 self.tables.rate:Hide()
                 self.tables.list:Hide()
                 self.tables.grouped:Hide()
                 self.tables.searchplayer.player:Show()
                 self.tables.searchplayer.dungeons:Show()
-                self.buttons.exportdata:SetText("Export to CSV")
+                self.buttons.exportdata:SetText("")
+                self.filter = KeyCount.filterkeys["player"]
+                self.key = self.filter.value
+                self.widgets.filterKey:SetText(self.filter.name)
+                self.widgets.filterKey:SetDisabled(true)
+                resetFilterValue()
             end
         end
     end
@@ -157,8 +162,10 @@ function GUI:ConstructGUI()
     end
 
     local function c_ExportData()
+        if self.view == self.views.searchplayer.type then return end
         if not self.dataLoadedForExport then
-            printf("No data is loaded to be exported! Press 'show data' first!", KeyCount.defaults.colors.chatWarning,
+            printf("No data is loaded to be exported! Press 'show data' first!", KeyCount.defaults.colors
+                .chatWarning,
                 true)
             return
         end
@@ -433,8 +440,7 @@ GUI.views = {
     grouped = {
         type = "grouped",
         name = "Player success rate"
-    }
-    ,
+    },
     searchplayer = {
         type = "searchplayer",
         name = "Search specific player"

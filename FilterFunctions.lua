@@ -217,6 +217,18 @@ function KeyCount.filterfunctions.grouped(key, value)
     if dungeons then return KeyCount.utilstats.getPlayerSuccessRate(dungeons) end
 end
 
+---Get data required for the 'searchplayer' view in the GUI
+---@param key string Always set to 'player'. Unused
+---@param value string Player name to search
+---@return nil
+function KeyCount.filterfunctions.searchplayer(key, value)
+    local players = KeyCount:GetStoredPlayers()
+    if not players then return end
+    local player = players[value]
+    if not player then return end
+    local playerdata = KeyCount.utilstats.getPlayerData(player)
+end
+
 KeyCount.filterkeys = {
     ["alldata"] = { key = "alldata", value = "", name = "All data" },
     ["player"] = { key = "player", value = "player", name = "Player" },

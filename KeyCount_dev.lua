@@ -316,7 +316,11 @@ function KeyCount:InitPlayerList()
             KeyCount:SaveAllPlayers(dungeons)
         end
     else
-        KeyCount.formatdata.formatplayers(dungeons, players)
+        if dungeons then
+            KeyCount.formatdata.formatplayers(dungeons, players)
+        else
+            printf("ERROR could not initiate player database because no dungeons were found!", KeyCount.defaults.colors.chatError, true)
+        end
     end
 end
 
