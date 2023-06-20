@@ -203,6 +203,7 @@ end
 
 -- Calculate the median of a list of values
 ---@param list table List that should not contain nil or nan values
+---@return integer median
 KeyCount.util.calculateMedian = function(list)
     table.sort(list)
 

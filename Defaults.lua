@@ -93,7 +93,9 @@ local defaults = {
         maxhps = 0,
         role = "",
         class = "",
-        dungeons = {}
+        dungeons = {},
+        median = 0,
+        best = 0
     },
     keyresult = keyresult,
     colors = {

@@ -379,6 +379,19 @@ local function savePlayer(players, player, playerdata, dungeon)
         d.abandoned = d.abandoned + 1
     end
     table.insert(d.dungeons, key)
+
+    -- Median and best key
+    local dungeonlevels = KeyCount.util.getListOfValues(d.dungeons, "level")
+    local median = d.median or 0
+    local best = d.best or 0
+    if dungeonlevels then
+        median = KeyCount.util.calculateMedian(dungeonlevels)
+        table.sort(dungeonlevels)
+        best = dungeonlevels[#dungeonlevels]
+    end
+    d.median = median
+    d.best = best
+
     players[player][season][role] = table.copy({}, d)
     return players, updated
 end
