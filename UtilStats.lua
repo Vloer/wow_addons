@@ -282,8 +282,38 @@ function KeyCount.utilstats.getPlayerHps(data)
 end
 
 ---Retrieve the data of a single player for the 'searchplayer' view in the GUI
----@param player string Player name
+---@param player table Player data
 ---@return nil data Tuple with which we can fill the single row (player stats) and the larger table (player dungeons)
 function KeyCount.utilstats.getPlayerData(player)
+    local playerdata = {}
+    local dungeons = {}
+    local successRate = 0
+    if (player.outtime + player.abandoned) == 0 then
+        successRate = 100
+    elseif player.intime == 0 then
+        successRate = 0
+    else
+        successRate = player.intime / player.totalEntries * 100
+    end
 
+    table.insert(playerdata,
+    {
+        name=player.player,
+        amount=player.totalEntries,
+        rate=successRate,
+        intime=player.intime,
+        outtime=player.outtime,
+        abandoned=player.abandoned,
+        best=player.best,
+        median=player.median,
+        maxdps=player.maxdps,
+    })
+
+    for _, d in ipairs(player.dungeons) do
+        table.insert(dungeons, 
+    {})
+    end
 end
+
+-- TODO add best and median to player data
+-- TODO make sure to get correct season and role
