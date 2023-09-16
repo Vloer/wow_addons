@@ -109,16 +109,9 @@ function KeyCount.utilstats.getDungeonSuccessRate(dungeons)
         --@end-debug@
     end
     for name, d in pairs(res) do
-        local successRate = 0
+        local successRate = KeyCount.util.calculateSuccessRate(d.intime, d.outtime, d.abandoned)
         local total = d.intime + d.outtime + d.abandoned
         local median = KeyCount.util.calculateMedian(d.allkeys)
-        if (d.outtime + d.abandoned) == 0 then
-            successRate = 100
-        elseif d.intime == 0 then
-            successRate = 0
-        else
-            successRate = d.intime / total * 100
-        end
         table.insert(resRate,
             {
                 name = name,
@@ -199,22 +192,15 @@ function KeyCount.utilstats.getPlayerSuccessRate(dungeons)
     end
     for player, playerdata in pairs(players) do
         for role, d in pairs(playerdata) do
-            local successrate = 0
+            local successRate = KeyCount.util.calculateSuccessRate(d.intime, d.outtime, d.abandoned)
             local listOfKeys = KeyCount.util.getListOfValues(d.dungeons, "level")
             local medianKey = KeyCount.util.calculateMedian(listOfKeys)
             local highestKey = getBestKeyTimed(d.dungeons)
-            if (d.abandoned + d.outtime) == 0 then
-                successrate = 100
-            elseif d.intime == 0 then
-                successrate = 0
-            else
-                successrate = d.intime / d.totalEntries * 100
-            end
             table.insert(rate,
                 {
                     name = player,
                     totalEntries = d.totalEntries,
-                    successRate = successrate,
+                    successRate = successRate,
                     intime = d.intime,
                     outtime = d.outtime,
                     abandoned = d.abandoned,
@@ -287,14 +273,7 @@ end
 function KeyCount.utilstats.getPlayerData(player)
     local playerdata = {}
     local dungeons = {}
-    local successRate = 0
-    if (player.outtime + player.abandoned) == 0 then
-        successRate = 100
-    elseif player.intime == 0 then
-        successRate = 0
-    else
-        successRate = player.intime / player.totalEntries * 100
-    end
+    local successRate = KeyCount.util.calculateSuccessRate(player.intime, player.outtime, player.abandoned)
 
     table.insert(playerdata,
     {
@@ -307,6 +286,7 @@ function KeyCount.utilstats.getPlayerData(player)
         best=player.best,
         median=player.median,
         maxdps=player.maxdps,
+
     })
 
     for _, d in ipairs(player.dungeons) do
@@ -315,5 +295,11 @@ function KeyCount.utilstats.getPlayerData(player)
     end
 end
 
--- TODO add best and median to player data
--- TODO make sure to get correct season and role
+---Get one row of data per role for the GUI for one player
+---@param player table Player data
+---@return table DataTable Table with one entry per role
+function KeyCount.utilstats.getDataPerRole(player)
+    local roledata = {}
+    local dungeons = {}
+    
+end

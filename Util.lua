@@ -235,9 +235,25 @@ end
 ---@return string UUID
 KeyCount.util.uuid = function()
     local random = math.random
-    local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-    return (string.gsub(template, '[xy]', function (c)
+    local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return (string.gsub(template, '[xy]', function(c)
         local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
         return string.format('%x', v)
     end))
+end
+
+---Calculate dungeon success rate
+---@param intime integer Timed dungeons
+---@param outtime integer Out of time dungeons
+---@param abandoned integer Abandoned dungeons
+---@return number rate Success rate 0-100
+KeyCount.util.calculateSuccessRate = function(intime, outtime, abandoned)
+    local total = intime + outtime + abandoned
+    if (abandoned + outtime) == 0 then
+        return 100
+    elseif intime == 0 then
+        return 0
+    else
+        return intime / total * 100
+    end
 end

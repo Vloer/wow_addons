@@ -360,14 +360,14 @@ function GUI:ConstructGUI()
     self.tables.grouped:Hide()
 
     self.tables.searchplayer = {}
-    self.tables.searchplayer.player = ScrollingTable:CreateST(columnsSearchPlayerPlayer, 1, 16, nil, window);
+    self.tables.searchplayer.player = ScrollingTable:CreateST(columnsSearchPlayerPlayer, 3, 16, nil, window);
     self.tables.searchplayer.player.frame:SetPoint("TOP", window, "TOP", 0, -100);
     self.tables.searchplayer.player.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
     self.tables.searchplayer.player:EnableSelection(true)
     self.tables.searchplayer.player:Hide()
 
     self.tables.searchplayer.dungeons = ScrollingTable:CreateST(columnsSearchPlayerDungeons, 13, 16, nil, window);
-    self.tables.searchplayer.dungeons.frame:SetPoint("TOP", window, "TOP", 0, -150);
+    self.tables.searchplayer.dungeons.frame:SetPoint("TOP", window, "TOP", 0, -180);
     self.tables.searchplayer.dungeons.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
     self.tables.searchplayer.dungeons:EnableSelection(true)
     self.tables.searchplayer.dungeons:Hide()
