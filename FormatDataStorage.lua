@@ -2,10 +2,10 @@
 ---@param dungeonIn table Dungeon data
 ---@return table dungeon Updated dungeon data
 ---@return boolean updated True if dungeon was updated
-function KeyCount.formatdata.formatdungeon(dungeonIn)
+function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
     local dungeon = table.copy({}, dungeonIn)
     local old = dungeon["version"] or 0
-    local new = KeyCount.defaults.dungeonDefault.version
+    local new = _new or KeyCount.defaults.dungeonDefault.version
     if old == new then return dungeon, false end
     local _data = dungeon.keyDetails or dungeon.keydata or {}
     local level = _data.level or 0
@@ -127,9 +127,13 @@ function KeyCount.formatdata.formatdungeon(dungeonIn)
         debuglog = string.format("%s to version %s", debuglog, old)
     end
 
+    -- Final sanity check
+    --KeyCount.util.safeExec('checktable', KeyCount.util.checkKeysInTable, dungeon, KeyCount.defaults.dungeonDefault, 'FormatDungeon')
+    KeyCount.util.checkKeysInTable(dungeon, KeyCount.defaults.dungeonDefault, 'FormatDungeon')
     --@debug@
     Log(debuglog)
     --@end-debug@
+    
     return dungeon, true
 end
 
@@ -184,7 +188,7 @@ Dungeon storage version changelog:
     - Added stars
     - Added version
 2 -
-    - Changed keyDetails to keydata
+    - Changed keyDetails to keydata and added name
     - Changed timeLimit to timelimit
     - Removed completedintime and added keyresult
 3 -

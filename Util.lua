@@ -257,3 +257,27 @@ KeyCount.util.calculateSuccessRate = function(intime, outtime, abandoned)
         return intime / total * 100
     end
 end
+
+---Check if a table contains a set of keys
+---@param tbl table Table to check for keys
+---@param dataTable table Data table with required keys
+---@return table newTable Table that contains only the required keys
+KeyCount.util.checkKeysInTable = function(tbl, dataTable, additionalMsg)
+    local _msg = additionalMsg or ''
+    local keys = {}
+    local newtbl = {}
+    for k, v in pairs(dataTable) do
+        table.insert(keys, k)
+        newtbl[k] = v
+    end
+    for _, key in ipairs(keys) do
+        local msg = "'" .. key .. "' not found in the table"
+        if #_msg > 0 then
+            msg = "[" .. _msg .. "] " .. msg
+        end
+        if tbl[key] == nil then
+            error(msg, 2)
+        end
+    end
+    return newtbl
+end
