@@ -9,7 +9,7 @@ function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
     if old == new then return dungeon, false end
     local _data = dungeon.keyDetails or dungeon.keydata or {}
     local level = _data.level or 0
-    local debuglog = string.format("Formatted data for [%s %s] from version %s", dungeon.name, level, old)
+    local debuglog = string.format("Formatted data for [%s %s] from version %s", tostring(dungeon.name), tostring(level), tostring(old))
 
     -- 0 to 1
     if old == 0 and new >= 1 then

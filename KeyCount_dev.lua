@@ -307,12 +307,18 @@ function KeyCount:InitDatabase()
                 end
             end
         end
-        KeyCountDB.dungeons = table.copy({}, stored)
+
         local msg = "Database check completed"
         if amt > 0 then
             msg = msg .. ": " .. amt .. " dungeons updated"
         end
         printf(msg, nil, true)
+        if next(stored) ~= nil then
+            KeyCountDB.dungeons = table.copy({}, stored)
+        else
+            printf('Formatted dungeon list is empty! Something likely went wrong, not saving to database!',
+                KeyCount.defaults.colors.chatWarning, true)
+        end
     end
 end
 
@@ -328,7 +334,8 @@ function KeyCount:InitPlayerList()
         if dungeons then
             KeyCount.formatdata.formatplayers(dungeons, players)
         else
-            printf("ERROR could not initiate player database because no dungeons were found!", KeyCount.defaults.colors.chatError, true)
+            printf("ERROR could not initiate player database because no dungeons were found!",
+                KeyCount.defaults.colors.chatError, true)
         end
     end
 end
@@ -429,7 +436,11 @@ function KeyCount:SaveAllPlayers(dungeons)
         msg = msg .. ": " .. amt .. " players added to the database"
     end
     printf(msg, nil, true)
-    KeyCountDB.players = table.copy({}, players)
+    if next(players) ~= nil then
+        KeyCountDB.players = table.copy({}, players)
+    else
+        printf('player list is empty, not saving to database!', KeyCount.defaults.colors.chatWarning, true)
+    end
 end
 
 function KeyCount:GetPartyMemberInfo()
