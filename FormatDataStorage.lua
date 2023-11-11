@@ -9,7 +9,8 @@ function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
     if old == new then return dungeon, false end
     local _data = dungeon.keyDetails or dungeon.keydata or {}
     local level = _data.level or 0
-    local debuglog = string.format("Formatted data for [%s %s] from version %s", tostring(dungeon.name), tostring(level), tostring(old))
+    local debuglog = string.format("Formatted data for [%s %s] from version %s", tostring(dungeon.name), tostring(level),
+        tostring(old))
 
     -- 0 to 1
     if old == 0 and new >= 1 then
@@ -129,11 +130,14 @@ function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
 
     -- Final sanity check
     --KeyCount.util.safeExec('checktable', KeyCount.util.checkKeysInTable, dungeon, KeyCount.defaults.dungeonDefault, 'FormatDungeon')
+    --@debug@
+    Log("Performing final sanity check on dungeon " .. dungeon["uuid"])
+    --@end-debug@
     KeyCount.util.checkKeysInTable(dungeon, KeyCount.defaults.dungeonDefault, 'FormatDungeon')
+
     --@debug@
     Log(debuglog)
     --@end-debug@
-    
     return dungeon, true
 end
 
@@ -167,6 +171,9 @@ function KeyCount.formatdata.formatplayers(dungeons, playersIn)
     end
 
     if rebuild then
+        --@debug@
+        Log("Rebuilding player database")
+        --@end-debug@
         KeyCountDB.players = {}
         KeyCount:SaveAllPlayers(dungeons)
     else

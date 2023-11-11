@@ -11,9 +11,6 @@ KeyCount.formatdata = {}
 
 --[[
     TODO
-    add test that mocks all dungeon commands with expected IO
-
-    add season to playerdata
     complete player search function
     add own player realm to playerdata and dungeondata
 ]]
