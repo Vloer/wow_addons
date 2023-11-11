@@ -231,6 +231,19 @@ KeyCount.util.getListOfValues = function(tbl, key)
     return res
 end
 
+---Checks if list contains an item
+---@param item any Item to check for
+---@param list table List to check in
+---@return boolean R True if list contains item
+KeyCount.util.listContainsItem = function(item, list)
+    for _, i in ipairs(list) do
+        if item == i then
+            return true
+        end
+    end
+    return false
+end
+
 ---Generates a random UUID
 ---@return string UUID
 KeyCount.util.uuid = function()
@@ -289,4 +302,35 @@ KeyCount.util.addRealmToName = function(name)
         name = name .. "-" .. realm
     end
     return name
+end
+
+---Formats supplied player role
+---@param role string Role to format
+---@return string | nil formattedRole Options: TANK | HEALER | DAMAGER | nil
+KeyCount.util.formatRole = function(role)
+    local _role = string.lower(role)
+    if _role == "dps" or _role == "damager" or _role == "damage" then
+        _role = "DAMAGER"
+    elseif _role == "tank" then
+        _role = "TANK"
+    elseif _role == "heal" or _role == "healer" or _role == "healing" then
+        _role = "HEALER"
+    else
+        printf(string.format("Unknown role supplied: %s. Options are 'tank', 'heal' or 'dps'!", role),
+            KeyCount.defaults.colors.chatWarning)
+        return nil
+    end
+    return _role
+end
+
+---Get max of 2 numbers. Returns 0 if invalid arguments are supplied
+---@param v1 number
+---@param v2 number
+---@return number highestNum
+KeyCount.util.getMax = function(v1, v2)
+    if type(v1) == "number" and type(v2) == "number" then
+        if v1 > v2 then return v1 end
+        return v2
+    end
+    return 0
 end

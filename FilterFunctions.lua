@@ -118,15 +118,9 @@ local function cleanFilterArgs(key, value)
     elseif _key == "role" then
         if #value == 0  then value = "all"
         else
-            value = string.lower(value)
-            if value == "dps" or value == "damager" or value == "damage" then
-                value = "DAMAGER"
-            elseif value == "tank" then
-                value = "TANK"
-            elseif value == "heal" or value == "healer" or value == "healing" then
-                value = "HEALER"
-            else
-                printf("Role filter accepts values 'tank', 'heal' or 'dps'!", KeyCount.defaults.colors.chatWarning)
+            value = KeyCount.util.formatRole(value)
+            if not value then
+                printf("Role filter only accepts valid roles!", KeyCount.defaults.colors.chatWarning)
                 return nil, nil
             end
         end
@@ -224,7 +218,8 @@ end
 function KeyCount.filterfunctions.searchplayer(key, value)
     local players = KeyCount:GetStoredPlayers()
     if not players then return end
-    local player = players[value]
+    local playername = KeyCount.util.addRealmToName(value)
+    local player = players[playername]
     if not player then return end
     local playerdata = KeyCount.utilstats.getPlayerData(player)
 end
