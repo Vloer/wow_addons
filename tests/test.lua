@@ -262,7 +262,7 @@ local seasondata = {}
 local roledata = {}
 local combinedData = {}
 print('Settings: seasons=all, roles=all')
-local season = 'all'
+local season = 'nothing'
 local role = 'all'
 if season == "all" then
     for _, v in pairs(playerdata) do
@@ -328,5 +328,5 @@ for roleName, roleData in pairs(roledata) do
         dungeons = dungeonsForRole,
     }
 end
-printTableRecursive(dungeonsAll)
+printTableRecursive(combinedData)
 --#endregion
