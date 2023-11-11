@@ -277,3 +277,16 @@ KeyCount.util.checkKeysInTable = function(tbl, dataTable, additionalMsg)
         end
     end
 end
+
+---Adds own realm name to a character name if no realm is specified
+---@param name string Name to edit
+---@return string updatedName Name with realm attached
+KeyCount.util.addRealmToName = function(name)
+    local containsRealm = string.find(name, "-")
+    if not containsRealm then
+        local realm = GetRealmName()
+        realm = string.gsub(realm, "%s+", "")
+        name = name .. "-" .. realm
+    end
+    return name
+end

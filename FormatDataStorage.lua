@@ -119,8 +119,27 @@ function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
 
     -- 2 to 3
     if old == 2 and new >= 3 then
+        -- Add UUID
         if not dungeon["uuid"] or #dungeon["uuid"] == 0 then
             dungeon["uuid"] = KeyCount.util.uuid()
+        end
+
+        -- Add realmname to player names
+        dungeon["player"] = KeyCount.util.addRealmToName(dungeon["player"])
+        local updatedParty = {}
+        for k, v in pairs(dungeon["party"]) do
+            local newName = KeyCount.util.addRealmToName(k)
+            v["name"] = newName
+            updatedParty[newName] = v
+        end
+        dungeon["party"] = updatedParty
+        if type(dungeon["deaths"]) == "table" then
+            local updatedDeaths = {}
+            for k, v in pairs(dungeon["deaths"]) do
+                local newName = KeyCount.util.addRealmToName(k)
+                updatedDeaths[newName] = v
+            end
+            dungeon["deaths"] = updatedDeaths
         end
 
         old = 3
@@ -150,17 +169,21 @@ function KeyCount.formatdata.formatplayers(dungeons, playersIn)
     local rebuild = false
 
     for player, playerdata in pairs(players) do
+        if not string.find(player, "-") then
+            rebuild = true
+            break
+        end
         for season, seasondata in pairs(playerdata) do
             for role, roledata in pairs(seasondata) do
                 if roledata["version"] == 1 then
                     local uuid = roledata["dungeons"][1]["uuid"] or nil
                     Log(string.format("Checking %s %s %s", player, season, role))
                     if not uuid or #uuid == 0 then
+                        rebuild = true
                         --@debug@
                         Log(string.format("Found that %s %s %s was not compliant with the latest database version",
                             player, season, role))
                         --@end-debug@
-                        rebuild = true
                     end
                 end
                 if rebuild then break end
@@ -200,6 +223,7 @@ Dungeon storage version changelog:
     - Removed completedintime and added keyresult
 3 -
     - Added UUID to dungeon
+    - Force realm name on all players
 ]]
 
 --[[

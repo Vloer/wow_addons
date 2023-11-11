@@ -12,7 +12,6 @@ KeyCount.formatdata = {}
 --[[
     TODO
     complete player search function
-    add own player realm to playerdata and dungeondata
 ]]
 
 -- Event behaviour
@@ -73,6 +72,7 @@ function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
         CombatLogGetCurrentEventInfo()
     if event == "UNIT_DIED" and UnitInParty(destName) then
         if AuraUtil.FindAuraByName("Feign Death", destName) then return end
+        destName = KeyCount.util.addRealmToName(destName)
         self.current.deaths[destName] = (self.current.deaths[destName] or 0) + 1
         self.current.party[destName].deaths = (self.current.party[destName].deaths or 0) + 1
         printf(string.format("%s died!", destName), self.defaults.colors.chatError, true)
@@ -168,7 +168,10 @@ function KeyCount:SetKeyStart()
     self.current.keydata.timelimit = timelimit
     self.current.name = name
     self.current.uuid = self.util.uuid()
-    if self.current.player == "" then self.current.player = UnitName("player") end
+    if self.current.player == "" then
+        local playername = KeyCount.util.addRealmToName(UnitName("player"))
+        self.current.player = playername
+    end
     for _, affixID in ipairs(activeAffixIDs) do
         local affixName = C_ChallengeMode.GetAffixInfo(affixID)
         table.insert(self.current.keydata.affixes, affixName)
@@ -447,7 +450,8 @@ function KeyCount:GetPartyMemberInfo()
         info = self:GetPlayerInfo()
     else
         for i = 1, numGroupMembers do
-            local name, _, _, _, class, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
+            local _name, _, _, _, class, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
+            local name = KeyCount.util.addRealmToName(_name)
             info[name] = { name = name, class = class, role = role }
         end
     end
@@ -457,7 +461,8 @@ end
 function KeyCount:GetPlayerInfo()
     local specIndex = GetSpecialization()
     local _, spec, _, _, specRole = GetSpecializationInfo(specIndex)
-    local name = UnitName("player")
+    local _name = UnitName("player")
+    local name = KeyCount.util.addRealmToName(_name)
     local class = UnitClass("player")
     local info = {}
     info[name] = {
