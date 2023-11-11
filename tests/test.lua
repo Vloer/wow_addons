@@ -262,71 +262,84 @@ local seasondata = {}
 local roledata = {}
 local combinedData = {}
 print('Settings: seasons=all, roles=all')
-local season = 'nothing'
+local season = 'Dragonflight-2'
 local role = 'all'
 if season == "all" then
     for _, v in pairs(playerdata) do
         table.insert(seasondata, v)
     end
 else
-    seasondata = playerdata[season]
+    table.insert(seasondata, playerdata[season])
 end
-if role == "all" then
+-- printTableRecursive(seasondata)
+if seasondata and next(seasondata) ~= nil then
+    print('Getting role data')
+    local i = 0
     for _, seasonEntry in ipairs(seasondata) do
-        for currentRole, roleEntry in pairs(seasonEntry) do
-            if not roledata[currentRole] then
-                roledata[currentRole] = {}
+        i = i + 1
+        print('Getting season entry ' .. i)
+        if role == "all" then
+            for currentRole, roleEntry in pairs(seasonEntry) do
+                if not roledata[currentRole] then
+                    roledata[currentRole] = {}
+                end
+                table.insert(roledata[currentRole], roleEntry)
             end
-            table.insert(roledata[currentRole], roleEntry)
+        else
+            if not roledata[role] then
+                roledata[role] = {}
+            end
+            table.insert(roledata[role], seasonEntry[role])
         end
     end
-else
-    roledata = seasondata[role]
 end
+-- printTableRecursive(roledata)
 -- By this point we have a table of roles where each role contains a list of stats per season:
 -- {DAMAGER: {season1, season2, ...}, HEALER: {season1, season2, ...}}
-print('Combining stats')
-for roleName, roleData in pairs(roledata) do
-    local totalEntries = 0
-    local intime = 0
-    local outtime = 0
-    local abandoned = 0
-    local maxdps = 0
-    local maxhps = 0
-    local best = 0
-    local median = {}
-    local dungeonsForRole = {}
-    local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
-    for _, seasonEntry in ipairs(roleData) do
-        totalEntries = totalEntries + seasonEntry["totalEntries"]
-        intime = intime + seasonEntry["intime"]
-        outtime = outtime + seasonEntry["outtime"]
-        abandoned = abandoned + seasonEntry["abandoned"]
-        maxdps = KeyCount.util.getMax(maxdps, seasonEntry["maxdps"])
-        maxhps = KeyCount.util.getMax(maxhps, seasonEntry["maxhps"])
-        best = KeyCount.util.getMax(best, seasonEntry["best"])
-        for _, dung in ipairs(seasonEntry["dungeons"]) do
-            local uuid = dung["uuid"]
-            if not KeyCount.util.listContainsItem(uuid, dungeon_ids_seen) then
-                table.insert(dungeon_ids_seen, uuid)
-                table.insert(dungeonsForRole, dung)
-                table.insert(dungeonsAll, dung)
-                table.insert(median, dung["level"])
+if roledata and next(roledata) ~= nil then
+    print('Combining stats')
+    for roleName, roleData in pairs(roledata) do
+        local totalEntries = 0
+        local intime = 0
+        local outtime = 0
+        local abandoned = 0
+        local maxdps = 0
+        local maxhps = 0
+        local best = 0
+        local median = {}
+        local dungeonsForRole = {}
+        local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
+        for _, seasonEntry in ipairs(roleData) do
+            totalEntries = totalEntries + seasonEntry["totalEntries"]
+            intime = intime + seasonEntry["intime"]
+            outtime = outtime + seasonEntry["outtime"]
+            abandoned = abandoned + seasonEntry["abandoned"]
+            maxdps = KeyCount.util.getMax(maxdps, seasonEntry["maxdps"])
+            maxhps = KeyCount.util.getMax(maxhps, seasonEntry["maxhps"])
+            best = KeyCount.util.getMax(best, seasonEntry["best"])
+            for _, dung in ipairs(seasonEntry["dungeons"]) do
+                local uuid = dung["uuid"]
+                if not KeyCount.util.listContainsItem(uuid, dungeon_ids_seen) then
+                    table.insert(dungeon_ids_seen, uuid)
+                    table.insert(dungeonsForRole, dung)
+                    table.insert(dungeonsAll, dung)
+                    table.insert(median, dung["level"])
+                end
             end
         end
+        local _median = KeyCount.util.calculateMedian(median)
+        combinedData[roleName] = {
+            totalEntries = totalEntries,
+            intime = intime,
+            outtime = outtime,
+            abandoned = abandoned,
+            maxdps = maxdps,
+            maxhps = maxhps,
+            best = best,
+            median = _median,
+            dungeons = dungeonsForRole,
+        }
     end
-    local _median = KeyCount.util.calculateMedian(median)
-    combinedData[roleName] = {
-        totalEntries = totalEntries,
-        intime = intime,
-        outtime = outtime,
-        abandoned = abandoned,
-        maxdps = maxdps,
-        maxhps = maxhps,
-        best = best,
-        median = _median,
-        dungeons = dungeonsForRole,
-    }
+    printTableRecursive(combinedData)
 end
-printTableRecursive(combinedData)
 --#endregion
