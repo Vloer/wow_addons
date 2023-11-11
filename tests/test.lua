@@ -76,6 +76,7 @@ require("Util")
 require("Defaults")
 require("tests.test_data.test_dungeons")
 require("tests.test_data.test_playerdata")
+require("UtilStats")
 require("luaunit")
 --#endregion
 
@@ -342,12 +343,17 @@ if roledata and next(roledata) ~= nil then
             dungeons = dungeonsForRole,
         }
     end
-    printTableRecursive(combinedData)
+    -- printTableRecursive(combinedData)
 end
-print('NOW USING FUNCTIUONS')
+print('NOW USING FUNCTIONS')
 local roledata = getPlayerDataRoleSeason(playerdata, role, season)
 if roledata then
-    local combined = combinePlayerDataPerRole(roledata)
-    printTableRecursive(combined)
+    local combined, dungeonsAll2 = combinePlayerDataPerRole(roledata)
+    
+    -- printTableRecursive(combined)
+    print('Testing if two functions return the same output as the whole loop: ')
+    print('    player data: ' .. tostring(deep_equals(combinedData, combined)))
+    print('    dungeons: ' .. tostring(deep_equals(dungeonsAll, dungeonsAll2)))
 end
+
 --#endregion
