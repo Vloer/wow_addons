@@ -15,6 +15,98 @@ local function getBestKeyTimed(dungeons)
     return { name = name, level = best }
 end
 
+---Helper function to re-order a table containing player data to the format {ROLE1 = {season1, season2, ...}, ROLE2 = {season1, season2, ...}}
+---This function is used in KeyCount.utilstats.getPlayerData
+---@param playerdata table Player data object
+---@param role string Role to filter. Defaults to all
+---@param season string Season to filter. Accepts 'all'. Defaults to current season
+---@return table|nil T Reformatted table or nil if invalid playerdata object supplied
+function getPlayerDataRoleSeason(playerdata, role, season)
+    if not playerdata or next(playerdata) == nil then return nil end
+    local seasondata = {}
+    local roledata = {}
+    local _season = season or KeyCount.defaults.dungeonDefault.season
+    local _role = role or 'all'
+    if _season == "all" then
+        for _, v in pairs(playerdata) do
+            table.insert(seasondata, v)
+        end
+    else
+        table.insert(seasondata, playerdata[season])
+    end
+    if seasondata and next(seasondata) ~= nil then
+        for _, seasonEntry in ipairs(seasondata) do
+            if _role == "all" then
+                for currentRole, roleEntry in pairs(seasonEntry) do
+                    if not roledata[currentRole] then
+                        roledata[currentRole] = {}
+                    end
+                    table.insert(roledata[currentRole], roleEntry)
+                end
+            else
+                if not roledata[_role] then
+                    roledata[_role] = {}
+                end
+                table.insert(roledata[_role], seasonEntry[_role])
+            end
+        end
+    end
+    return roledata
+end
+
+---Helper function to combine player data per role over multiple seasons. 
+---This function is used in KeyCount.utilstats.getPlayerData
+---@param roledata table Data table containing all player data seperated by role
+---@return table|nil, table|nil T (1) Combined table (2) List of all dungeons for the player. Nil for both if invalid data object supplied
+function combinePlayerDataPerRole(roledata)
+    if not roledata or next(roledata) == nil then return nil, nil end
+    local dungeonsAll = {}
+    local combinedData = {}
+    for roleName, roleData in pairs(roledata) do
+        local totalEntries = 0
+        local intime = 0
+        local outtime = 0
+        local abandoned = 0
+        local maxdps = 0
+        local maxhps = 0
+        local best = 0
+        local median = {}
+        local dungeonsForRole = {}
+        local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
+        for _, seasonEntry in ipairs(roleData) do
+            totalEntries = totalEntries + seasonEntry["totalEntries"]
+            intime = intime + seasonEntry["intime"]
+            outtime = outtime + seasonEntry["outtime"]
+            abandoned = abandoned + seasonEntry["abandoned"]
+            maxdps = KeyCount.util.getMax(maxdps, seasonEntry["maxdps"])
+            maxhps = KeyCount.util.getMax(maxhps, seasonEntry["maxhps"])
+            best = KeyCount.util.getMax(best, seasonEntry["best"])
+            for _, dung in ipairs(seasonEntry["dungeons"]) do
+                local uuid = dung["uuid"]
+                if not KeyCount.util.listContainsItem(uuid, dungeon_ids_seen) then
+                    table.insert(dungeon_ids_seen, uuid)
+                    table.insert(dungeonsForRole, dung)
+                    table.insert(dungeonsAll, dung)
+                    table.insert(median, dung["level"])
+                end
+            end
+        end
+        local _median = KeyCount.util.calculateMedian(median)
+        combinedData[roleName] = {
+            totalEntries = totalEntries,
+            intime = intime,
+            outtime = outtime,
+            abandoned = abandoned,
+            maxdps = maxdps,
+            maxhps = maxhps,
+            best = best,
+            median = _median,
+            dungeons = dungeonsForRole,
+        }
+    end
+    return combinedData, dungeonsAll
+end
+
 function KeyCount.utilstats.printDungeons(dungeons)
     for i, dungeon in ipairs(dungeons) do
         if dungeon.keyresult.value == KeyCount.defaults.keyresult.intime.value then
@@ -269,29 +361,46 @@ end
 
 ---Retrieve the data of a single player for the 'searchplayer' view in the GUI
 ---@param player table Player data
+---@param season string Specify season to retrieve. Defaults to current season. 'all' for all seasons combined.
+---@param role string Specify for which role we want to retrieve data. Defaults to all roles
 ---@return nil data Tuple with which we can fill the single row (player stats) and the larger table (player dungeons)
-function KeyCount.utilstats.getPlayerData(player)
+function KeyCount.utilstats.getPlayerData(player, season, role)
+    local _season = season or KeyCount.defaults.dungeonDefault.season
+    local _role = KeyCount.util.formatRole(role) or "all"
     local playerdata = {}
     local dungeons = {}
+    local seasondata = {}
+    local roledata = {}
+    local combinedData = {}
+
+    if _season == "all" then
+        for _, v in playerdata do
+            table.insert(seasondata, v)
+        end
+    else
+        seasondata = playerdata[season]
+    end
+
+
     local successRate = KeyCount.util.calculateSuccessRate(player.intime, player.outtime, player.abandoned)
 
     table.insert(playerdata,
-    {
-        name=player.player,
-        amount=player.totalEntries,
-        rate=successRate,
-        intime=player.intime,
-        outtime=player.outtime,
-        abandoned=player.abandoned,
-        best=player.best,
-        median=player.median,
-        maxdps=player.maxdps,
+        {
+            name = player.player,
+            amount = player.totalEntries,
+            rate = successRate,
+            intime = player.intime,
+            outtime = player.outtime,
+            abandoned = player.abandoned,
+            best = player.best,
+            median = player.median,
+            maxdps = player.maxdps,
 
-    })
+        })
 
     for _, d in ipairs(player.dungeons) do
-        table.insert(dungeons, 
-    {})
+        table.insert(dungeons,
+            {})
     end
 end
 
@@ -301,5 +410,4 @@ end
 function KeyCount.utilstats.getDataPerRole(player)
     local roledata = {}
     local dungeons = {}
-    
 end

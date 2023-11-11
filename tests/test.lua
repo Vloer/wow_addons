@@ -264,6 +264,8 @@ local combinedData = {}
 print('Settings: seasons=all, roles=all')
 local season = 'Dragonflight-2'
 local role = 'all'
+
+
 if season == "all" then
     for _, v in pairs(playerdata) do
         table.insert(seasondata, v)
@@ -341,5 +343,11 @@ if roledata and next(roledata) ~= nil then
         }
     end
     printTableRecursive(combinedData)
+end
+print('NOW USING FUNCTIUONS')
+local roledata = getPlayerDataRoleSeason(playerdata, role, season)
+if roledata then
+    local combined = combinePlayerDataPerRole(roledata)
+    printTableRecursive(combined)
 end
 --#endregion
