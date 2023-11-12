@@ -2,6 +2,9 @@ local function rgb(tbl)
     return KeyCount.util.convertRgb(tbl)
 end
 
+---Get role image
+---@param role string Role name
+---@return string R Stringified image or empty string
 local function getRoleIcon(role)
     if role == "DAMAGER" then
         return "|TInterface\\AddOns\\KeyCount_dev\\Icons\\roles:14:14:0:0:64:64:0:18:0:18|t"
@@ -9,33 +12,38 @@ local function getRoleIcon(role)
         return "|TInterface\\AddOns\\KeyCount_dev\\Icons\\roles:14:14:0:0:64:64:19:37:0:18|t"
     elseif role == "TANK" then
         return "|TInterface\\AddOns\\KeyCount_dev\\Icons\\roles:14:14:0:0:64:64:38:56:0:18|t"
-    else
-        return nil
     end
+    return ""
 end
 
+---Retrieve class and role from the dungeon party data for the player. Returns empty strings if player can't be found in party (bug)
+---@param dungeon table Dungeon data
+---@return string class Class name
+---@return string role Role name
 local function getClassAndRoleFromDungeon(dungeon)
     local party = dungeon.party
-    local player = party[dungeon.player]
-    local class = player.class
-    local role = player.role
+    local player = party[dungeon.player] or {}
+    local class = player.class or ""
+    local role = player.role or ""
     return class, role
 end
 
+---Retrieve class color and role icon
+---@param class string Class name
+---@param role string Role name
+---@return table T Table containing [1] color rgb table, [2] color hex value string, [3] role icon string
 local function getPlayerRoleAndColor(class, role)
-    local classMale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_MALE, class)
-    local classFemale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_FEMALE, class)
-    local tbl = RAID_CLASS_COLORS[classMale or classFemale]
-    local color = { r = tbl.r, g = tbl.g, b = tbl.b, a = 1 }
-    local roleIcon = getRoleIcon(role)
-    if role == "TANK" then
-        role = "Tank"
-    elseif role == "DAMAGER" then
-        role = "DPS"
-    else
-        role = "Heal"
+    local color = { r = 1, g = 1, b = 1, a = 1 }
+    local colorHex = "ffffffff"
+    if #class ~= 0 then
+        local classMale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_MALE, class)
+        local classFemale = KeyCount.util.getKeyForValue(LOCALIZED_CLASS_NAMES_FEMALE, class)
+        local tbl = RAID_CLASS_COLORS[classMale or classFemale]
+        color = { r = tbl.r, g = tbl.g, b = tbl.b, a = 1 }
+        colorHex = tbl.colorStr
     end
-    return { color = color, hex = tbl.colorStr, role = role, roleIcon = roleIcon }
+    local roleIcon = getRoleIcon(role)
+    return { color = color, hex = colorHex, roleIcon = roleIcon }
 end
 
 local function getLevelColor(level)

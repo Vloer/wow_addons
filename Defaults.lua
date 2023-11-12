@@ -47,7 +47,7 @@ local defaults = {
         FH = "Freehold",
         NL = "Neltharion's Lair",
         UR = "The Underrot",
-        VP = "Vortex Pinnacle"
+        VP = "The Vortex Pinnacle"
     },
     partymember = {
         role = "",
