@@ -312,6 +312,7 @@ if roledata and next(roledata) ~= nil then
         local median = {}
         local dungeonsForRole = {}
         local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
+        local playerClass = ""
         for _, seasonEntry in ipairs(roleData) do
             totalEntries = totalEntries + seasonEntry["totalEntries"]
             intime = intime + seasonEntry["intime"]
@@ -329,6 +330,7 @@ if roledata and next(roledata) ~= nil then
                     table.insert(median, dung["level"])
                 end
             end
+            if #playerClass == 0 then playerClass = seasonEntry["class"] or "" end
         end
         local _median = KeyCount.util.calculateMedian(median)
         combinedData[roleName] = {
@@ -341,6 +343,7 @@ if roledata and next(roledata) ~= nil then
             best = best,
             median = _median,
             dungeons = dungeonsForRole,
+            class = playerClass
         }
     end
     -- printTableRecursive(combinedData)
@@ -349,9 +352,9 @@ print('NOW USING FUNCTIONS')
 local roledata = getPlayerDataRoleSeason(playerdata, role, season)
 if roledata then
     local combined, dungeonsAll2 = combinePlayerDataPerRole(roledata)
-    
+
     -- printTableRecursive(combined)
-    print('Testing if two functions return the same output as the whole loop: ')
+    print('Testing if two functions return the same output as the test loop: ')
     print('    player data: ' .. tostring(deep_equals(combinedData, combined)))
     print('    dungeons: ' .. tostring(deep_equals(dungeonsAll, dungeonsAll2)))
 end

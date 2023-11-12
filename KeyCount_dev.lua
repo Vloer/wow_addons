@@ -349,6 +349,7 @@ end
 ---@return boolean Updated True if new player was added to the player list
 local function savePlayer(players, player, playerdata, dungeon)
     local role = playerdata.role
+    local class = playerdata.class
     local season = dungeon.season or KeyCount.defaults.dungeonDefault.season
     local updated = false
     if not players[player] then
@@ -366,6 +367,8 @@ local function savePlayer(players, player, playerdata, dungeon)
     end
     local d = table.copy({}, players[player][season][role])
     d.player = player
+    d.role = role
+    d.class = class
     d.totalEntries = d.totalEntries + 1
     --@debug@
     Log(string.format("Changing totalEntries for player %s from %d to %d", player,
@@ -373,8 +376,10 @@ local function savePlayer(players, player, playerdata, dungeon)
     --@end-debug@
     local dps = KeyCount.utilstats.getPlayerDps(playerdata)
     local hps = KeyCount.utilstats.getPlayerHps(playerdata)
-    if dps > d.maxdps then d.maxdps = dps end
-    if dps > d.maxhps then d.maxhps = hps end
+    d.maxdps = KeyCount.util.getMax(dps, d.maxdps)
+    d.maxhps = KeyCount.util.getMax(hps, d.maxhps)
+
+    -- Dungeons
     local keydata = dungeon.keydata
     local key = {
         name = keydata.name,

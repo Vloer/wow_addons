@@ -54,10 +54,10 @@ function getPlayerDataRoleSeason(playerdata, role, season)
     return roledata
 end
 
----Helper function to combine player data per role over multiple seasons. 
+---Helper function to combine player data per role over multiple seasons.
 ---This function is used in KeyCount.utilstats.getPlayerData
 ---@param roledata table Data table containing all player data seperated by role
----@return table|nil, table|nil T (1) Combined table (2) List of all dungeons for the player. Nil for both if invalid data object supplied
+---@return table|nil, table|nil T [1] Combined table [2] List of all dungeons for the player. Nil for both if invalid data object supplied
 function combinePlayerDataPerRole(roledata)
     if not roledata or next(roledata) == nil then return nil, nil end
     local dungeonsAll = {}
@@ -73,6 +73,7 @@ function combinePlayerDataPerRole(roledata)
         local median = {}
         local dungeonsForRole = {}
         local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
+        local playerClass = ""
         for _, seasonEntry in ipairs(roleData) do
             totalEntries = totalEntries + seasonEntry["totalEntries"]
             intime = intime + seasonEntry["intime"]
@@ -90,6 +91,7 @@ function combinePlayerDataPerRole(roledata)
                     table.insert(median, dung["level"])
                 end
             end
+            if #playerClass == 0 then playerClass = seasonEntry["class"] or "" end
         end
         local _median = KeyCount.util.calculateMedian(median)
         combinedData[roleName] = {
@@ -102,6 +104,7 @@ function combinePlayerDataPerRole(roledata)
             best = best,
             median = _median,
             dungeons = dungeonsForRole,
+            class = playerClass,
         }
     end
     return combinedData, dungeonsAll
@@ -365,26 +368,34 @@ end
 ---@param player table Player data
 ---@param season string Specify season to retrieve. Defaults to current season. 'all' for all seasons combined.
 ---@param role string Specify for which role we want to retrieve data. Defaults to all roles
----@return nil data Tuple with which we can fill the single row (player stats) and the larger table (player dungeons)
+---@return table, table T Tuple with which we can fill the single row (player stats) and the larger table (player dungeons)
 function KeyCount.utilstats.getPlayerData(player, season, role)
     local _season = season or KeyCount.defaults.dungeonDefault.season
     local _role = KeyCount.util.formatRole(role) or "all"
-    local playerdata = {}
-    local dungeons = {}
-    local seasondata = {}
-    local roledata = {}
-    local combinedData = {}
+    local dataByRole = getPlayerDataRoleSeason(player, _role, _season) or {}
+    local playerdata, allDungeons = combinePlayerDataPerRole(dataByRole)
+    local finalDataOverview = {}
+    local finalDataDungeons = {}
 
-    if _season == "all" then
-        for _, v in playerdata do
-            table.insert(seasondata, v)
+    if playerdata then
+        for playerRole, roleData in pairs(playerdata) do
+            local successRate = KeyCount.util.calculateSuccessRate(roleData.intime, roleData.outtime, roleData.abandoned)
+            table.insert(finalDataOverview,
+                {
+                    name = roleData.player,
+                    amount = roleData.totalEntries,
+                    rate = successRate,
+                    intime = roleData.intime,
+                    outtime = roleData.outtime,
+                    abandoned = roleData.abandoned,
+                    best = roleData.best,
+                    median = roleData.median,
+                    maxdps = roleData.maxdps,
+                    role = playerRole,
+                }
+            )
         end
-    else
-        seasondata = playerdata[season]
     end
-
-
-    local successRate = KeyCount.util.calculateSuccessRate(player.intime, player.outtime, player.abandoned)
 
     table.insert(playerdata,
         {
@@ -404,12 +415,4 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
         table.insert(dungeons,
             {})
     end
-end
-
----Get one row of data per role for the GUI for one player
----@param player table Player data
----@return table DataTable Table with one entry per role
-function KeyCount.utilstats.getDataPerRole(player)
-    local roledata = {}
-    local dungeons = {}
 end
