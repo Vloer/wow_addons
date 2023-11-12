@@ -10,7 +10,8 @@ local filterConditions = {
         return entry["season"] == KeyCount.defaults.dungeonDefault.season
     end,
     ["player"] = function(entry, value)
-        return string.lower(entry["player"]) == string.lower(value)
+        local _value = KeyCount.util.addRealmToName(value)
+        return string.lower(entry["player"]) == string.lower(_value)
     end,
     ["name"] = function(entry, value)
         return string.lower(entry["name"]) == string.lower(value)

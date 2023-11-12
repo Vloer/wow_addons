@@ -345,7 +345,8 @@ end
 ---@param data table The party table data for the specific player
 ---@return number dps Returns 0 if no data found
 function KeyCount.utilstats.getPlayerDps(data)
-    local d = data.damage or {}
+    local _data = data or {}
+    local d = _data.damage or {}
     local dps = d.dps or 0
     return dps
 end
@@ -354,7 +355,8 @@ end
 ---@param data table The party table data for the specific player
 ---@return number hps Returns 0 if no data found
 function KeyCount.utilstats.getPlayerHps(data)
-    local h = data.healing or {}
+    local _data = data or {}
+    local h = _data.healing or {}
     local hps = h.hps or 0
     return hps
 end
