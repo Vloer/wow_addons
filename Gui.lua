@@ -64,14 +64,14 @@ function GUI:ConstructGUI()
             end
         else
             self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
-        end
-        if not self.dungeons then
-            self.data = {}
-        else
-            --@debug@
-            Log(string.format("Found %s dungeons", #self.dungeons))
-            --@end-debug@
-            self.data = KeyCount.guipreparedata[self.view](self.dungeons)
+            if not self.dungeons then
+                self.data = {}
+            else
+                --@debug@
+                Log(string.format("Found %s dungeons", #self.dungeons))
+                --@end-debug@
+                self.data = KeyCount.guipreparedata[self.view](self.dungeons)
+            end
         end
         --@debug@
         Log(string.format("Data has %s entries", #self.data))
@@ -358,6 +358,7 @@ function GUI:ConstructGUI()
     }
 
     local columnsSearchPlayerDungeons = {
+        { ["name"] = "Season",  ["width"] = 100, },
         { ["name"] = "Dungeon", ["width"] = 150, },
         { ["name"] = "Level",   ["width"] = 55, },
         { ["name"] = "Result",  ["width"] = 90, },
@@ -424,7 +425,7 @@ GUI.defaults = {
     frame = {
         size = {
             height = 450,
-            width = 925,
+            width = 1000,
         }
     },
     widgets = {
@@ -475,6 +476,6 @@ GUI.views = {
     },
     searchplayer = {
         type = "searchplayer",
-        name = "Search specific player"
+        name = "Player lookup"
     },
 }

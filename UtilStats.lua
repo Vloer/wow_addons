@@ -85,6 +85,7 @@ local function combinePlayerDataPerRole(roledata)
             best = KeyCount.util.getMax(best, seasonEntry["best"])
             for _, dung in ipairs(seasonEntry["dungeons"]) do
                 local uuid = dung["uuid"]
+                dung.role = roleName
                 if not KeyCount.util.listContainsItem(uuid, dungeon_ids_seen) then
                     table.insert(dungeon_ids_seen, uuid)
                     table.insert(dungeonsForRole, dung)
@@ -418,7 +419,9 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
                     dps = d.damage.dps,
                     hps = d.healing.hps,
                     date = d.date,
-                    affixes = KeyCount.util.concatTable(d.affixes, ", ")
+                    affixes = KeyCount.util.concatTable(d.affixes, ", "),
+                    season = d.season,
+                    role = d.role,
                 }
             )
         end

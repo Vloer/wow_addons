@@ -289,25 +289,28 @@ local function prepareRowSearchPlayerDungeon(dungeon)
     Log(string.format("Preparing row for %s %s", dungeon.name, tostring(dungeon.level)))
     --@end-debug@
     local row = {}
+    local season = dungeon.season
     local name = dungeon.name
+    local nameWithRole = getRoleIcon(dungeon.role) .. name
     local level = dungeon.level
     local result = dungeon.resultstring
     local resultColor = getResultColor(dungeon.result)
-    local time = dungeon.timeToComplete
+    local time = dungeon.time
     local deaths = dungeon.deaths
     local deathsColor = getDeathsColor(deaths)
-    local dps = dungeon.damage.dps
-    local hps = dungeon.healing.hps
+    local dps = formatDps(dungeon.dps)
+    local hps = formatDps(dungeon.hps)
     local date = dungeon.date
     local affixes = dungeon.affixes
     --@debug@
-    KeyCount.util.printTableOnSameLine(dungeon, "prepareRowSearchPlayerPlayer")
+    KeyCount.util.printTableOnSameLine(dungeon, "prepareRowSearchPlayerDungeon")
     --@end-debug@
-    table.insert(row, { value = name })
+    table.insert(row, { value = season })
+    table.insert(row, { value = nameWithRole })
     table.insert(row, { value = level })
     table.insert(row, { value = result, color = rgb(resultColor.rgb) })
     table.insert(row, { value = time })
-    table.insert(row, { value = deaths, color = rgb(deathsColor.rgb) })
+    table.insert(row, { value = deaths, color = deathsColor })
     table.insert(row, { value = dps })
     table.insert(row, { value = hps })
     table.insert(row, { value = date })

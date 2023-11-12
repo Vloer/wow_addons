@@ -12,7 +12,6 @@ KeyCount.formatdata = {}
 --[[
     TODO
     Add multiple filter options to playersearch
-    Add dungeons to playersearch gui
 ]]
 
 -- Event behaviour
