@@ -11,7 +11,10 @@ KeyCount.formatdata = {}
 
 --[[
     TODO
-    complete player search function
+    complete player search function:
+        make search lowercase
+        if no realm is specified search for own realm first, then all realms 
+    fix table layout searchplayer (currently creates double)
 ]]
 
 -- Event behaviour
@@ -490,6 +493,8 @@ function KeyCount:GetStoredDungeons()
     return KeyCountDB.dungeons
 end
 
+---Get data for all players stored in the database
+---@return table|nil T Table of players or nil if no players found
 function KeyCount:GetStoredPlayers()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.players) == nil then
         printf("No players stored!", KeyCount.defaults.colors.chatError, true)

@@ -231,6 +231,42 @@ local function prepareRowGrouped(player)
     return { cols = row }
 end
 
+---Prepare a single row of data containing stats for a single player
+---@param player table
+local function prepareRowSearchPlayerPlayer(player)
+    -- --@debug@
+    -- Log(string.format("Preparing row for %s: %s", player.name, player.role))
+    -- --@end-debug@
+    local row = {}
+    local name = player.name
+    local amount = player.amount
+    local rate = player.rate
+    local rateString = string.format("%.2f%%", rate)
+    local intime = player.intime
+    local outtime = player.outtime
+    local abandoned = player.abandoned
+    local best = player.best
+    local median = player.median
+    local maxdps = formatDps(player.maxdps)
+    local maxhps = formatDps(player.maxhps)
+    local p = getPlayerRoleAndColor(player.class, player.role)
+    local playerString = p.roleIcon .. name
+    --@debug@
+    KeyCount.util.printTableOnSameLine(player, "prepareRowSearchPlayerPlayer")
+    --@end-debug@
+    table.insert(row, { value = playerString, color = p.color })
+    table.insert(row, { value = amount })
+    table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
+    table.insert(row, { value = intime })
+    table.insert(row, { value = outtime })
+    table.insert(row, { value = abandoned })
+    table.insert(row, { value = best, color = getLevelColor(best).color })
+    table.insert(row, { value = median, color = getLevelColor(median).color })
+    table.insert(row, { value = maxdps })
+    table.insert(row, { value = maxhps })
+    return { cols = row }
+end
+
 ---Helper function that inserts data into a table if data was retrieved without any errors.
 ---@param success boolean
 ---@param dataToInsert table|nil Data to insert can be nil if success is false
@@ -288,6 +324,15 @@ function KeyCount.guipreparedata.grouped(players)
     return data
 end
 
-function KeyCount.guipreparedata.searchplayer()
-    
+function KeyCount.guipreparedata.searchplayer(playerdata)
+    local data = {}
+    local i = 0
+    for _, roleData in ipairs(playerdata) do
+        i = i + 1
+        -- local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerPlayer", prepareRowSearchPlayerPlayer, roleData)
+        -- data = insertDataIfNoErrors(noErrors, row, data, i)
+        local row = prepareRowSearchPlayerPlayer(roleData)
+        table.insert(data, row)
+    end
+    return data
 end

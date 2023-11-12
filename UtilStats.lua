@@ -21,7 +21,7 @@ end
 ---@param role string Role to filter. Defaults to all
 ---@param season string Season to filter. Accepts 'all'. Defaults to current season
 ---@return table|nil T Reformatted table or nil if invalid playerdata object supplied
-function getPlayerDataRoleSeason(playerdata, role, season)
+local function getPlayerDataRoleSeason(playerdata, role, season)
     if not playerdata or next(playerdata) == nil then return nil end
     local seasondata = {}
     local roledata = {}
@@ -58,7 +58,7 @@ end
 ---This function is used in KeyCount.utilstats.getPlayerData
 ---@param roledata table Data table containing all player data seperated by role
 ---@return table|nil, table|nil T [1] Combined table [2] List of all dungeons for the player. Nil for both if invalid data object supplied
-function combinePlayerDataPerRole(roledata)
+local function combinePlayerDataPerRole(roledata)
     if not roledata or next(roledata) == nil then return nil, nil end
     local dungeonsAll = {}
     local combinedData = {}
@@ -74,6 +74,7 @@ function combinePlayerDataPerRole(roledata)
         local dungeonsForRole = {}
         local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
         local playerClass = ""
+        local playerName = ""
         for _, seasonEntry in ipairs(roleData) do
             totalEntries = totalEntries + seasonEntry["totalEntries"]
             intime = intime + seasonEntry["intime"]
@@ -92,6 +93,7 @@ function combinePlayerDataPerRole(roledata)
                 end
             end
             if #playerClass == 0 then playerClass = seasonEntry["class"] or "" end
+            if #playerName == 0 then playerName = seasonEntry["player"] or "" end
         end
         local _median = KeyCount.util.calculateMedian(median)
         combinedData[roleName] = {
@@ -105,6 +107,7 @@ function combinePlayerDataPerRole(roledata)
             median = _median,
             dungeons = dungeonsForRole,
             class = playerClass,
+            name = playerName,
         }
     end
     return combinedData, dungeonsAll
@@ -289,7 +292,10 @@ function KeyCount.utilstats.getPlayerSuccessRate(dungeons)
         for role, d in pairs(playerdata) do
             local successRate = KeyCount.util.calculateSuccessRate(d.intime, d.outtime, d.abandoned)
             local listOfKeys = KeyCount.util.getListOfValues(d.dungeons, "level")
-            local medianKey = KeyCount.util.calculateMedian(listOfKeys)
+            local medianKey = 0
+            if listOfKeys then
+                medianKey = KeyCount.util.calculateMedian(listOfKeys)
+            end
             local highestKey = getBestKeyTimed(d.dungeons)
             table.insert(rate,
                 {
@@ -366,9 +372,9 @@ end
 
 ---Retrieve the data of a single player for the 'searchplayer' view in the GUI
 ---@param player table Player data
----@param season string Specify season to retrieve. Defaults to current season. 'all' for all seasons combined.
----@param role string Specify for which role we want to retrieve data. Defaults to all roles
----@return table, table T Tuple with which we can fill the single row (player stats) and the larger table (player dungeons)
+---@param season string|nil Specify season to retrieve. Defaults to current season. 'all' for all seasons combined.
+---@param role string|nil Specify for which role we want to retrieve data. Defaults to all roles
+---@return table|nil T1, table|nil T2 [T1] stats of the player, [T2] all dungeon stats for the player
 function KeyCount.utilstats.getPlayerData(player, season, role)
     local _season = season or KeyCount.defaults.dungeonDefault.season
     local _role = KeyCount.util.formatRole(role) or "all"
@@ -382,7 +388,7 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
             local successRate = KeyCount.util.calculateSuccessRate(roleData.intime, roleData.outtime, roleData.abandoned)
             table.insert(finalDataOverview,
                 {
-                    name = roleData.player,
+                    name = roleData.name,
                     amount = roleData.totalEntries,
                     rate = successRate,
                     intime = roleData.intime,
@@ -417,5 +423,9 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
         end
     end
 
-    return finalDataOverview, finalDataDungeons
+    local _r1 = finalDataOverview
+    local _r2 = finalDataDungeons
+    if next(_r1) == nil then _r1 = nil end
+    if next(_r2) == nil then _r2 = nil end
+    return _r1, _r2
 end

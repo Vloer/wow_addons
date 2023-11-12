@@ -305,8 +305,8 @@ KeyCount.util.addRealmToName = function(name)
 end
 
 ---Formats supplied player role
----@param role string Role to format
----@return string | nil formattedRole Options: TANK | HEALER | DAMAGER | nil
+---@param role string|nil Role to format
+---@return string|nil formattedRole Options: TANK | HEALER | DAMAGER | nil
 KeyCount.util.formatRole = function(role)
     if not role then return nil end
     local _role = nil
@@ -337,4 +337,16 @@ KeyCount.util.getMax = function(v1, v2)
         return v2
     end
     return 0
+end
+
+---Split a string and return the first part
+---@param s string String to split
+---@param sep string|nil Separator. Defaults to '-'
+---@return string All characters before the separator
+KeyCount.util.splitString = function(s, sep)
+    s = tostring(s) or ""
+    sep = sep or "-"
+    for part in s:gmatch("([^%-]+)") do
+        return part
+    end
 end

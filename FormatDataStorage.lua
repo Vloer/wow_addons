@@ -147,6 +147,14 @@ function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
             dungeon.keydata.name = dungeon.name
         end
 
+        -- Check that damage exists (has been bugged in the past)
+        for player, data in pairs(dungeon["party"]) do
+            local damage = data["damage"] or KeyCount.defaults.partymember.damage
+            local healing = data["healing"] or KeyCount.defaults.partymember.healing
+            dungeon["party"][player]["damage"] = damage
+            dungeon["party"][player]["healing"] = healing
+        end
+
         old = 3
         dungeon["version"] = old
         debuglog = string.format("%s to version %s", debuglog, old)
@@ -230,6 +238,7 @@ Dungeon storage version changelog:
     - Added UUID to dungeon
     - Force realm name on all players
     - Check if Keydata contains name (sometimes doesn't) and fill it in if needed
+    - Make sure damage and healing are added to partymember data
 ]]
 
 --[[

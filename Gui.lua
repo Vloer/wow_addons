@@ -79,9 +79,19 @@ function GUI:ConstructGUI()
             self.tables.grouped:Show()
             self.tables.grouped:SetData(self.data)
             self.tables.grouped:Refresh()
+        elseif self.view == self.views.searchplayer.type then
+            self.tables.list:Hide()
+            self.tables.rate:Hide()
+            self.tables.grouped:Hide()
+            self.tables.searchplayer.player:Show()
+            self.tables.searchplayer.dungeons:Show()
+            self.tables.searchplayer.player:SetData(self.data)
+            self.tables.searchplayer.player:Refresh()
         else
             self.tables.rate:Hide()
             self.tables.grouped:Hide()
+            self.tables.searchplayer.player:Hide()
+            self.tables.searchplayer.dungeons:Hide()
             self.tables.list:Show()
             self.tables.list:SetData(self.data)
             self.tables.list:Refresh()
@@ -89,6 +99,7 @@ function GUI:ConstructGUI()
         self.dataLoadedForExport = true
     end
 
+    --#region Callback functions
     local function c_ChangeView(item)
         self.view = item
         self.dataLoadedForExport = false
@@ -97,6 +108,8 @@ function GUI:ConstructGUI()
             self.tables.rate:Hide()
             self.tables.list:Show()
             self.tables.grouped:Hide()
+            self.tables.searchplayer.player:Hide()
+            self.tables.searchplayer.dungeons:Hide()
             self.buttons.exportdata:SetText("Export to CSV")
         else
             disableFilters(false)
@@ -175,8 +188,9 @@ function GUI:ConstructGUI()
             KeyCount.exportdata.createFrame(self.dungeons)
         end
     end
+    --#endregion
 
-    -- Frames
+    --#region Frames
     self.frame = AceGUI:Create("Frame")
     local frame = self.frame
     frame:SetTitle("KeyCount")
@@ -188,8 +202,9 @@ function GUI:ConstructGUI()
         resetFilters()
     end)
     frame:SetLayout("Flow")
+    --#endregion
 
-    -- Widgets
+    --#region Widgets
     self.widgets.view = AceGUI:Create("Dropdown")
     self.widgets.view:SetLabel(self.defaults.widgets.view.text)
     self.widgets.view:SetWidth(self.defaults.widgets.view.width)
@@ -221,7 +236,6 @@ function GUI:ConstructGUI()
     self.buttons.exportdata:SetText(self.defaults.buttons.exportdata.text)
     self.buttons.exportdata:SetWidth(self.defaults.buttons.exportdata.width)
 
-
     self.widgets.view:SetCallback("OnValueChanged", function(widget, event, item) c_ChangeView(item) end)
     self.widgets.filterKey:SetCallback("OnValueChanged", function(widget, event, item) c_FilterKey(item) end)
     self.widgets.filterValue:SetCallback("OnEnterPressed", function(widget, event, text) c_FilterValue(text) end)
@@ -233,10 +247,12 @@ function GUI:ConstructGUI()
     frame:AddChild(self.widgets.filterValue)
     frame:AddChild(self.buttons.showdata)
     frame:AddChild(self.buttons.exportdata)
+    --#endregion
 
-    -- Tables
+    --#region Tables
     local window = frame.frame
     local ScrollingTable = LibStub("ScrollingTable");
+    --#region Table columns
     local columnsList = {
         { ["name"] = "Name",    ["width"] = 100 },
         { ["name"] = "Dungeon", ["width"] = 150, },
@@ -341,7 +357,9 @@ function GUI:ConstructGUI()
         { ["name"] = "Date",    ["width"] = 90, },
         { ["name"] = "Affixes", ["width"] = 200, },
     }
+    --#endregion
 
+    --#region Create tables
     self.tables.list = ScrollingTable:CreateST(columnsList, 16, 16, nil, window);
     self.tables.list.frame:SetPoint("TOP", window, "TOP", 0, -100);
     self.tables.list.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
@@ -372,6 +390,8 @@ function GUI:ConstructGUI()
     self.tables.searchplayer.dungeons.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
     self.tables.searchplayer.dungeons:EnableSelection(true)
     self.tables.searchplayer.dungeons:Hide()
+    --#endregion
+    --#endregion
 
     frame:SetCallback("OnClose", function()
         self.tables.list:Hide()
@@ -392,7 +412,7 @@ end
 GUI.defaults = {
     frame = {
         size = {
-            height = 420,
+            height = 450,
             width = 925,
         }
     },
