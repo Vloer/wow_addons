@@ -12,6 +12,7 @@ KeyCount.formatdata = {}
 --[[
     TODO
     complete player search function
+    add to dungeon data in saveplayer: timeToComplete, deaths, date
 ]]
 
 -- Event behaviour
@@ -390,7 +391,10 @@ local function savePlayer(players, player, playerdata, dungeon)
         season = dungeon.season,
         damage = dungeon.party[player].damage,
         healing = dungeon.party[player].healing,
-        uuid = dungeon.uuid
+        uuid = dungeon.uuid,
+        timeToComplete = dungeon.timeToComplete,
+        deaths = playerdata.deaths or 0,
+        date = dungeon.date.date
     }
     if key.result == KeyCount.defaults.keyresult.intime.value then
         d.intime = d.intime + 1

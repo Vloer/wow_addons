@@ -230,7 +230,7 @@ Dungeon storage version changelog:
 PLayer storage version changelog:
 1 - Initial
 2 -
-    - Added dungeon UUID, damage and healing to dungeons in player[dungeons]
+    - Added dungeon UUID, timeToComplete, player deaths, date, damage and healing to dungeons in player[dungeons]
     - Added median and best key to player data
     - Actually filled role and class
 ]]
