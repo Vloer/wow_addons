@@ -391,28 +391,31 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
                     best = roleData.best,
                     median = roleData.median,
                     maxdps = roleData.maxdps,
+                    maxhps = roleData.maxhps,
                     role = playerRole,
+                    class = roleData.class,
                 }
             )
         end
     end
 
-    table.insert(playerdata,
-        {
-            name = player.player,
-            amount = player.totalEntries,
-            rate = successRate,
-            intime = player.intime,
-            outtime = player.outtime,
-            abandoned = player.abandoned,
-            best = player.best,
-            median = player.median,
-            maxdps = player.maxdps,
-
-        })
-
-    for _, d in ipairs(player.dungeons) do
-        table.insert(dungeons,
-            {})
+    if allDungeons then
+        for _, d in ipairs(allDungeons) do
+            table.insert(finalDataDungeons,
+                {
+                    name = d.name,
+                    level = d.level,
+                    result = d.resultstring,
+                    time = d.timeToComplete,
+                    deaths = d.deaths,
+                    dps = d.damage.dps,
+                    hps = d.healing.hps,
+                    date = d.date,
+                    affixes = KeyCount.util.concatTable(d.affixes, ", ")
+                }
+            )
+        end
     end
+
+    return finalDataOverview, finalDataDungeons
 end

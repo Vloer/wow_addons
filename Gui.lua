@@ -327,6 +327,7 @@ function GUI:ConstructGUI()
         { ["name"] = "Best",    ["width"] = 55, },
         { ["name"] = "Median",  ["width"] = 55, },
         { ["name"] = "Max dps", ["width"] = 55, },
+        { ["name"] = "Max hps", ["width"] = 55, },
     }
 
     local columnsSearchPlayerDungeons = {

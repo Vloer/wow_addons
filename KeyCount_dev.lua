@@ -12,7 +12,6 @@ KeyCount.formatdata = {}
 --[[
     TODO
     complete player search function
-    add to dungeon data in saveplayer: timeToComplete, deaths, date
 ]]
 
 -- Event behaviour

@@ -308,7 +308,11 @@ end
 ---@param role string Role to format
 ---@return string | nil formattedRole Options: TANK | HEALER | DAMAGER | nil
 KeyCount.util.formatRole = function(role)
-    local _role = string.lower(role)
+    if not role then return nil end
+    local _role = nil
+    if type(role) == "string" then
+        _role = string.lower(role)
+    end
     if _role == "dps" or _role == "damager" or _role == "damage" then
         _role = "DAMAGER"
     elseif _role == "tank" then

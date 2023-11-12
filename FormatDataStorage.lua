@@ -142,6 +142,11 @@ function KeyCount.formatdata.formatdungeon(dungeonIn, _new)
             dungeon["deaths"] = updatedDeaths
         end
 
+        -- Check keydata name
+        if dungeon.keydata.name == "" then
+            dungeon.keydata.name = dungeon.name
+        end
+
         old = 3
         dungeon["version"] = old
         debuglog = string.format("%s to version %s", debuglog, old)
@@ -224,6 +229,7 @@ Dungeon storage version changelog:
 3 -
     - Added UUID to dungeon
     - Force realm name on all players
+    - Check if Keydata contains name (sometimes doesn't) and fill it in if needed
 ]]
 
 --[[
