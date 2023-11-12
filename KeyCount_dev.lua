@@ -11,10 +11,8 @@ KeyCount.formatdata = {}
 
 --[[
     TODO
-    complete player search function:
-        make search lowercase
-        if no realm is specified search for own realm first, then all realms 
-    fix table layout searchplayer (currently creates double)
+    Add multiple filter options to playersearch
+    Add dungeons to playersearch gui
 ]]
 
 -- Event behaviour

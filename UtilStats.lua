@@ -411,7 +411,8 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
                 {
                     name = d.name,
                     level = d.level,
-                    result = d.resultstring,
+                    resultstring = d.resultstring,
+                    result = d.result,
                     time = d.timeToComplete,
                     deaths = d.deaths,
                     dps = d.damage.dps,

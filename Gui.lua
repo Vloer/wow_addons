@@ -3,8 +3,10 @@ function GUI:ConstructGUI()
     self.widgets = {}
     self.tables = {}
     self.buttons = {}
+    self.players = {}
     self.dungeons = {}
     self.data = {}
+    self.dataPlayers = {}
     self.dataLoadedForExport = false
     local AceGUI = LibStub("AceGUI-3.0")
 
@@ -55,7 +57,14 @@ function GUI:ConstructGUI()
         Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.view, tostring(self.key),
             tostring(self.value)))
         --@end-debug@
-        self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
+        if self.view == self.views.searchplayer.type then
+            self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
+            if self.players and self.dungeons then
+                self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, self.dungeons)
+            end
+        else
+            self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
+        end
         if not self.dungeons then
             self.data = {}
         else
@@ -85,8 +94,10 @@ function GUI:ConstructGUI()
             self.tables.grouped:Hide()
             self.tables.searchplayer.player:Show()
             self.tables.searchplayer.dungeons:Show()
-            self.tables.searchplayer.player:SetData(self.data)
+            self.tables.searchplayer.player:SetData(self.dataPlayers)
             self.tables.searchplayer.player:Refresh()
+            self.tables.searchplayer.dungeons:SetData(self.data)
+            self.tables.searchplayer.dungeons:Refresh()
         else
             self.tables.rate:Hide()
             self.tables.grouped:Hide()

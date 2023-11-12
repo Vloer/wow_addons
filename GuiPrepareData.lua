@@ -56,16 +56,29 @@ local function getLevelColor(level)
     return { color = color, hex = hex }
 end
 
+---Finds correct color for dungeon result
+---@param dungeon table|number Dungeon data or result integer
+---@return table T Table containing color specifications
 local function getResultColor(dungeon)
-    if dungeon.keyresult.value == KeyCount.defaults.keyresult.intime.value then
+    local result = 0
+    if type(dungeon) == "table" then
+        result = dungeon.keyresult.value
+    elseif type(dungeon) == "number" then
+        result = dungeon
+    end
+    if result == KeyCount.defaults.keyresult.intime.value then
         return KeyCount.defaults.colors.rating[5]
-    elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.outtime.value then
+    elseif result == KeyCount.defaults.keyresult.outtime.value then
         return KeyCount.defaults.colors.rating[3]
-    elseif dungeon.keyresult.value == KeyCount.defaults.keyresult.abandoned.value then
+    elseif result == KeyCount.defaults.keyresult.abandoned.value then
         return KeyCount.defaults.colors.rating[1]
     end
+    return KeyCount.defaults.colors.white
 end
 
+---Finds appropiate color for amount of deaths
+---@param deaths number Amount of deaths
+---@return table T Table containing color specifications
 local function getDeathsColor(deaths)
     local idx
     if deaths == 0 then
@@ -233,10 +246,11 @@ end
 
 ---Prepare a single row of data containing stats for a single player
 ---@param player table
+---@return table Row Formatted row object
 local function prepareRowSearchPlayerPlayer(player)
-    -- --@debug@
-    -- Log(string.format("Preparing row for %s: %s", player.name, player.role))
-    -- --@end-debug@
+    --@debug@
+    Log(string.format("Preparing row for %s: %s", player.name, player.role))
+    --@end-debug@
     local row = {}
     local name = player.name
     local amount = player.amount
@@ -264,6 +278,40 @@ local function prepareRowSearchPlayerPlayer(player)
     table.insert(row, { value = median, color = getLevelColor(median).color })
     table.insert(row, { value = maxdps })
     table.insert(row, { value = maxhps })
+    return { cols = row }
+end
+
+---Prepare a single row of data containing all dungeon stats for a single player
+---@param dungeon table
+---@return table Row Formatted row object
+local function prepareRowSearchPlayerDungeon(dungeon)
+    --@debug@
+    Log(string.format("Preparing row for %s %s", dungeon.name, tostring(dungeon.level)))
+    --@end-debug@
+    local row = {}
+    local name = dungeon.name
+    local level = dungeon.level
+    local result = dungeon.resultstring
+    local resultColor = getResultColor(dungeon.result)
+    local time = dungeon.timeToComplete
+    local deaths = dungeon.deaths
+    local deathsColor = getDeathsColor(deaths)
+    local dps = dungeon.damage.dps
+    local hps = dungeon.healing.hps
+    local date = dungeon.date
+    local affixes = dungeon.affixes
+    --@debug@
+    KeyCount.util.printTableOnSameLine(dungeon, "prepareRowSearchPlayerPlayer")
+    --@end-debug@
+    table.insert(row, { value = name })
+    table.insert(row, { value = level })
+    table.insert(row, { value = result, color = rgb(resultColor.rgb) })
+    table.insert(row, { value = time })
+    table.insert(row, { value = deaths, color = rgb(deathsColor.rgb) })
+    table.insert(row, { value = dps })
+    table.insert(row, { value = hps })
+    table.insert(row, { value = date })
+    table.insert(row, { value = affixes })
     return { cols = row }
 end
 
@@ -324,15 +372,18 @@ function KeyCount.guipreparedata.grouped(players)
     return data
 end
 
-function KeyCount.guipreparedata.searchplayer(playerdata)
-    local data = {}
-    local i = 0
+function KeyCount.guipreparedata.searchplayer(playerdata, dungeondata)
+    local dataPlayers = {}
+    local dataDungeons = {}
     for _, roleData in ipairs(playerdata) do
-        i = i + 1
         -- local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerPlayer", prepareRowSearchPlayerPlayer, roleData)
         -- data = insertDataIfNoErrors(noErrors, row, data, i)
         local row = prepareRowSearchPlayerPlayer(roleData)
-        table.insert(data, row)
+        table.insert(dataPlayers, row)
     end
-    return data
+    for _, dungeon in ipairs(dungeondata) do
+        local row = prepareRowSearchPlayerDungeon(dungeon)
+        table.insert(dataDungeons, row)
+    end
+    return dataPlayers, dataDungeons
 end
