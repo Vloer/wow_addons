@@ -309,6 +309,7 @@ function KeyCount.utilstats.getPlayerSuccessRate(dungeons)
                     best = highestKey.level,
                     median = medianKey,
                     maxdps = d.maxdps,
+                    maxhps = d.maxhps,
                     class = d.class,
                     role = role
                 })
@@ -377,7 +378,8 @@ end
 ---@param role string|nil Specify for which role we want to retrieve data. Defaults to all roles
 ---@return table|nil T1, table|nil T2 [T1] stats of the player, [T2] all dungeon stats for the player
 function KeyCount.utilstats.getPlayerData(player, season, role)
-    local _season = season or KeyCount.defaults.dungeonDefault.season
+    -- local _season = season or KeyCount.defaults.dungeonDefault.season
+    local _season = season or "all"
     local _role = KeyCount.util.formatRole(role) or "all"
     local dataByRole = getPlayerDataRoleSeason(player, _role, _season) or {}
     local playerdata, allDungeons = combinePlayerDataPerRole(dataByRole)
@@ -432,4 +434,40 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
     if next(_r1) == nil then _r1 = nil end
     if next(_r2) == nil then _r2 = nil end
     return _r1, _r2
+end
+
+---Helper function to calculate wilson confidence score
+---@param rate number Success rate
+---@param total number Total number of runs
+---@param Z number Z score
+---@param direction number -1 for lowerbound, +1 for upperbound
+---@return number S Confidence
+local function calculateWilsonConfidence(rate, total, Z, direction)
+    if not direction == -1 or not direction == 1 then return 0 end
+    return (
+            (rate + ((Z * Z) / (2 * total))) +
+            (1 * direction) * (Z * math.sqrt(((rate * (1 - rate)) / total) + ((Z * Z) / (4 * (total * total)))))
+        ) /
+        (1 + ((Z * Z) / total))
+end
+
+---Calculates a weighted player score
+---@param intime number Dungeons completed in time
+---@param outtime number Dungeons completed out of time
+---@param abandoned number Dungeons abandoned
+---@param median number Median key level
+---@param best number Best key completed
+---@return number Score
+function KeyCount.utilstats.calculatePlayerScore(intime, outtime, abandoned, median, best)
+    intime = intime or 0
+    outtime = outtime or 0
+    abandoned = abandoned or 0
+    local total = intime + outtime + abandoned
+    local Z = 1.5
+    local successRate = intime / total
+    local lowerbound = calculateWilsonConfidence(successRate, total, Z, -1)
+    local upperbound = calculateWilsonConfidence(successRate, total, Z, 1)
+    local score =  (upperbound + lowerbound) / 2 * 100
+    local multiplier = 1 + ((best * ((best + median) / 2)) / 100) -- TODO fix multiplier to get more accurate score
+    return score
 end

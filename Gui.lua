@@ -250,14 +250,14 @@ function GUI:ConstructGUI()
     local ScrollingTable = LibStub("ScrollingTable");
     --#region Table columns
     local columnsList = {
-        { ["name"] = "Name",    ["width"] = 100 },
+        { ["name"] = "Name",    ["width"] = 150 },
         { ["name"] = "Dungeon", ["width"] = 150, },
         { ["name"] = "Level",   ["width"] = 55, },
         { ["name"] = "Result",  ["width"] = 90, },
         { ["name"] = "Deaths",  ["width"] = 55, },
         { ["name"] = "Time",    ["width"] = 60, },
         { ["name"] = "Dps",     ["width"] = 55 },
-        { ["name"] = "Date",    ["width"] = 90, ["defaultsort"] = "dsc"},
+        { ["name"] = "Date",    ["width"] = 90,  ["defaultsort"] = "dsc" },
         { ["name"] = "Affixes", ["width"] = 200, },
     }
     local columnsRate = {
@@ -289,6 +289,7 @@ function GUI:ConstructGUI()
 
     local columnsGrouped = {
         { ["name"] = "Player",       ["width"] = 150, },
+        { ["name"] = "Score",        ["width"] = 55, },
         { ["name"] = "Amount",       ["width"] = 55, },
         { ["name"] = "Success rate", ["width"] = 75, },
         {
@@ -312,10 +313,12 @@ function GUI:ConstructGUI()
         { ["name"] = "Best",    ["width"] = 55, },
         { ["name"] = "Median",  ["width"] = 55, },
         { ["name"] = "Max dps", ["width"] = 55, },
+        { ["name"] = "Max hps", ["width"] = 55, },
     }
 
     local columnsSearchPlayerPlayer = {
         { ["name"] = "Player",       ["width"] = 150, },
+        { ["name"] = "Score",        ["width"] = 55, },
         { ["name"] = "Amount",       ["width"] = 55, },
         { ["name"] = "Success rate", ["width"] = 75, },
         {

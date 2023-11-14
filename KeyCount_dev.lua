@@ -9,10 +9,6 @@ KeyCount.utilstats = {}
 KeyCount.details = {}
 KeyCount.formatdata = {}
 
---[[
-    TODO
-    Add multiple filter options to playersearch
-]]
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)

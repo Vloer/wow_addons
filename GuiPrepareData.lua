@@ -225,7 +225,10 @@ local function prepareRowGrouped(player)
     local abandoned = player.abandoned
     local best = player.best
     local median = player.median
+    local playerScore = KeyCount.utilstats.calculatePlayerScore(intime, outtime, abandoned, median, best)
+    local playerScoreString = string.format("%.0f", playerScore)
     local dps = formatDps(player.maxdps)
+    local hps = formatDps(player.maxhps)
     local p = getPlayerRoleAndColor(player.class, player.role)
     local playerString = p.roleIcon .. name
     --@debug@
@@ -233,6 +236,7 @@ local function prepareRowGrouped(player)
     --@end-debug@
 
     table.insert(row, { value = playerString, color = p.color })
+    table.insert(row, { value = playerScoreString, color = getSuccessRateColor(playerScore) })
     table.insert(row, { value = amount })
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })
@@ -241,6 +245,7 @@ local function prepareRowGrouped(player)
     table.insert(row, { value = best, color = getLevelColor(best).color })
     table.insert(row, { value = median, color = getLevelColor(median).color })
     table.insert(row, { value = dps })
+    table.insert(row, { value = hps })
     return { cols = row }
 end
 
@@ -261,6 +266,8 @@ local function prepareRowSearchPlayerPlayer(player)
     local abandoned = player.abandoned
     local best = player.best
     local median = player.median
+    local playerScore = KeyCount.utilstats.calculatePlayerScore(intime, outtime, abandoned, median, best)
+    local playerScoreString = string.format("%.0f", playerScore)
     local maxdps = formatDps(player.maxdps)
     local maxhps = formatDps(player.maxhps)
     local p = getPlayerRoleAndColor(player.class, player.role)
@@ -269,6 +276,7 @@ local function prepareRowSearchPlayerPlayer(player)
     KeyCount.util.printTableOnSameLine(player, "prepareRowSearchPlayerPlayer")
     --@end-debug@
     table.insert(row, { value = playerString, color = p.color })
+    table.insert(row, { value = playerScoreString, color = getSuccessRateColor(playerScore) })
     table.insert(row, { value = amount })
     table.insert(row, { value = rateString, color = getSuccessRateColor(rate) })
     table.insert(row, { value = intime })
@@ -379,15 +387,11 @@ local function prepareSearchPlayer(playerdata, dungeondata)
         local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerPlayer",
             prepareRowSearchPlayerPlayer, roleData)
         dataPlayers = insertDataIfNoErrors(noErrors, row, dataPlayers)
-        -- local row = prepareRowSearchPlayerPlayer(roleData)
-        -- table.insert(dataPlayers, row)
     end
     for _, dungeon in ipairs(dungeondata) do
         local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerDungeon",
             prepareRowSearchPlayerDungeon, dungeon)
         dataDungeons = insertDataIfNoErrors(noErrors, row, dataDungeons)
-        -- local row = prepareRowSearchPlayerDungeon(dungeon)
-        -- table.insert(dataDungeons, row)
     end
     return dataPlayers, dataDungeons
 end
