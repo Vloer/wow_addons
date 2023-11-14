@@ -78,13 +78,21 @@ end
 
 ---Finds appropiate color for amount of deaths
 ---@param deaths number Amount of deaths
+---@param soloPlayer boolean|nil Flag to enable steeper coloring for solo players
 ---@return table T Table containing color specifications
-local function getDeathsColor(deaths)
+local function getDeathsColor(deaths, soloPlayer)
+    soloPlayer = soloPlayer or false
     local idx
+    local multiplier
+    if soloPlayer then
+        multiplier = 1.5
+    else
+        multiplier = 4
+    end
     if deaths == 0 then
         idx = 5
     else
-        idx = math.floor(6 - deaths / 4)
+        idx = math.floor(6 - deaths / multiplier)
         if idx <= 0 then idx = 1 end
     end
     return rgb(KeyCount.defaults.colors.rating[idx].rgb)
@@ -301,11 +309,12 @@ local function prepareRowSearchPlayerDungeon(dungeon)
     local name = dungeon.name
     local nameWithRole = getRoleIcon(dungeon.role) .. name
     local level = dungeon.level
+    local levelColor = getLevelColor(level).color
     local result = dungeon.resultstring
-    local resultColor = getResultColor(dungeon.result)
+    local resultColor = rgb(getResultColor(dungeon.result).rgb)
     local time = dungeon.time
     local deaths = dungeon.deaths
-    local deathsColor = getDeathsColor(deaths)
+    local deathsColor = getDeathsColor(deaths, true)
     local dps = formatDps(dungeon.dps)
     local hps = formatDps(dungeon.hps)
     local date = dungeon.date
@@ -315,8 +324,8 @@ local function prepareRowSearchPlayerDungeon(dungeon)
     --@end-debug@
     table.insert(row, { value = season })
     table.insert(row, { value = nameWithRole })
-    table.insert(row, { value = level })
-    table.insert(row, { value = result, color = rgb(resultColor.rgb) })
+    table.insert(row, { value = level, color = levelColor })
+    table.insert(row, { value = result, color = resultColor })
     table.insert(row, { value = time })
     table.insert(row, { value = deaths, color = deathsColor })
     table.insert(row, { value = dps })

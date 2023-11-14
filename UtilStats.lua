@@ -340,7 +340,7 @@ end
 
 -- Get the top dps of the party
 ---@param party table Table containing party data
----@return number dps
+---@return table T Table containing data of the player which had top dps
 function KeyCount.utilstats.getTopDps(party)
     local dmg = {}
     for player, data in pairs(party) do
