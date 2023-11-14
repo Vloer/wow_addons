@@ -467,7 +467,7 @@ function KeyCount.utilstats.calculatePlayerScore(intime, outtime, abandoned, med
     local successRate = intime / total
     local lowerbound = calculateWilsonConfidence(successRate, total, Z, -1)
     local upperbound = calculateWilsonConfidence(successRate, total, Z, 1)
-    local score =  (upperbound + lowerbound) / 2 * 100
+    local score = (upperbound + lowerbound) / 2 * 100
     local multiplier = 1 + ((best * ((best + median) / 2)) / 100) -- TODO fix multiplier to get more accurate score
     return score
 end
