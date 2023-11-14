@@ -10,14 +10,13 @@ function GUI:ConstructGUI()
     self.dataLoadedForExport = false
     local AceGUI = LibStub("AceGUI-3.0")
 
+    --#region Helper functions
     local function resetFilters()
         self.key = ""
         self.value = ""
         self.filter = KeyCount.filterkeys[KeyCount.defaults.gui.filter]
         self.view = KeyCount.defaults.gui.view
     end
-
-    resetFilters()
 
     local function disableFilters(setting)
         self.widgets.filterKey:SetDisabled(setting)
@@ -37,6 +36,22 @@ function GUI:ConstructGUI()
         self.value = ""
     end
 
+    local function hideAllTables()
+        self.tables.list:Hide()
+        self.tables.grouped:Hide()
+        self.tables.rate:Hide()
+        self.tables.searchplayer.dungeons:Hide()
+        self.tables.searchplayer.player:Hide()
+    end
+
+    local function showTableSetData(tbl, data)
+        data = data or self.data
+        tbl:Show()
+        tbl:SetData(data)
+        tbl:SortData()
+        tbl:Refresh()
+    end
+
     local function checkDisableFilterValue()
         if self.filter.key == "intime" or
             self.filter.key == "outtime" or
@@ -53,6 +68,7 @@ function GUI:ConstructGUI()
     end
 
     local function fillTable()
+        hideAllTables()
         --@debug@
         Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.view, tostring(self.key),
             tostring(self.value)))
@@ -61,6 +77,9 @@ function GUI:ConstructGUI()
             self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
             if self.players and self.dungeons then
                 self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, self.dungeons)
+            else
+                self.dataPlayers = {}
+                self.data = {}
             end
         else
             self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
@@ -77,80 +96,42 @@ function GUI:ConstructGUI()
         Log(string.format("Data has %s entries", #self.data))
         --@end-debug@
         if self.view == self.views.rate.type then
-            self.tables.list:Hide()
-            self.tables.grouped:Hide()
-            self.tables.rate:Show()
-            self.tables.rate:SetData(self.data)
-            self.tables.rate:Refresh()
+            showTableSetData(self.tables.rate)
         elseif self.view == self.views.grouped.type then
-            self.tables.list:Hide()
-            self.tables.rate:Hide()
-            self.tables.grouped:Show()
-            self.tables.grouped:SetData(self.data)
-            self.tables.grouped:Refresh()
+            showTableSetData(self.tables.grouped)
         elseif self.view == self.views.searchplayer.type then
-            self.tables.list:Hide()
-            self.tables.rate:Hide()
-            self.tables.grouped:Hide()
-            self.tables.searchplayer.player:Show()
-            self.tables.searchplayer.dungeons:Show()
-            self.tables.searchplayer.player:SetData(self.dataPlayers)
-            self.tables.searchplayer.player:Refresh()
-            self.tables.searchplayer.dungeons:SetData(self.data)
-            self.tables.searchplayer.dungeons:Refresh()
+            showTableSetData(self.tables.searchplayer.player, self.dataPlayers)
+            showTableSetData(self.tables.searchplayer.dungeons, self.data)
         else
-            self.tables.rate:Hide()
-            self.tables.grouped:Hide()
-            self.tables.searchplayer.player:Hide()
-            self.tables.searchplayer.dungeons:Hide()
-            self.tables.list:Show()
-            self.tables.list:SetData(self.data)
-            self.tables.list:Refresh()
+            showTableSetData(self.tables.list)
         end
         self.dataLoadedForExport = true
     end
+    --#endregion
 
     --#region Callback functions
     local function c_ChangeView(item)
+        hideAllTables()
         self.view = item
         self.dataLoadedForExport = false
         if self.view == self.views.list.type then
             disableFilters(true)
-            self.tables.rate:Hide()
             self.tables.list:Show()
-            self.tables.grouped:Hide()
-            self.tables.searchplayer.player:Hide()
-            self.tables.searchplayer.dungeons:Hide()
             self.buttons.exportdata:SetText("Export to CSV")
         else
             disableFilters(false)
             setFilterKeyValue()
             self.key = self.filter.value
             if self.view == self.views.filter.type then
-                self.tables.rate:Hide()
                 self.tables.list:Show()
-                self.tables.grouped:Hide()
-                self.tables.searchplayer.player:Hide()
-                self.tables.searchplayer.dungeons:Hide()
                 self.buttons.exportdata:SetText("Export to CSV")
             elseif self.view == self.views.rate.type then
                 self.tables.rate:Show()
-                self.tables.list:Hide()
-                self.tables.grouped:Hide()
-                self.tables.searchplayer.player:Hide()
-                self.tables.searchplayer.dungeons:Hide()
                 self.buttons.exportdata:SetText("Export to party")
             elseif self.view == self.views.grouped.type then
-                self.tables.rate:Hide()
-                self.tables.list:Hide()
                 self.tables.grouped:Show()
-                self.tables.searchplayer.player:Hide()
-                self.tables.searchplayer.dungeons:Hide()
                 self.buttons.exportdata:SetText("Export to party")
             elseif self.view == self.views.searchplayer.type then
-                self.tables.rate:Hide()
-                self.tables.list:Hide()
-                self.tables.grouped:Hide()
                 self.tables.searchplayer.player:Show()
                 self.tables.searchplayer.dungeons:Show()
                 self.buttons.exportdata:SetText("")
@@ -202,17 +183,21 @@ function GUI:ConstructGUI()
     --#endregion
 
     --#region Frames
+    resetFilters()
     self.frame = AceGUI:Create("Frame")
     local frame = self.frame
     frame:SetTitle("KeyCount")
     frame:SetStatusText("Retrieve some data for your mythic+ runs!")
     frame:SetWidth(self.defaults.frame.size.width)
     frame:SetHeight(self.defaults.frame.size.height)
+    frame:SetLayout("Flow")
     frame:SetCallback("OnClose", function(widget)
         AceGUI:Release(widget)
         resetFilters()
     end)
-    frame:SetLayout("Flow")
+    frame:SetCallback("OnClose", function()
+        hideAllTables()
+    end)
     --#endregion
 
     --#region Widgets
@@ -269,10 +254,10 @@ function GUI:ConstructGUI()
         { ["name"] = "Dungeon", ["width"] = 150, },
         { ["name"] = "Level",   ["width"] = 55, },
         { ["name"] = "Result",  ["width"] = 90, },
-        { ["name"] = "Deaths",  ["width"] = 55,  ["KeyCount.defaultsort"] = "dsc" },
+        { ["name"] = "Deaths",  ["width"] = 55, },
         { ["name"] = "Time",    ["width"] = 60, },
         { ["name"] = "Dps",     ["width"] = 55 },
-        { ["name"] = "Date",    ["width"] = 90, },
+        { ["name"] = "Date",    ["width"] = 90, ["defaultsort"] = "dsc"},
         { ["name"] = "Affixes", ["width"] = 200, },
     }
     local columnsRate = {
@@ -376,6 +361,7 @@ function GUI:ConstructGUI()
     self.tables.list.frame:SetPoint("TOP", window, "TOP", 0, -100);
     self.tables.list.frame:SetPoint("LEFT", window, "LEFT", 15, 0);
     self.tables.list:EnableSelection(true)
+    self.tables.list:SortData()
     self.tables.list:Hide()
 
     self.tables.rate = ScrollingTable:CreateST(columnsRate, 8, 16, nil, window);
@@ -404,14 +390,6 @@ function GUI:ConstructGUI()
     self.tables.searchplayer.dungeons:Hide()
     --#endregion
     --#endregion
-
-    frame:SetCallback("OnClose", function()
-        self.tables.list:Hide()
-        self.tables.rate:Hide()
-        self.tables.grouped:Hide()
-        self.tables.searchplayer.player:Hide()
-        self.tables.searchplayer.dungeons:Hide()
-    end)
 
     -- Required to exit interface on escape press
     _G["KeyCountFrame"] = frame.frame

@@ -161,6 +161,7 @@ function KeyCount:SetKeyStart()
     local name, _, timelimit = C_ChallengeMode.GetMapUIInfo(challengeMapID)
     Log(string.format("Started %s on level %d.", name, activeKeystoneLevel))
     printf(string.format("started recording for %s %d.", name, activeKeystoneLevel), nil, true)
+    self.current.keydata.name = name
     self.current.keydata.level = activeKeystoneLevel
     self.current.startedTimestamp = time()
     self.current.party = self:GetPartyMemberInfo()
@@ -522,6 +523,7 @@ function KeyCount:SetDetailsData()
                     self.defaults.colors.chatError, true)
             end
         end
+        Log("Details data has been stored")
         self.details:resetCombat()
     end
 end

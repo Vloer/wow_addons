@@ -1,8 +1,14 @@
 KeyCount.filterfunctions.print = {}
 
 --#region Local helper functions
-local function noResult()
-    printf("No dungeons matched your filter criteria!", KeyCount.defaults.colors.chatWarning, true)
+local function noResult(key, value)
+    local msg = ""
+    key = key or ""
+    value = value or ""
+    if #key > 0 then
+        msg = string.format(" [%s: '%s']", key, value)
+    end
+    printf(string.format("No dungeons matched your filter criteria%s!", msg), KeyCount.defaults.colors.chatWarning, true)
     return nil
 end
 
@@ -61,7 +67,8 @@ local filterConditions = {
     end,
     ["role"] = function(entry, value)
         local player = entry.player
-        local role = entry.party[player].role or ""
+        local partydata = entry.party[player] or {}
+        local role = partydata.role or ""
         if value == "all" then return true end
         return string.lower(role) == string.lower(value)
     end
@@ -165,7 +172,7 @@ local function filterData(tbl, key, value)
         end
     end
     if #result == 0 then
-        return noResult()
+        return noResult(key, value)
     end
     return result
 end
@@ -277,7 +284,7 @@ KeyCount.filterkeys = {
     ["intime"] = { key = "intime", value = "intime", name = "Completed in time" },
     ["outtime"] = { key = "outtime", value = "outtime", name = "Completed out of time" },
     ["abandoned"] = { key = "abandoned", value = "abandoned", name = "Abandoned" },
-    ["level"] = { key = "level", value = "level", name = "Key level" },
+    ["level"] = { key = "level", value = "level", name = "Minimum key level" },
     ["time"] = { key = "time", value = "time", name = "Time" },
     ["deathsgt"] = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
     ["deathslt"] = { key = "deathslt", value = "deathslt", name = "Maximum amount of deaths" },

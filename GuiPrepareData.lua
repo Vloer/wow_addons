@@ -322,7 +322,7 @@ end
 ---@param success boolean
 ---@param dataToInsert table|nil Data to insert can be nil if success is false
 ---@param targetTable table
----@param i number Iteration number (used for message on failed attempt)
+---@param i number|nil Iteration number (used for message on failed attempt)
 ---@return table T Updated table
 local function insertDataIfNoErrors(success, dataToInsert, targetTable, i)
     i = i or 0
@@ -341,19 +341,16 @@ end
 
 local function prepareList(dungeons)
     local data = {}
-    local i = 0
-    for _, dungeon in ipairs(dungeons) do
-        i = i + 1
+    local numDungeons = #dungeons
+    for i = numDungeons, 1, -1 do -- Sort by date descending
+        local dungeon = dungeons[i]
         local noErrors, row = KeyCount.util.safeExec("PrepareRowList", prepareRowList, dungeon)
-        data = insertDataIfNoErrors(noErrors, row, data, i)
+        data = insertDataIfNoErrors(noErrors, row, data, numDungeons - i + 1)
     end
     return data
 end
 
-KeyCount.guipreparedata.list = prepareList
-KeyCount.guipreparedata.filter = prepareList
-
-function KeyCount.guipreparedata.rate(dungeons)
+local function prepareRate(dungeons)
     local data = {}
     local i = 0
     for _, dungeon in ipairs(dungeons) do
@@ -364,7 +361,7 @@ function KeyCount.guipreparedata.rate(dungeons)
     return data
 end
 
-function KeyCount.guipreparedata.grouped(players)
+local function prepareGrouped(players)
     local data = {}
     local i = 0
     for player, playerdata in ipairs(players) do
@@ -375,18 +372,28 @@ function KeyCount.guipreparedata.grouped(players)
     return data
 end
 
-function KeyCount.guipreparedata.searchplayer(playerdata, dungeondata)
+local function prepareSearchPlayer(playerdata, dungeondata)
     local dataPlayers = {}
     local dataDungeons = {}
     for _, roleData in ipairs(playerdata) do
-        -- local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerPlayer", prepareRowSearchPlayerPlayer, roleData)
-        -- data = insertDataIfNoErrors(noErrors, row, data, i)
-        local row = prepareRowSearchPlayerPlayer(roleData)
-        table.insert(dataPlayers, row)
+        local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerPlayer",
+            prepareRowSearchPlayerPlayer, roleData)
+        dataPlayers = insertDataIfNoErrors(noErrors, row, dataPlayers)
+        -- local row = prepareRowSearchPlayerPlayer(roleData)
+        -- table.insert(dataPlayers, row)
     end
     for _, dungeon in ipairs(dungeondata) do
-        local row = prepareRowSearchPlayerDungeon(dungeon)
-        table.insert(dataDungeons, row)
+        local noErrors, row = KeyCount.util.safeExec("PrepareRowSearchPlayerDungeon",
+            prepareRowSearchPlayerDungeon, dungeon)
+        dataDungeons = insertDataIfNoErrors(noErrors, row, dataDungeons)
+        -- local row = prepareRowSearchPlayerDungeon(dungeon)
+        -- table.insert(dataDungeons, row)
     end
     return dataPlayers, dataDungeons
 end
+
+KeyCount.guipreparedata.list = prepareList
+KeyCount.guipreparedata.filter = prepareList
+KeyCount.guipreparedata.rate = prepareRate
+KeyCount.guipreparedata.grouped = prepareGrouped
+KeyCount.guipreparedata.searchplayer = prepareSearchPlayer
