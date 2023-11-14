@@ -501,6 +501,8 @@ function KeyCount:SetDetailsData()
     local detailsParty = self.details:getAll()
     if detailsParty then
         for player, data in pairs(detailsParty) do
+            printf("Setting " .. player)
+            player = KeyCount.util.addRealmToName(player)
             local d = data.damage or {}
             local h = data.healing or {}
             local partyplayer = self.current.party[player] or {}

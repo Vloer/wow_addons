@@ -14,7 +14,8 @@ end
 
 local filterConditions = {
     ["alldata"] = function(entry, value)
-        return entry["season"] == KeyCount.defaults.dungeonDefault.season
+        -- return entry["season"] == KeyCount.defaults.dungeonDefault.season
+        return
     end,
     ["player"] = function(entry, value)
         local _value = KeyCount.util.addRealmToName(value)
@@ -151,7 +152,9 @@ local function filterData(tbl, key, value)
 
     -- Table filtering
     for _, entry in ipairs(tbl) do
-        if _key == "season" and entry[_key] ~= nil then
+        if _key == "alldata" then
+            table.insert(result, entry)
+        elseif _key == "season" and entry[_key] ~= nil then
             --@debug@
             Log(string.format("FilterData: dungeon [%s] season [%s]", entry.name, entry.season))
             --@end-debug@

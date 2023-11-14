@@ -189,6 +189,7 @@ function KeyCount.formatdata.formatplayers(dungeons, playersIn)
         for season, seasondata in pairs(playerdata) do
             for role, roledata in pairs(seasondata) do
                 if roledata["version"] == 1 then
+                    rebuild = true
                     local uuid = roledata["dungeons"][1]["uuid"] or nil
                     Log(string.format("Checking %s %s %s", player, season, role))
                     if not uuid or #uuid == 0 then

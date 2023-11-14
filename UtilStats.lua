@@ -200,9 +200,7 @@ function KeyCount.utilstats.getDungeonSuccessRate(dungeons)
             res[dungeon.name].abandoned = (res[dungeon.name].abandoned or 0) + 1
         end
         local dps = KeyCount.utilstats.getPlayerDps(dungeon.party[dungeon.player])
-        if dps > res[dungeon.name].maxdps then
-            res[dungeon.name].maxdps = dps
-        end
+        res[dungeon.name].maxdps = KeyCount.util.getMax(res[dungeon.name].maxdps, dps)
         --@debug@
         KeyCount.util.printTableOnSameLine(res[dungeon.name], "GetDungeonSuccessRate")
         --@end-debug@
@@ -344,8 +342,7 @@ end
 function KeyCount.utilstats.getTopDps(party)
     local dmg = {}
     for player, data in pairs(party) do
-        local d = data.damage or {}
-        local dps = d.dps or 0
+        local dps = KeyCount.utilstats.getPlayerDps(data)
         table.insert(dmg, { player = player, dps = dps })
     end
     table.sort(dmg, function(a, b) return a.dps > b.dps end)
@@ -410,6 +407,8 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
 
     if allDungeons then
         for _, d in ipairs(allDungeons) do
+            local dps = KeyCount.utilstats.getPlayerDps(d)
+            local hps = KeyCount.utilstats.getPlayerHps(d)
             table.insert(finalDataDungeons,
                 {
                     name = d.name,
@@ -418,8 +417,8 @@ function KeyCount.utilstats.getPlayerData(player, season, role)
                     result = d.result,
                     time = d.timeToComplete,
                     deaths = d.deaths,
-                    dps = d.damage.dps,
-                    hps = d.healing.hps,
+                    dps = dps,
+                    hps = hps,
                     date = d.date,
                     affixes = KeyCount.util.concatTable(d.affixes, ", "),
                     season = d.season,

@@ -8,6 +8,10 @@ function GUI:ConstructGUI()
     self.data = {}
     self.dataPlayers = {}
     self.dataLoadedForExport = false
+    self.key = ""
+    self.value = ""
+    self.filter = KeyCount.filterkeys[KeyCount.defaults.gui.filter]
+    self.view = KeyCount.defaults.gui.view
     local AceGUI = LibStub("AceGUI-3.0")
 
     --#region Helper functions
