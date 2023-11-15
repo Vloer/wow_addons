@@ -8,7 +8,17 @@ KeyCount.util = {}
 KeyCount.utilstats = {}
 KeyCount.details = {}
 KeyCount.formatdata = {}
+KeyCount.cache = {}
 
+--[[
+    TODO
+
+    implement cache that saves hovered players (for speed)
+        check cache for hovered player. if not present, calculate stats and add to cache
+        clear cache on logout/reload
+    calculate player data based on settings in preferences (preferences todo - use current season by default)
+    figure out how hovering in LFG works - skip nameplate hover for now
+]]
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
@@ -23,6 +33,7 @@ function KeyCount:PLAYER_LOGOUT(event)
     if self.current and not table.equal(self.current, self.defaults.dungeonDefault) then
         table.copy(KeyCountDB.current, self.current)
     end
+    self:ClearCache()
 end
 
 function KeyCount:ADDON_LOADED(event, addonName)
@@ -75,7 +86,7 @@ function KeyCount:COMBAT_LOG_EVENT_UNFILTERED()
     end
 end
 
--- Register events
+--#region Register events
 function KeyCount:AddDungeonEvents()
     KeyCount:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     KeyCount:RegisterEvent("GROUP_ROSTER_UPDATE")
@@ -95,6 +106,7 @@ KeyCount:RegisterEvent("ADDON_LOADED")
 KeyCount:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 KeyCount:RegisterEvent("CHALLENGE_MODE_START")
 KeyCount:SetScript("OnEvent", KeyCount.OnEvent)
+--#endregion
 
 function KeyCount:InitSelf()
     Log("Called InitSelf")
@@ -524,4 +536,23 @@ function KeyCount:SetDetailsData()
         Log("Details data has been stored")
         self.details:resetCombat()
     end
+end
+
+---Clears the cache on logout/reload
+function KeyCount:ClearCache()
+    self.cache = {}
+end
+
+---Add data item to cache under specified key. Accepts any amount of keys to nest the data
+---@param data any Data to add
+---@param key string
+---@param ... string Additional keys to nest
+function KeyCount:AddToCache(data, key, ...)
+    local args = {...}
+    local cur = self.cache[key] or {}
+    for _, nextKey in ipairs(args) do
+        cur = cur[nextKey] or {}
+    end
+    table.insert(cur, data)
+    self.cache[key] = cur
 end
