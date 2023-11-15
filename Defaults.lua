@@ -56,8 +56,8 @@ local defaults = {
         EB = "Everbloom",
         TOT = "Throne of the Tides",
         WM = "Waycrest Manor",
-        GF = "Galakrond's Fall",
-        MR = "Murozond's Rise"
+        GF = "Dawn of the Infinite: Galakrond's Fall",
+        MR = "Dawn of the Infinite: Murozond's Rise"
     },
     partymember = {
         role = "",
