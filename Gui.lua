@@ -104,24 +104,20 @@ function GUI:ConstructGUI()
         --@end-debug@
         if self.checkboxes.character:GetValue() then
             Log("Applying checkbox character")
-            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.character.filter.key)
+            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.character.filter.key) or {}
         end
         if self.checkboxes.currentweek:GetValue() then
             Log("Applying checkbox week")
-            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.currentweek.filter.key)
+            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.currentweek.filter.key) or {}
         end
         if self.checkboxes.currentseason:GetValue() then
             Log("Applying checkbox season")
-            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.currentseason.filter.key)
+            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.currentseason.filter.key) or {}
         end
         if self.checkboxes.intime:GetValue() then
             Log("Applying checkbox intime")
-            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.intime.filter.key)
+            data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.intime.filter.key) or {}
         end
-        if data ~= nil then
-            Log(string.format("Data after checkboxes: %s", #data))
-        end
-        if not data then return {} end
         return data
     end
 
@@ -175,33 +171,28 @@ function GUI:ConstructGUI()
         hideAllTables()
         self.view = item
         self.dataLoadedForExport = false
-        if self.view == self.views.list.type then
-            disableFilters(true)
+
+        disableFilters(false)
+        setFilterKeyValue()
+        self.key = self.filter.value
+        if self.view == self.views.filter.type then
             self.tables.list:Show()
             self.buttons.exportdata:SetText("Export to CSV")
-        else
-            disableFilters(false)
-            setFilterKeyValue()
+        elseif self.view == self.views.rate.type then
+            self.tables.rate:Show()
+            self.buttons.exportdata:SetText("Export to party")
+        elseif self.view == self.views.grouped.type then
+            self.tables.grouped:Show()
+            self.buttons.exportdata:SetText("Export to party")
+        elseif self.view == self.views.searchplayer.type then
+            self.tables.searchplayer.player:Show()
+            self.tables.searchplayer.dungeons:Show()
+            self.buttons.exportdata:SetText("")
+            self.filter = KeyCount.filterkeys["player"]
             self.key = self.filter.value
-            if self.view == self.views.filter.type then
-                self.tables.list:Show()
-                self.buttons.exportdata:SetText("Export to CSV")
-            elseif self.view == self.views.rate.type then
-                self.tables.rate:Show()
-                self.buttons.exportdata:SetText("Export to party")
-            elseif self.view == self.views.grouped.type then
-                self.tables.grouped:Show()
-                self.buttons.exportdata:SetText("Export to party")
-            elseif self.view == self.views.searchplayer.type then
-                self.tables.searchplayer.player:Show()
-                self.tables.searchplayer.dungeons:Show()
-                self.buttons.exportdata:SetText("")
-                self.filter = KeyCount.filterkeys["player"]
-                self.key = self.filter.value
-                self.widgets.filterKey:SetText(self.filter.name)
-                self.widgets.filterKey:SetDisabled(true)
-                resetFilterValue()
-            end
+            self.widgets.filterKey:SetText(self.filter.name)
+            self.widgets.filterKey:SetDisabled(true)
+            resetFilterValue()
         end
     end
 
@@ -218,12 +209,7 @@ function GUI:ConstructGUI()
     end
 
     local function c_ShowData()
-        if self.view == self.views.list.type then
-            self.key = ""
-            self.value = ""
-        else
-            setFilterKeyValue()
-        end
+        setFilterKeyValue()
         fillTable()
     end
 
@@ -349,6 +335,8 @@ function GUI:ConstructGUI()
     frame:AddChild(self.checkboxes.currentweek)
     frame:AddChild(self.checkboxes.currentseason)
     frame:AddChild(self.checkboxes.intime)
+    disableFilters(false)
+    setFilterKeyValue()
     --#endregion
 
     --#region Tables
@@ -595,15 +583,11 @@ GUI.defaults = {
             }
         }
     },
-    view = "list",
-    viewOrder = { "list", "filter", "rate", "grouped", "searchplayer" },
+    view = "filter",
+    viewOrder = { "filter", "rate", "grouped", "searchplayer" },
 }
 
 GUI.views = {
-    list = {
-        type = "list",
-        name = "All data"
-    },
     filter = {
         type = "filter",
         name = "Filter"

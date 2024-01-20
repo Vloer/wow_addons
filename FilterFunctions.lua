@@ -333,7 +333,7 @@ KeyCount.filterkeys = {
 }
 
 KeyCount.filterorder = {
-    "alldata", "player", "currentweek", "dungeon", "role", "season",
-    "completed", "intime", "outtime", "abandoned", "level",
+    "alldata", "player", "dungeon", "role", "season",
+    "completed", "outtime", "abandoned", "level",
     "time", "deathsgt", "deathslt", "date", "affix"
 }
