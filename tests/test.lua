@@ -20,7 +20,7 @@ local Obj = setmetatable({}, Meta)
 GetRealmName = function() return "Tarren Mill" end
 
 
-CreateFrame = function(frameType, name, parent, template, id)
+CreateFrame2 = function(frameType, name, parent, template, id)
     parent = parent or UIParent
     local scripts, events, points, textures, lastUpdate, f = {}, {}, {}, {}, 0
     local CreateChild = function() return CreateFrame(nil, nil, f) end

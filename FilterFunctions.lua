@@ -153,6 +153,11 @@ local function cleanFilterArgs(key, value)
     return _key, value
 end
 
+---Filters data based on key (filter type) and value (filter value)
+---@param tbl table
+---@param key string
+---@param value string | number | table | nil
+---@return table | nil
 local function filterData(tbl, key, value)
     local result = {}
     local _key, _value = cleanFilterArgs(key, value)
@@ -276,6 +281,17 @@ end
 local function filterDungeonsSuccessRatePrint(key, value)
     local dungeons = KeyCount.filterfunctions.rate(key, value)
     if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
+end
+
+---Apply any filter to a set of data
+---@param data table
+---@param key string | nil
+---@param value string | number | table | nil
+---@return table | nil filteredData
+function KeyCount.filterfunctions.applyfilter(data, key, value)
+    key = key or ""
+    value = value or ""
+    return filterData(data, key, value)
 end
 --#endregion
 
