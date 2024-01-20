@@ -20,7 +20,7 @@ local Obj = setmetatable({}, Meta)
 GetRealmName = function() return "Tarren Mill" end
 
 
-CreateFrame2 = function(frameType, name, parent, template, id)
+CreateFrame = function(frameType, name, parent, template, id)
     parent = parent or UIParent
     local scripts, events, points, textures, lastUpdate, f = {}, {}, {}, {}, 0
     local CreateChild = function() return CreateFrame(nil, nil, f) end
@@ -256,107 +256,153 @@ end
 --#endregion
 
 --#region TEST get all playerdata
-print('TEST PLAYERDATA SEASONS=2 ROLES=2')
-local playerdata = TWO_SEASONS_TWO_ROLES
-local dungeonsAll = {}
-local seasondata = {}
-local roledata = {}
-local combinedData = {}
-print('Settings: seasons=all, roles=all')
-local season = 'Dragonflight-2'
-local role = 'all'
+if enable then
+    print('TEST PLAYERDATA SEASONS=2 ROLES=2')
+    local playerdata = TWO_SEASONS_TWO_ROLES
+    local dungeonsAll = {}
+    local seasondata = {}
+    local roledata = {}
+    local combinedData = {}
+    print('Settings: seasons=all, roles=all')
+    local season = 'Dragonflight-2'
+    local role = 'all'
 
 
-if season == "all" then
-    for _, v in pairs(playerdata) do
-        table.insert(seasondata, v)
+    if season == "all" then
+        for _, v in pairs(playerdata) do
+            table.insert(seasondata, v)
+        end
+    else
+        table.insert(seasondata, playerdata[season])
     end
-else
-    table.insert(seasondata, playerdata[season])
-end
--- printTableRecursive(seasondata)
-if seasondata and next(seasondata) ~= nil then
-    print('Getting role data')
-    local i = 0
-    for _, seasonEntry in ipairs(seasondata) do
-        i = i + 1
-        print('Getting season entry ' .. i)
-        if role == "all" then
-            for currentRole, roleEntry in pairs(seasonEntry) do
-                if not roledata[currentRole] then
-                    roledata[currentRole] = {}
+    -- printTableRecursive(seasondata)
+    if seasondata and next(seasondata) ~= nil then
+        print('Getting role data')
+        local i = 0
+        for _, seasonEntry in ipairs(seasondata) do
+            i = i + 1
+            print('Getting season entry ' .. i)
+            if role == "all" then
+                for currentRole, roleEntry in pairs(seasonEntry) do
+                    if not roledata[currentRole] then
+                        roledata[currentRole] = {}
+                    end
+                    table.insert(roledata[currentRole], roleEntry)
                 end
-                table.insert(roledata[currentRole], roleEntry)
+            else
+                if not roledata[role] then
+                    roledata[role] = {}
+                end
+                table.insert(roledata[role], seasonEntry[role])
             end
-        else
-            if not roledata[role] then
-                roledata[role] = {}
-            end
-            table.insert(roledata[role], seasonEntry[role])
         end
     end
-end
--- printTableRecursive(roledata)
--- By this point we have a table of roles where each role contains a list of stats per season:
--- {DAMAGER: {season1, season2, ...}, HEALER: {season1, season2, ...}}
-if roledata and next(roledata) ~= nil then
-    print('Combining stats')
-    for roleName, roleData in pairs(roledata) do
-        local totalEntries = 0
-        local intime = 0
-        local outtime = 0
-        local abandoned = 0
-        local maxdps = 0
-        local maxhps = 0
-        local best = 0
-        local median = {}
-        local dungeonsForRole = {}
-        local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
-        local playerClass = ""
-        for _, seasonEntry in ipairs(roleData) do
-            totalEntries = totalEntries + seasonEntry["totalEntries"]
-            intime = intime + seasonEntry["intime"]
-            outtime = outtime + seasonEntry["outtime"]
-            abandoned = abandoned + seasonEntry["abandoned"]
-            maxdps = KeyCount.util.getMax(maxdps, seasonEntry["maxdps"])
-            maxhps = KeyCount.util.getMax(maxhps, seasonEntry["maxhps"])
-            best = KeyCount.util.getMax(best, seasonEntry["best"])
-            for _, dung in ipairs(seasonEntry["dungeons"]) do
-                local uuid = dung["uuid"]
-                if not KeyCount.util.listContainsItem(uuid, dungeon_ids_seen) then
-                    table.insert(dungeon_ids_seen, uuid)
-                    table.insert(dungeonsForRole, dung)
-                    table.insert(dungeonsAll, dung)
-                    table.insert(median, dung["level"])
+    -- printTableRecursive(roledata)
+    -- By this point we have a table of roles where each role contains a list of stats per season:
+    -- {DAMAGER: {season1, season2, ...}, HEALER: {season1, season2, ...}}
+    if roledata and next(roledata) ~= nil then
+        print('Combining stats')
+        for roleName, roleData in pairs(roledata) do
+            local totalEntries = 0
+            local intime = 0
+            local outtime = 0
+            local abandoned = 0
+            local maxdps = 0
+            local maxhps = 0
+            local best = 0
+            local median = {}
+            local dungeonsForRole = {}
+            local dungeon_ids_seen = {} -- Make sure not to store duplicates (shouldn't be possible)
+            local playerClass = ""
+            for _, seasonEntry in ipairs(roleData) do
+                totalEntries = totalEntries + seasonEntry["totalEntries"]
+                intime = intime + seasonEntry["intime"]
+                outtime = outtime + seasonEntry["outtime"]
+                abandoned = abandoned + seasonEntry["abandoned"]
+                maxdps = KeyCount.util.getMax(maxdps, seasonEntry["maxdps"])
+                maxhps = KeyCount.util.getMax(maxhps, seasonEntry["maxhps"])
+                best = KeyCount.util.getMax(best, seasonEntry["best"])
+                for _, dung in ipairs(seasonEntry["dungeons"]) do
+                    local uuid = dung["uuid"]
+                    if not KeyCount.util.listContainsItem(uuid, dungeon_ids_seen) then
+                        table.insert(dungeon_ids_seen, uuid)
+                        table.insert(dungeonsForRole, dung)
+                        table.insert(dungeonsAll, dung)
+                        table.insert(median, dung["level"])
+                    end
                 end
+                if #playerClass == 0 then playerClass = seasonEntry["class"] or "" end
             end
-            if #playerClass == 0 then playerClass = seasonEntry["class"] or "" end
+            local _median = KeyCount.util.calculateMedian(median)
+            combinedData[roleName] = {
+                totalEntries = totalEntries,
+                intime = intime,
+                outtime = outtime,
+                abandoned = abandoned,
+                maxdps = maxdps,
+                maxhps = maxhps,
+                best = best,
+                median = _median,
+                dungeons = dungeonsForRole,
+                class = playerClass
+            }
         end
-        local _median = KeyCount.util.calculateMedian(median)
-        combinedData[roleName] = {
-            totalEntries = totalEntries,
-            intime = intime,
-            outtime = outtime,
-            abandoned = abandoned,
-            maxdps = maxdps,
-            maxhps = maxhps,
-            best = best,
-            median = _median,
-            dungeons = dungeonsForRole,
-            class = playerClass
-        }
+        -- printTableRecursive(combinedData)
     end
-    -- printTableRecursive(combinedData)
-end
-print('NOW USING FUNCTIONS')
-local roledata = getPlayerDataRoleSeason(playerdata, role, season)
-if roledata then
-    local combined, dungeonsAll2 = combinePlayerDataPerRole(roledata)
+    print('NOW USING FUNCTIONS')
+    local roledata = getPlayerDataRoleSeason(playerdata, role, season)
+    if roledata then
+        local combined, dungeonsAll2 = combinePlayerDataPerRole(roledata)
 
-    -- printTableRecursive(combined)
-    print('Testing if two functions return the same output as the test loop: ')
-    print('    player data: ' .. tostring(deep_equals(combinedData, combined)))
-    print('    dungeons: ' .. tostring(deep_equals(dungeonsAll, dungeonsAll2)))
+        -- printTableRecursive(combined)
+        print('Testing if two functions return the same output as the test loop: ')
+        print('    player data: ' .. tostring(deep_equals(combinedData, combined)))
+        print('    dungeons: ' .. tostring(deep_equals(dungeonsAll, dungeonsAll2)))
+    end
 end
-
 --#endregion
+
+local f = function(startDate)
+    local currentDate = "2024-01-20"
+    local startYear, startMonth, startDay = startDate:match("(%d+)-(%d+)-(%d+)")
+    local currentYear, currentMonth, currentDay = currentDate:match("(%d+)-(%d+)-(%d+)")
+
+    if not startYear or not startMonth or not startDay then return {} end
+
+    startYear, startMonth, startDay = tonumber(startYear), tonumber(startMonth), tonumber(startDay)
+    local iDate = string.format("%04d-%02d-%02d", startYear, startMonth, startDay)
+
+    local dateList = {}
+    local maxDates = 100
+    local i = 0
+
+    while true do
+        i = i + 1
+        if i > maxDates then break end
+
+        table.insert(dateList, iDate)
+        local iYear, iMonth, iDay = iDate:match("(%d+)-(%d+)-(%d+)")
+
+        if iYear == currentYear and iMonth == currentMonth and iDay == currentDay then
+            break
+        end
+
+        iYear, iMonth, iDay = tonumber(iYear), tonumber(iMonth), tonumber(iDay)
+        iDay = iDay + 1
+
+        if iDay > 31 or (iMonth == 4 or iMonth == 6 or iMonth == 9 or iMonth == 11) and iDay > 30 or (iMonth == 2 and ((iYear % 4 == 0 and iYear % 100 ~= 0) or (iYear % 400 == 0)) and iDay > 29 or iDay > 28) then
+            iDay = 1
+            iMonth = iMonth + 1
+        end
+
+        if iMonth > 12 then
+            iMonth = 1
+            iYear = iYear + 1
+        end
+
+        iDate = string.format("%04d-%02d-%02d", iYear, iMonth, iDay)
+    end
+
+    return dateList
+end
+f("2023-12-31")
