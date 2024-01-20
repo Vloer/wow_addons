@@ -103,17 +103,23 @@ function GUI:ConstructGUI()
         ))
         --@end-debug@
         if self.checkboxes.character:GetValue() then
+            Log("Applying checkbox character")
             data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.character.filter.key)
         end
-        if not data then return {} end
         if self.checkboxes.currentweek:GetValue() then
+            Log("Applying checkbox week")
             data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.currentweek.filter.key)
         end
         if self.checkboxes.currentseason:GetValue() then
+            Log("Applying checkbox season")
             data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.currentseason.filter.key)
         end
         if self.checkboxes.intime:GetValue() then
+            Log("Applying checkbox intime")
             data = KeyCount.filterfunctions.applyfilter(data, self.defaults.checkboxes.intime.filter.key)
+        end
+        if data ~= nil then
+            Log(string.format("Data after checkboxes: %s", #data))
         end
         if not data then return {} end
         return data
@@ -125,6 +131,8 @@ function GUI:ConstructGUI()
         Log(string.format("fillTable: Calling filterfunc with [%s] [%s] [%s]", self.view, tostring(self.key),
             tostring(self.value)))
         --@end-debug@
+        local dungeons = KeyCount:GetStoredDungeons() or {}
+        dungeons = applyCheckboxFilters(dungeons)
         if self.view == self.views.searchplayer.type then
             self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
             if self.players and self.dungeons then
@@ -135,13 +143,12 @@ function GUI:ConstructGUI()
                 self.data = {}
             end
         else
-            self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
+            self.dungeons = KeyCount.filterfunctions[self.view](dungeons, self.key, self.value)
             if not self.dungeons then
                 self.data = {}
             else
-                self.dungeons = applyCheckboxFilters(self.dungeons)
                 --@debug@
-                Log(string.format("Found %s dungeons", #self.dungeons))
+                Log(string.format("Found %s dungeons after applying checkboxes", #self.dungeons))
                 --@end-debug@
                 self.data = KeyCount.guipreparedata[self.view](self.dungeons)
             end
@@ -493,8 +500,8 @@ function GUI:ConstructGUI()
     self.tables.searchplayer.player:EnableSelection(true)
     self.tables.searchplayer.player:Hide()
 
-    self.tables.searchplayer.dungeons = ScrollingTable:CreateST(columnsSearchPlayerDungeons, 13, 16, nil, window);
-    self.tables.searchplayer.dungeons.frame:SetPoint("TOP", window, "TOP", self.defaults.tables.anchors.top.x, -180);
+    self.tables.searchplayer.dungeons = ScrollingTable:CreateST(columnsSearchPlayerDungeons, 11, 16, nil, window);
+    self.tables.searchplayer.dungeons.frame:SetPoint("TOP", window, "TOP", self.defaults.tables.anchors.top.x, -210);
     self.tables.searchplayer.dungeons.frame:SetPoint("LEFT", window, "LEFT", self.defaults.tables.anchors.left.x,
         self.defaults.tables.anchors.left.y);
     self.tables.searchplayer.dungeons:EnableSelection(true)
@@ -564,11 +571,11 @@ GUI.defaults = {
             state = true,
             filter = {
                 key = "season",
-                value = ""
+                value = KeyCount.defaults.dungeonDefault.season
             }
         },
         intime = {
-            text = "In time",
+            text = "Completed in time",
             state = false,
             filter = {
                 key = "intime",
