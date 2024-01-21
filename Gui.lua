@@ -90,6 +90,15 @@ function GUI:ConstructGUI()
         end
     end
 
+    ---Disables or enables all checkboxes
+    ---@param flag boolean True to disable
+    local function disableCheckboxes(flag)
+        self.checkboxes.character:SetDisabled(flag)
+        self.checkboxes.currentweek:SetDisabled(flag)
+        self.checkboxes.currentseason:SetDisabled(flag)
+        self.checkboxes.intime:SetDisabled(flag)
+    end
+
     ---Applies additional filters to dataset based on active checkboxes
     ---@param data table
     ---@return table
@@ -128,17 +137,17 @@ function GUI:ConstructGUI()
             tostring(self.value)))
         --@end-debug@
         local dungeons = KeyCount:GetStoredDungeons() or {}
-        dungeons = applyCheckboxFilters(dungeons)
         if self.view == self.views.searchplayer.type then
             self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
             if self.players and self.dungeons then
-                self.dungeons = applyCheckboxFilters(self.dungeons)
+                --self.dungeons = applyCheckboxFilters(self.dungeons)
                 self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, self.dungeons)
             else
                 self.dataPlayers = {}
                 self.data = {}
             end
         else
+            dungeons = applyCheckboxFilters(dungeons)
             self.dungeons = KeyCount.filterfunctions[self.view](dungeons, self.key, self.value)
             if not self.dungeons then
                 self.data = {}
@@ -173,6 +182,7 @@ function GUI:ConstructGUI()
         self.dataLoadedForExport = false
 
         disableFilters(false)
+        disableCheckboxes(false)
         setFilterKeyValue()
         self.key = self.filter.value
         if self.view == self.views.filter.type then
@@ -185,6 +195,7 @@ function GUI:ConstructGUI()
             self.tables.grouped:Show()
             self.buttons.exportdata:SetText("Export to party")
         elseif self.view == self.views.searchplayer.type then
+            disableCheckboxes(true)
             self.tables.searchplayer.player:Show()
             self.tables.searchplayer.dungeons:Show()
             self.buttons.exportdata:SetText("")

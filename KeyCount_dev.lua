@@ -495,7 +495,7 @@ function KeyCount:GetPlayerInfo()
 end
 
 ---Get all dungeons in the database
----@return table|nil
+---@return table|nil T Table of dungeons or nil if no dungeons found
 function KeyCount:GetStoredDungeons()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
         printf("No dungeons stored!", KeyCount.defaults.colors.chatError, true)
