@@ -426,8 +426,8 @@ DATA_DUNGEON_VERSION3 = {
         ["datestring"] = "Fri Jun  2 13:13:02 2023",
     },
     ["keyresult"] = {
-        ["value"] = 2,
-        ["name"] = "Failed to time"
+        ["value"] = 0,
+        ["name"] = "Unknown"
     },
     ["uuid"] = "a00e449b-db73-4b77-bb19-6b995236c8fc"
 }

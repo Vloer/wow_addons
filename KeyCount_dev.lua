@@ -20,6 +20,7 @@ end
 
 function KeyCount:PLAYER_LOGOUT(event)
     -- Update current table in DB if it is not set to the default values
+    KeyCount:SetUnknownToAbandoned()
     KeyCount:SaveAllPlayers(self.dungeons)
     KeyCount:SaveDungeons()
     if self.keystoneActive then KeyCountDB.keystoneActive = true else KeyCountDB.keystoneActive = false end
@@ -430,6 +431,18 @@ local function savePlayer(players, player, playerdata, dungeon)
 
     players[player][season][role] = table.copy({}, d)
     return players, updated
+end
+
+---Sets any keyresults of 'Unknown' to 'Abandoned' (abandoned is correct but this is still bugged)
+function KeyCount:SetUnknownToAbandoned()
+    if not self.dungeons then return end
+    for _, dungeon in ipairs(self.dungeons) do
+        local keyresult = dungeon.keyresult or {}
+        local value = keyresult.value or KeyCount.defaults.keyresult.unknown.value
+        if value == KeyCount.defaults.keyresult.unknown.value then
+            dungeon.keyresult = KeyCount.defaults.keyresult.abandoned
+        end
+    end
 end
 
 function KeyCount:SaveAllPlayers(dungeons)

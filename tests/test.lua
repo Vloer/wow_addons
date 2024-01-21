@@ -362,47 +362,76 @@ if enable then
 end
 --#endregion
 
-local f = function(startDate)
-    local currentDate = "2024-01-20"
-    local startYear, startMonth, startDay = startDate:match("(%d+)-(%d+)-(%d+)")
-    local currentYear, currentMonth, currentDay = currentDate:match("(%d+)-(%d+)-(%d+)")
+--#region list of dates
+if enable then
+    local f = function(startDate)
+        local currentDate = "2024-01-20"
+        local startYear, startMonth, startDay = startDate:match("(%d+)-(%d+)-(%d+)")
+        local currentYear, currentMonth, currentDay = currentDate:match("(%d+)-(%d+)-(%d+)")
 
-    if not startYear or not startMonth or not startDay then return {} end
+        if not startYear or not startMonth or not startDay then return {} end
 
-    startYear, startMonth, startDay = tonumber(startYear), tonumber(startMonth), tonumber(startDay)
-    local iDate = string.format("%04d-%02d-%02d", startYear, startMonth, startDay)
+        startYear, startMonth, startDay = tonumber(startYear), tonumber(startMonth), tonumber(startDay)
+        local iDate = string.format("%04d-%02d-%02d", startYear, startMonth, startDay)
 
-    local dateList = {}
-    local maxDates = 100
-    local i = 0
+        local dateList = {}
+        local maxDates = 100
+        local i = 0
 
-    while true do
-        i = i + 1
-        if i > maxDates then break end
+        while true do
+            i = i + 1
+            if i > maxDates then break end
 
-        table.insert(dateList, iDate)
-        local iYear, iMonth, iDay = iDate:match("(%d+)-(%d+)-(%d+)")
+            table.insert(dateList, iDate)
+            local iYear, iMonth, iDay = iDate:match("(%d+)-(%d+)-(%d+)")
 
-        if iYear == currentYear and iMonth == currentMonth and iDay == currentDay then
-            break
+            if iYear == currentYear and iMonth == currentMonth and iDay == currentDay then
+                break
+            end
+
+            iYear, iMonth, iDay = tonumber(iYear), tonumber(iMonth), tonumber(iDay)
+            iDay = iDay + 1
+
+            if iDay > 31 or (iMonth == 4 or iMonth == 6 or iMonth == 9 or iMonth == 11) and iDay > 30 or (iMonth == 2 and ((iYear % 4 == 0 and iYear % 100 ~= 0) or (iYear % 400 == 0)) and iDay > 29 or iDay > 28) then
+                iDay = 1
+                iMonth = iMonth + 1
+            end
+
+            if iMonth > 12 then
+                iMonth = 1
+                iYear = iYear + 1
+            end
+
+            iDate = string.format("%04d-%02d-%02d", iYear, iMonth, iDay)
         end
 
-        iYear, iMonth, iDay = tonumber(iYear), tonumber(iMonth), tonumber(iDay)
-        iDay = iDay + 1
-
-        if iDay > 31 or (iMonth == 4 or iMonth == 6 or iMonth == 9 or iMonth == 11) and iDay > 30 or (iMonth == 2 and ((iYear % 4 == 0 and iYear % 100 ~= 0) or (iYear % 400 == 0)) and iDay > 29 or iDay > 28) then
-            iDay = 1
-            iMonth = iMonth + 1
-        end
-
-        if iMonth > 12 then
-            iMonth = 1
-            iYear = iYear + 1
-        end
-
-        iDate = string.format("%04d-%02d-%02d", iYear, iMonth, iDay)
+        return dateList
     end
-
-    return dateList
+    f("2023-12-31")
 end
-f("2023-12-31")
+--#endregion
+
+--#region set result to abandoned
+if enable then
+    local setToAbandoned = function(dungeons)
+        if not dungeons then return end
+        for _, dungeon in ipairs(dungeons) do
+            local keyresult = dungeon.keyresult or {}
+            local value = keyresult.value or KeyCount.defaults.keyresult.unknown.value
+            if value == KeyCount.defaults.keyresult.unknown.value then
+                dungeon.keyresult = KeyCount.defaults.keyresult.abandoned
+            end
+        end
+        return dungeons
+    end
+    local dungs = {DATA_DUNGEON_VERSION2, DATA_DUNGEON_VERSION3}
+    for i, d in ipairs(dungs) do
+        print(string.format("Before function dungeon %d: %s", i, d.keyresult.name))
+    end
+    dungs = setToAbandoned(dungs)
+    for i, d in ipairs(dungs) do
+        print(string.format("After function dungeon %d: %s", i, d.keyresult.name))
+    end
+end
+--#endregion
+
