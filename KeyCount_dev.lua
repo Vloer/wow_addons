@@ -259,7 +259,8 @@ function KeyCount:SetTimeToComplete()
         timeStart = timeStart or 0
         timeLost = timeLost or 0
         if timeStart == 0 or timeEnd == 0 then
-            local errorMsg = string.format("Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!")
+            local errorMsg = string.format(
+                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!")
             printf(errorMsg, KeyCount.defaults.colors.chatError, true)
             Log(errorMsg)
             self.current.time = 0
