@@ -448,7 +448,7 @@ KeyCount.util.checkUpdateMessage = function(msg)
     local oldMessage = KeyCountDB.updateMessage or ""
     if msg == oldMessage then return end
     StaticPopupDialogs["updateMessage"] = {
-        text = string.format("%sKeyCount has been updated!\n--\n%s%s\n--|r", KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatSuccess, msg),
+        text = string.format("%sKeyCount has been updated!\n--\n%s%s\n%s--|r", KeyCount.defaults.colors.chatAnnounce, KeyCount.defaults.colors.chatSuccess, msg, KeyCount.defaults.colors.chatAnnounce),
         button1 = OKAY,
         OnAccept = function()
             KeyCountDB.updateMessage = msg

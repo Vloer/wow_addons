@@ -113,7 +113,7 @@ function KeyCount:InitSelf()
         Log("Setting current dungeon to value from DB")
         table.copy(self.current, KeyCountDB.current)
     end
-    local updateMessage = "You can now type /kcfail to manually set a run to failed if neccessary"
+    local updateMessage = "·You can now type /kcfail to manually set an active run to 'abandoned'·\n·Included this update message·\n·Fixed FALL and RISE shortcuts in dungeon lookup·"
     C_Timer.After(5, function() KeyCount.util.checkUpdateMessage(updateMessage) end)
     Log("Finished InitSelf")
 end
