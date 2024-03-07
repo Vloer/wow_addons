@@ -45,7 +45,7 @@ local function checkEligibleDropdown(dropdown)
 end
 
 local function getPlayerName(dropdown)
-    local unit=dropdown.unit
+    local unit = dropdown.unit
     local name, realm = dropdown.name, dropdown.server
     
 end
