@@ -192,6 +192,10 @@ function KeyCount:CheckIfKeyFailed(party)
 end
 
 function KeyCount:SetKeyFailed()
+    if not self.keystoneActive then
+        Log("SetKeyFailed was called but no dungeon is currently active")
+        return
+    end
     Log("Called SetKeyFailed")
     self.current.completedTimestamp = time()
     self.current.completed = false
@@ -258,7 +262,7 @@ function KeyCount:SetTimeToComplete()
         timeLost = timeLost or 0
         if timeStart == 0 or timeEnd == 0 then
             local errorMsg = string.format(
-                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!")
+                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!", tostring(timeStart), tostring(timeEnd), tostring(timeLost))
             printf(errorMsg, KeyCount.defaults.colors.chatError, true)
             Log(errorMsg)
             self.current.time = 0
