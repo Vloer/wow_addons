@@ -40,28 +40,53 @@ local validTypes = {
     WORLD_STATE_SCORE = true,
 }
 
-local function checkEligibleDropdown(dropdown)
-    return (type(dropdown.which) == "string" and validTypes[dropdown.which])
+local function isValidDropdown(dropdown)
+    local valid= (type(dropdown.which) == "string" and validTypes[dropdown.which])
+    if valid then
+        print('dropdown valid')
+    else
+        print('dropdown invalid')
+    end
+    return valid
 end
 
 local function getPlayerName(dropdown)
+    print('enter getPlayerName')
     local unit = dropdown.unit
-    local name, realm = dropdown.name, dropdown.server
-    
+    local tempName, tempRealm = dropdown.name, dropdown.server
+    local name, realm, level
+    -- unit
+    if not name and UnitExists(unit) then
+        if UnitIsPlayer(unit) then
+            -- name, realm = KeyCount.util.addRealmToName:GetNameRealm(unit)
+            for k, v in pairs(unit) do
+                print(k,v)
+            end
+            level = UnitLevel(unit)
+        end
+        -- if it's not a player it's pointless to check further
+        return name, realm, level, unit
+    end
 end
 
--- the callback function for when the dropdown event occurs
+
+--the callback function for when the dropdown event occurs
 local function OnEvent(dropdown, event, options, level, data)
-    print(string.format('triggered %s %s %s %s %s', tostring(dropdown), tostring(event), tostring(options),
-        tostring(level), tostring(data)))
-    for k, v in pairs(dropdown) do
-        Log(string.format('%s: %s', k, v))
-    end
+    -- print(string.format('triggered %s %s %s %s %s', tostring(dropdown), tostring(event), tostring(options),
+    --     tostring(level), tostring(data)))
+    -- for k, v in pairs(dropdown) do
+    --     Log(string.format('%s: %s', k, v))
+    -- end
     if event == "OnShow" then
+        if not isValidDropdown(dropdown) then return end
+        local name = getPlayerName(dropdown)
         -- check if dropdown is on a valid player
         -- add the dropdown options to the options table
         print('onshow event')
         KeyCount.util.printTableOnSameLine(dropdown, 'dropdown')
+        for k,v in pairs(dropdown) do
+            print(k, v)
+        end
         print('print 2')
         for i = 1, #dropdownOptions do
             options[i] = dropdownOptions[i]
