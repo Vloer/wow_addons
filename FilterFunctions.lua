@@ -220,6 +220,9 @@ local function searchPlayerGetData(playername, db)
     end
     -- Data is not found, using name only
     _playername = KeyCount.util.splitString(_playername)
+    --@debug@
+    Log('Attempting to search without realm: '.. _playername)
+    --@end-debug@
     for p, data in pairs(db) do
         p = KeyCount.util.splitString(p)
         if string.lower(p) == _playername then return data end
@@ -293,6 +296,15 @@ local function filterDungeonsSuccessRatePrint(key, value)
     if dungeons then KeyCount.utilstats.printDungeonSuccessRate(dungeons) end
 end
 
+local function filterPlayersSearchPlayerPrint(value)
+    local players = KeyCount:GetStoredPlayers()
+    if not players then return end
+    local player = searchPlayerGetData(value, players)
+    if not player then return end
+    local summary = KeyCount.utilstats.getPlayerDataSummary(player)
+    if summary then KeyCount.utilstats.printPlayerSuccessRate(summary) end
+end
+
 ---Apply any filter to a set of data
 ---@param data table
 ---@param key string | nil
@@ -313,6 +325,7 @@ KeyCount.filterfunctions.searchplayer = filterPlayersSearchPlayer
 KeyCount.filterfunctions.print.list = filterDungeonsListPrint
 KeyCount.filterfunctions.print.filter = filterDungeonsFilterPrint
 KeyCount.filterfunctions.print.rate = filterDungeonsSuccessRatePrint
+KeyCount.filterfunctions.print.searchplayer = filterPlayersSearchPlayerPrint
 
 KeyCount.filterkeys = {
     ["alldata"] = { key = "alldata", value = "", name = "All data" },
