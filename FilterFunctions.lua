@@ -201,10 +201,10 @@ end
 ---Checks name-realm first, then name only and returns the first match if there are multiple.
 ---@param playername string Name to search
 ---@param db table Database containing all player data
----@return table|nil T All data for a single player
+---@return table|nil data, string name All data for a single player, The actual player name
 local function searchPlayerGetData(playername, db)
-    if not db or next(db) == 0 then return nil end
-    if not playername or #playername == 0 then return nil end
+    if not db or next(db) == 0 then return nil, '' end
+    if not playername or #playername == 0 then return nil, '' end
     if type(playername) ~= "string" then
         playername = tostring(playername)
     end
@@ -216,7 +216,7 @@ local function searchPlayerGetData(playername, db)
 
     -- First pass: name-realm
     for p, data in pairs(db) do
-        if string.lower(p) == _playername then return data end
+        if string.lower(p) == _playername then return data, p end
     end
     -- Data is not found, using name only
     _playername = KeyCount.util.splitString(_playername)
@@ -224,11 +224,11 @@ local function searchPlayerGetData(playername, db)
     Log('Attempting to search without realm: '.. _playername)
     --@end-debug@
     for p, data in pairs(db) do
-        p = KeyCount.util.splitString(p)
-        if string.lower(p) == _playername then return data end
+        local name = KeyCount.util.splitString(p)
+        if string.lower(name) == _playername then return data, p end
     end
     printf(string.format("No data found for player %s!", playername), KeyCount.defaults.colors.chatWarning, true)
-    return nil
+    return nil, playername
 end
 --#endregion
 
@@ -299,8 +299,9 @@ end
 local function filterPlayersSearchPlayerPrint(value)
     local players = KeyCount:GetStoredPlayers()
     if not players then return end
-    local player = searchPlayerGetData(value, players)
+    local player, name = searchPlayerGetData(value, players)
     if not player then return end
+    printf(string.format("Stats for %s:", KeyCount.util.titleCase(name)))
     local summary = KeyCount.utilstats.getPlayerDataSummary(player)
     if summary then KeyCount.utilstats.printPlayerSuccessRate(summary) end
 end

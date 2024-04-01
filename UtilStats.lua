@@ -468,12 +468,12 @@ end
 ---@param role string|nil Defaults to all seasons
 ---@return table|nil T One row per role, nil if something went wrong
 function KeyCount.utilstats.getPlayerDataSummary(player, season, role)
+    --@debug@
     Log('Starting getPlayerDataSummary')
+    --@end-debug@
     local _season = season or "all"
     local _role = KeyCount.util.formatRole(role) or "all"
-    Log(next(player))
     local dataByRole = getPlayerDataRoleSeason(player, _role, _season) or {}
-    Log(next(dataByRole))
     local playerdata = combinePlayerDataPerRole(dataByRole, true)
     local finalDataOverview = {}
     if playerdata then

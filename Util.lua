@@ -471,6 +471,7 @@ KeyCount.util.titleCase = function(s)
     if type(s) ~= "string" then
         s = tostring(s)
     end
+    s = string.lower(s)
     local titleCase = s:gsub("(%l)(%w*)", function(a, b)
         return string.upper(a) .. b
     end)

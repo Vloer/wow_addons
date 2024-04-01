@@ -44,7 +44,6 @@ function SlashCmdList.KEYCOUNT_PLAYERSUCCESSRATE(msg)
     if #player == 0 then
         printf('Invalid data supplied for player search!', KeyCount.defaults.colors.chatWarning, true)
     end
-    printf(string.format("Stats for %s:", KeyCount.util.titleCase(player)))
     KeyCount.filterfunctions.print.searchplayer(player)
 end
 
@@ -96,6 +95,9 @@ function SlashCmdList.KEYCOUNT_HELP(msg)
     printf(" ")
     printf(" [/kcfail]")
     printf(" Set the current dungeon run to 'abandoned'.", KeyCount.defaults.colors.chatWarning)
+    printf(" ")
+    printf(" [/kcp]  |  [/kcplayer]")
+    printf(" Quickly look up a player's stat summary.", KeyCount.defaults.colors.chatWarning)
 end
 
 SLASH_KEYCOUNT_FILTEROPTS1 = "/kcfilteroptions"
