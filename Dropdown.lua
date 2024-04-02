@@ -41,7 +41,7 @@ local validTypes = {
 }
 
 local function isValidDropdown(dropdown)
-    local valid= (type(dropdown.which) == "string" and validTypes[dropdown.which])
+    local valid = (type(dropdown.which) == "string" and validTypes[dropdown.which])
     if valid then
         print('dropdown valid')
     else
@@ -54,19 +54,31 @@ local function getPlayerName(dropdown)
     print('enter getPlayerName')
     local unit = dropdown.unit
     local tempName, tempRealm = dropdown.name, dropdown.server
+    local menuList = dropdown.menuList
     local name, realm, level
     -- unit
     if not name and UnitExists(unit) then
         if UnitIsPlayer(unit) then
             -- name, realm = KeyCount.util.addRealmToName:GetNameRealm(unit)
-            for k, v in pairs(unit) do
-                print(k,v)
-            end
             level = UnitLevel(unit)
+            if tempName then name = tempName end
+            if tempRealm then realm = tempRealm end
+            print(tostring(name), tostring(level), tostring(tempName), tostring(tempRealm))
         end
         -- if it's not a player it's pointless to check further
         return name, realm, level, unit
     end
+    -- if not name and menuList then
+    --     for i = 1, #menuList do
+    --         local whisperButton = menuList[i]
+    --         if whisperButton and (whisperButton.text == WHISPER_LEADER or whisperButton.text == WHISPER) then
+    --             for k,v in pairs(whisperButton) do
+    --                 print(k,v )
+    --             end
+    --             break
+    --         end
+    --     end
+    -- end
 end
 
 
@@ -79,19 +91,23 @@ local function OnEvent(dropdown, event, options, level, data)
     -- end
     if event == "OnShow" then
         if not isValidDropdown(dropdown) then return end
-        local name = getPlayerName(dropdown)
+        local name, realm, level, unit = getPlayerName(dropdown)
         -- check if dropdown is on a valid player
+        -- if not name or (level and level==KeyCount.defaults.maxlevel) then
+        if not name then
+            return
+        end
         -- add the dropdown options to the options table
-        print('onshow event')
-        KeyCount.util.printTableOnSameLine(dropdown, 'dropdown')
-        for k,v in pairs(dropdown) do
-            print(k, v)
+        print('Options:')
+        for k, v in ipairs(options) do print(k, v) end
+        if not options[1] then
+            print('not options, dropdownoptions: ' .. #dropdownOptions)
+            for i = 1, #dropdownOptions do
+                local option = dropdownOptions[i]
+                print('adding ' .. option.text)
+                options[i] = option
+            end
         end
-        print('print 2')
-        for i = 1, #dropdownOptions do
-            options[i] = dropdownOptions[i]
-        end
-        print('print3')
     elseif event == "OnHide" then
         -- when hiding we can remove our dropdown options from the options table
         for i = #options, 1, -1 do
@@ -100,4 +116,4 @@ local function OnEvent(dropdown, event, options, level, data)
     end
 end
 -- registers our callback function for the show and hide events for the first dropdown level only
-DDE:RegisterEvent("OnShow OnHide", OnEvent, 1, dropdown)
+DDE:RegisterEvent("OnShow OnHide", OnEvent, 1)
