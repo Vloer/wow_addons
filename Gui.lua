@@ -1,5 +1,6 @@
 GUI = {}
 function GUI:ConstructGUI()
+    self.visible = false
     self.widgets = {}
     self.tables = {}
     self.buttons = {}
@@ -275,6 +276,7 @@ function GUI:ConstructGUI()
     end)
     frame:SetCallback("OnClose", function()
         hideAllTables()
+        self.visible = false
     end)
     --#endregion
 
@@ -617,6 +619,17 @@ GUI.views = {
     },
 }
 
-
-g = GUI:ConstructGUI()
-g:Show()
+function GUI:Show(view, filter)
+    if not KeyCount.gui then
+        KeyCount.gui = GUI
+    end
+    if self.visible and not view and not filter then
+        return
+    end
+    self.frame = GUI:ConstructGUI()
+    -- KeyCount.gui.view = 'searchplayer'
+    -- KeyCount.gui.key = 'player'
+    -- KeyCount.gui.value = 'stoel'
+    self.frame:Show()
+    self.visible = true
+end

@@ -1,24 +1,13 @@
 local DDE = LibStub and LibStub:GetLibrary("LibDropDownExtension-1.0", true)
+local localVars = {}
 local dropdownOptions = {
     {
-        text = "Click me to print some stuff!",
-        func = function(...) print("You clicked me!", ...) end,
-    },
-    -- DDE.Option.Separator,
-    -- {
-    --     text = "This is after the separator",
-    --     func = print,
-    -- },
-    -- DDE.Option.Space,
-    -- {
-    --     text = "This has a space above",
-    --     func = print,
-    -- },
-    -- DDE.Option.Separator,
-    -- {
-    --     text = "This is after yet another separator",
-    --     func = print,
-    -- },
+        text = "Search for player in KeyCount",
+        func = function()
+            print(localVars['name'])
+            KeyCount.gui.frame:Show()
+        end
+    }
 }
 local validTypes = {
     ARENAENEMY = true,
@@ -84,42 +73,27 @@ end
 
 --the callback function for when the dropdown event occurs
 local function OnEvent(dropdown, event, options, level, data)
-    -- print(string.format('triggered %s %s %s %s %s', tostring(dropdown), tostring(event), tostring(options),
-    --     tostring(level), tostring(data)))
-    -- for k, v in pairs(dropdown) do
-    --     Log(string.format('%s: %s', k, v))
-    -- end
     if event == "OnShow" then
         if not isValidDropdown(dropdown) then return end
         local name, realm, level, unit = getPlayerName(dropdown)
+        localVars['name'] = name
+        localVars['realm'] = realm
+        localVars['level'] = level
         -- check if dropdown is on a valid player
         -- if not name or (level and level==KeyCount.defaults.maxlevel) then
         if not name then
             return
         end
-        -- add the dropdown options to the options table
-        print('Options:')
-        for k, v in ipairs(options) do print(k, v) end
         if not options[1] then
-            print('not options, dropdownoptions: ' .. #dropdownOptions)
             for i = 1, #dropdownOptions do
                 local option = dropdownOptions[i]
-                print('adding ' .. option.text)
                 options[i] = option
             end
-            print('a')
-            for i,v in pairs(options) do
-                KeyCount.util.printTableOnSameLine(v)
-                for k, vv in ipairs(v) do
-                    print(k..': '..vv) 
-                end
-            end
         end
+        return true
     elseif event == "OnHide" then
-        -- when hiding we can remove our dropdown options from the options table
-        for i = #options, 1, -1 do
-            options[i] = nil
-        end
+        _G.wipe(options)
+        return true
     end
 end
 -- registers our callback function for the show and hide events for the first dropdown level only
