@@ -4,21 +4,21 @@ local dropdownOptions = {
         text = "Click me to print some stuff!",
         func = function(...) print("You clicked me!", ...) end,
     },
-    DDE.Option.Separator,
-    {
-        text = "This is after the separator",
-        func = print,
-    },
-    DDE.Option.Space,
-    {
-        text = "This has a space above",
-        func = print,
-    },
-    DDE.Option.Separator,
-    {
-        text = "This is after yet another separator",
-        func = print,
-    },
+    -- DDE.Option.Separator,
+    -- {
+    --     text = "This is after the separator",
+    --     func = print,
+    -- },
+    -- DDE.Option.Space,
+    -- {
+    --     text = "This has a space above",
+    --     func = print,
+    -- },
+    -- DDE.Option.Separator,
+    -- {
+    --     text = "This is after yet another separator",
+    --     func = print,
+    -- },
 }
 local validTypes = {
     ARENAENEMY = true,
@@ -107,6 +107,13 @@ local function OnEvent(dropdown, event, options, level, data)
                 print('adding ' .. option.text)
                 options[i] = option
             end
+            print('a')
+            for i,v in pairs(options) do
+                KeyCount.util.printTableOnSameLine(v)
+                for k, vv in ipairs(v) do
+                    print(k..': '..vv) 
+                end
+            end
         end
     elseif event == "OnHide" then
         -- when hiding we can remove our dropdown options from the options table
@@ -116,4 +123,4 @@ local function OnEvent(dropdown, event, options, level, data)
     end
 end
 -- registers our callback function for the show and hide events for the first dropdown level only
-DDE:RegisterEvent("OnShow OnHide", OnEvent, 1)
+DDE:RegisterEvent("OnShow OnHide", OnEvent, 1, {})
