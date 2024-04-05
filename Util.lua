@@ -19,7 +19,7 @@ function printf(msg, fmt, includeKeycount)
 end
 
 KeyCount.util.welcomeMessage = function(name)
-    local s = KeyCountDB.sessions
+    local s = KeyCountDB.sessions or 0
     local num
     if s == 3 then
         num = "third"
@@ -30,7 +30,9 @@ KeyCount.util.welcomeMessage = function(name)
     else
         num = s .. "th"
     end
-    printf(string.format("Loaded %s for the %s time.", name, num))
+    if s <= 5 or (s > 5 and KeyCount.util.checkIfPrintMessage(5)) then
+        printf(string.format("Loaded %s for the %s time.", name, num))
+    end
 end
 
 -- Call this function to ensure that the code after it is still executed
@@ -207,9 +209,10 @@ KeyCount.util.calculateMedian = function(list)
 
     local length = #list
     local middleIndex = math.floor(length / 2)
-
     if length % 2 == 1 then
         return list[middleIndex + 1]
+    elseif length == 0 then
+        return 0
     else
         return math.ceil((list[middleIndex] + list[middleIndex + 1]) / 2)
     end
@@ -429,4 +432,73 @@ KeyCount.util.getAllDatesInRange = function(startDate)
     end
 
     return dateList
+end
+
+---Check if we have to print a message. Occurs once every 10 (default), or specified, addon loads
+---@param freq number|nil
+---@return boolean
+KeyCount.util.checkIfPrintMessage = function(freq)
+    local _freq = freq or KeyCount.defaults.databaseCheckMessageFreq or 0
+    local sessions = KeyCountDB.sessions or 0
+    return math.fmod(sessions, _freq) == 0
+end
+
+---Shows a popup ingame with the latest update message. Will trigger if the message being sent in KeyCount:InitSelf() is different from the message stored in the DB.
+---@param msg string
+KeyCount.util.checkUpdateMessage = function(msg)
+    local oldMessage = KeyCountDB.updateMessage or ""
+    if msg == oldMessage then return end
+    StaticPopupDialogs["updateMessage"] = {
+        text = string.format("%sKeyCount has been updated!\n--\n%s%s\n%s--|r", KeyCount.defaults.colors.chatAnnounce,
+            KeyCount.defaults.colors.chatSuccess, msg, KeyCount.defaults.colors.chatAnnounce),
+        button1 = OKAY,
+        OnAccept = function()
+            KeyCountDB.updateMessage = msg
+            Log(string.format('updateMessage set to: %s', msg))
+        end,
+        timeout = 0,
+        whileDead = true,
+    }
+    StaticPopup_Show("updateMessage")
+end
+
+---Converts all words in string to Titlecase
+---@param s string|nil
+KeyCount.util.titleCase = function(s)
+    if not s then
+        return ''
+    end
+    if type(s) ~= "string" then
+        s = tostring(s)
+    end
+    s = string.lower(s)
+    local titleCase = s:gsub("(%l)(%w*)", function(a, b)
+        return string.upper(a) .. b
+    end)
+    return titleCase
+end
+
+---Get an index between 1 and 5 to use to decide which color to choose. Defaults to 1.
+---@param num number Any number, usually success rate
+---@return number index
+KeyCount.util.getColorIdx = function(num)
+    if type(num) ~= "number" then return 1 end
+    local idx = math.floor(num / 20) + 1
+    if idx > 5 then
+        return 5
+    end
+    return idx
+end
+
+---Get the color format for a given level
+---@param level number
+---@return table T {color: contains rgb(a) values, hex: hex string that can be used in string formatting}
+KeyCount.util.getLevelColor = function(level)
+    local idx = 0
+    if type(level) == "number" and level > 0 then
+        idx = math.floor(level / 5) + 1
+    end
+    local r, g, b, hex = GetItemQualityColor(idx)
+    local color = { r = r, g = g, b = b, a = 1 }
+    return { color = color, hex = hex }
 end

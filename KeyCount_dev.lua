@@ -9,9 +9,7 @@ KeyCount.utilstats = {}
 KeyCount.details = {}
 KeyCount.formatdata = {}
 
--- TODO
---  add current week filter
---  change player filter to current player
+-- TODO player lookup shows wrong best dungeon - includes untimed dungeons
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
@@ -117,6 +115,8 @@ function KeyCount:InitSelf()
         Log("Setting current dungeon to value from DB")
         table.copy(self.current, KeyCountDB.current)
     end
+    local updateMessage = "·Quickly look up a player's stats with the /kcp or /kcs command!\n/kcp displays all dungeon runs, /kcs only displays a summary.\nUsage: /kcp PlayerName·"
+    C_Timer.After(15, function() KeyCount.util.checkUpdateMessage(updateMessage) end)
     Log("Finished InitSelf")
 end
 
@@ -194,6 +194,10 @@ function KeyCount:CheckIfKeyFailed(party)
 end
 
 function KeyCount:SetKeyFailed()
+    if not self.keystoneActive then
+        Log("SetKeyFailed was called but no dungeon is currently active")
+        return
+    end
     Log("Called SetKeyFailed")
     self.current.completedTimestamp = time()
     self.current.completed = false
@@ -260,7 +264,7 @@ function KeyCount:SetTimeToComplete()
         timeLost = timeLost or 0
         if timeStart == 0 or timeEnd == 0 then
             local errorMsg = string.format(
-                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!")
+                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!", tostring(timeStart), tostring(timeEnd), tostring(timeLost))
             printf(errorMsg, KeyCount.defaults.colors.chatError, true)
             Log(errorMsg)
             self.current.time = 0
@@ -307,7 +311,9 @@ end
 function KeyCount:InitDatabase()
     local dungeons = KeyCount:GetStoredDungeons()
     if dungeons then
-        printf("Checking database status", nil, true)
+        if KeyCount.util.checkIfPrintMessage() then
+            printf("Checking database status", nil, true)
+        end
         local stored = {}
         local amt = 0
         for i, d in ipairs(dungeons) do
@@ -326,7 +332,9 @@ function KeyCount:InitDatabase()
         if amt > 0 then
             msg = msg .. ": " .. amt .. " dungeons updated"
         end
-        printf(msg, nil, true)
+        if KeyCount.util.checkIfPrintMessage() then
+            printf(msg, nil, true)
+        end
         if next(stored) ~= nil then
             KeyCountDB.dungeons = table.copy({}, stored)
         else
@@ -339,7 +347,10 @@ end
 function KeyCount:InitPlayerList()
     local players = KeyCountDB.players or {}
     local dungeons = KeyCount:GetStoredDungeons()
-    printf("Checking player database", nil, true)
+    local sessions = KeyCountDB.sessions or 0
+    if KeyCount.util.checkIfPrintMessage() then
+        printf("Checking player database", nil, true)
+    end
     if not next(players) then
         if dungeons then
             KeyCount:SaveAllPlayers(dungeons)
@@ -348,8 +359,10 @@ function KeyCount:InitPlayerList()
         if dungeons then
             KeyCount.formatdata.formatplayers(dungeons, players)
         else
-            printf("ERROR could not initiate player database because no dungeons were found!",
-                KeyCount.defaults.colors.chatError, true)
+            if sessions > 10 then
+                printf("ERROR could not initiate player database because no dungeons were found!",
+                    KeyCount.defaults.colors.chatError, true)
+            end
         end
     end
 end
@@ -468,8 +481,14 @@ function KeyCount:SaveAllPlayers(dungeons)
     local msg = "Player database check completed"
     if amt > 0 then
         msg = msg .. ": " .. amt .. " players added to the database"
+        printf(msg, nil, true)
+    else
+        print('checking')
+        if KeyCount.util.checkIfPrintMessage() then
+            print('true')
+            printf(msg, nil, true)
+        end
     end
-    printf(msg, nil, true)
     if next(players) ~= nil then
         KeyCountDB.players = table.copy({}, players)
     else

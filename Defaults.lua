@@ -56,9 +56,7 @@ local defaults = {
         EB = "Everbloom",
         TOTT = "Throne of the Tides",
         WM = "Waycrest Manor",
-        GF = "Dawn of the Infinite: Galakrond's Fall",
         FALL = "Dawn of the Infinite: Galakrond's Fall",
-        MR = "Dawn of the Infinite: Murozond's Rise",
         RISE = "Dawn of the Infinite: Murozond's Rise",
     },
     partymember = {
@@ -137,6 +135,7 @@ local defaults = {
     expansion = "Dragonflight",
     seasons = seasons,
     maxlevel = 70,
+    databaseCheckMessageFreq = 10,
 }
 
 KeyCount.defaults = defaults
