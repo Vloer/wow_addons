@@ -627,9 +627,6 @@ function GUI:Show(view, filter)
         return
     end
     self.frame = GUI:ConstructGUI()
-    -- KeyCount.gui.view = 'searchplayer'
-    -- KeyCount.gui.key = 'player'
-    -- KeyCount.gui.value = 'stoel'
     self.frame:Show()
     self.visible = true
 end
