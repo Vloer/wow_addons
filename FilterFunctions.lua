@@ -330,23 +330,24 @@ KeyCount.filterfunctions.print.filter = filterDungeonsFilterPrint
 KeyCount.filterfunctions.print.rate = filterDungeonsSuccessRatePrint
 KeyCount.filterfunctions.print.searchplayer = filterPlayersSearchPlayerPrint
 
+---@class FilterKeys
 KeyCount.filterkeys = {
-    ["alldata"] = { key = "alldata", value = "", name = "All data" },
-    ["player"] = { key = "player", value = "player", name = "Player" },
-    ["currentweek"] = { key = "currentweek", value = "currentweek", name = "Current Week" },
-    ["dungeon"] = { key = "dungeon", value = "name", name = "Dungeon" },
-    ["role"] = { key = "role", value = "role", name = "Player role" },
-    ["season"] = { key = "season", value = "season", name = "Season" },
-    ["completed"] = { key = "completed", value = "completed", name = "Completed" },
-    ["intime"] = { key = "intime", value = "intime", name = "Completed in time" },
-    ["outtime"] = { key = "outtime", value = "outtime", name = "Completed out of time" },
-    ["abandoned"] = { key = "abandoned", value = "abandoned", name = "Abandoned" },
-    ["level"] = { key = "level", value = "level", name = "Minimum key level" },
-    ["time"] = { key = "time", value = "time", name = "Time" },
-    ["deathsgt"] = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
-    ["deathslt"] = { key = "deathslt", value = "deathslt", name = "Maximum amount of deaths" },
-    ["date"] = { key = "date", value = "date", name = "Date" },
-    ["affix"] = { key = "affix", value = "affix", name = "Affixes" },
+    alldata = { key = "alldata", value = "", name = "All data" },
+    player = { key = "player", value = "player", name = "Player" },
+    currentweek = { key = "currentweek", value = "currentweek", name = "Current Week" },
+    dungeon = { key = "dungeon", value = "name", name = "Dungeon" },
+    role = { key = "role", value = "role", name = "Player role" },
+    season = { key = "season", value = "season", name = "Season" },
+    completed = { key = "completed", value = "completed", name = "Completed" },
+    intime = { key = "intime", value = "intime", name = "Completed in time" },
+    outtime = { key = "outtime", value = "outtime", name = "Completed out of time" },
+    abandoned = { key = "abandoned", value = "abandoned", name = "Abandoned" },
+    level = { key = "level", value = "level", name = "Minimum key level" },
+    time = { key = "time", value = "time", name = "Time" },
+    deathsgt = { key = "deathsgt", value = "deathsgt", name = "Minimum amount of deaths" },
+    deathslt = { key = "deathslt", value = "deathslt", name = "Maximum amount of deaths" },
+    date = { key = "date", value = "date", name = "Date" },
+    affix = { key = "affix", value = "affix", name = "Affixes" },
 }
 
 KeyCount.filterorder = {
