@@ -4,10 +4,10 @@ local dropdownOptions = {
     {
         text = 'Show KeyCount stats',
         func = function()
-            -- print(localVars['name'])
-            -- KeyCount.gui.frame:Show()
             local name = 'Stoel'
             KeyCount.filterfunctions.print.searchplayer(name, true)
+            GUI:Init()
+            KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, name)
         end
     }
 }

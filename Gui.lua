@@ -36,10 +36,6 @@ function GUI:ConstructGUI()
     end
     --#endregion
 
-    --#region local callbacks
-
-    --#endregion
-
     --#region Frames
     resetFilters()
     self.frame = AceGUI:Create("Frame")
@@ -268,7 +264,7 @@ function GUI:ConstructGUI()
     --#endregion
     --#endregion
 
-    --#region Callbacks
+    --#region Internal callbacks
     frame:SetCallback("OnClose", function(widget)
         AceGUI:Release(widget)
         resetFilters()
@@ -341,8 +337,24 @@ local function disableFilters(gui, setting)
     gui.widgets.filterValue:SetText("")
 end
 
+---Sets the value and showing text of the View widget to its proper values
+---@param gui GUI
+---@param view string|nil
+local function setViewTextValue(gui, view)
+    view = view or gui.view or ''
+    local _view = gui.views[view] or nil
+    if not _view then
+        printf(string.format('Unknown view type supplied: %s', view), KeyCount.defaults.colors.chatError, true)
+        return
+    end
+    gui.widgets.view:SetText(_view.name)
+    gui.widgets.view:SetValue(_view.type)
+end
+
 ---@param gui GUI
 local function setFilterKeyValue(gui)
+    print(string.format('filterkeytext %s filterkeyvalue %s value %s', tostring(gui.filter.name),
+        tostring(gui.filter.key), tostring(gui.value)))
     gui.widgets.filterKey:SetText(gui.filter.name)
     gui.widgets.filterKey:SetValue(gui.filter.key)
     gui.widgets.filterValue:SetText(gui.value)
@@ -595,16 +607,17 @@ GUI.views = {
 --#region Public callbacks
 
 ---Show a different view
----@param view Views
+---@param view string
 function GUI:c_ChangeView(view)
     hideAllTables(self)
     self.view = view
     self.dataLoadedForExport = false
+    self.key = self.filter.value
 
     disableFilters(self, false)
     disableCheckboxes(self, false)
+    setViewTextValue(self)
     setFilterKeyValue(self)
-    self.key = self.filter.value
     if self.view == self.views.filter.type then
         self.tables.list:Show()
         self.buttons.exportdata:SetText("Export to CSV")
@@ -621,7 +634,7 @@ function GUI:c_ChangeView(view)
         self.buttons.exportdata:SetText("")
         self.filter = KeyCount.filterkeys["player"]
         self.key = self.filter.value
-        self.widgets.filterKey:SetText(self.filter.name)
+        setFilterKeyValue(self)
         self.widgets.filterKey:SetDisabled(true)
         resetFilterValue(self)
     end
@@ -662,13 +675,23 @@ function GUI:Init()
     self.initialized = true
 end
 
-function GUI:Show(view, filter)
+---Open GUI
+---@param view string|nil
+---@param filter string|nil
+---@param value string|nil
+function GUI:Show(view, filter, value)
     self:Init()
     if self.visible and not view and not filter then
         return
     end
     self.frame:Show()
+    if view and filter then
+        self:c_ChangeView(view)
+        value = value or ''
+        self.filter = KeyCount.filterkeys[filter]
+        self.value = value
+        setFilterKeyValue(self)
+        fillTable(self)
+    end
     self.visible = true
 end
-
---#endregion
