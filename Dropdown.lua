@@ -4,10 +4,13 @@ local dropdownOptions = {
     {
         text = 'Show KeyCount stats',
         func = function()
-            local name = 'Stoel'
-            KeyCount.filterfunctions.print.searchplayer(name, true)
-            GUI:Init()
-            KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, name)
+            -- local name = 'Stoel'
+            local name = localVars['name'] or ''
+            local data = KeyCount.filterfunctions.print.searchplayer(name, true)
+            if data then
+                GUI:Init()
+                KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, name)
+            end
         end
     }
 }
@@ -80,17 +83,13 @@ local function getPlayerName(dropdown)
     if not name and UnitExists(unit) and UnitIsPlayer(unit) then
         name = GetUnitName(unit, true)
         level = UnitLevel(unit)
-        print(string.format('unit name %s realm %s level %s', name, tostring(realm), tostring(level)))
     end
     -- bnet
     if not name and bnetIDAccount then
-        print('bnet')
         name, realm, level = getNameForBNetFriend(bnetIDAccount)
-        print(string.format('bnet name %s realm %s level %s', name, tostring(realm), tostring(level)))
     end
     -- lfg
     if not name and menuList then
-        print('menulist')
         for _, whisperButton in ipairs(menuList) do
             if whisperButton and (whisperButton.text == WHISPER_LEADER or whisperButton.text == WHISPER) then
                 if whisperButton.arg1 then
@@ -98,16 +97,13 @@ local function getPlayerName(dropdown)
                 end
             end
         end
-        print(string.format('menulist name %s realm %s level %s', name, tostring(realm), tostring(level)))
     end
     -- quickjoin
     if not name and (quickJoinButton or quickJoinMember) then
-        print('quickjoin')
         local memberInfo = quickJoinMember or quickJoinButton.Members[1]
         if memberInfo.playerLink then
             name, realm, level = getNameFromPlayerLink(memberInfo.playerLink)
         end
-        print(string.format('quickjoin name %s realm %s level %s', name, tostring(realm), tostring(level)))
     end
     if not name and tempName then
         name = tempName
@@ -115,7 +111,6 @@ local function getPlayerName(dropdown)
     if not realm and tempRealm then
         realm = tempRealm
     end
-    print(string.format('name %s realm %s level %s', name, tostring(realm), tostring(level)))
     return name, realm, level
 end
 
