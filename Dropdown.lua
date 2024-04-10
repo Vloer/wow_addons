@@ -2,12 +2,12 @@ local DDE = LibStub and LibStub:GetLibrary("LibDropDownExtension-1.0", true)
 local localVars = {}
 local dropdownOptions = {
     {
-        text = 'Show KeyCount stats',
+        text = 'KeyCount stats',
         func = function()
-            -- local name = 'Stoel'
             local name = localVars['name'] or ''
-            local data = KeyCount.filterfunctions.print.searchplayer(name, true)
+            local data = localVars['data'] or nil
             if data then
+                KeyCount.filterfunctions.print.searchplayer(data, true)
                 GUI:Init()
                 KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, name)
             end
@@ -68,7 +68,9 @@ local function getNameFromPlayerLink(playerLink)
 end
 
 local function isValidDropdown(dropdown)
-    return (type(dropdown.which) == "string" and validTypes[dropdown.which])
+    local validLFG = (dropdown == LFGListFrameDropDown)
+    local validType = (type(dropdown.which) == "string" and validTypes[dropdown.which])
+    return (validLFG or validType)
 end
 
 local function getPlayerName(dropdown)
@@ -122,10 +124,18 @@ local function OnEvent(dropdown, event, options, level, data)
         localVars['name'] = name
         localVars['realm'] = realm
         localVars['level'] = plevel
-        -- if not name or (level and level==KeyCount.defaults.maxlevel) then
-        if not name then
+        localVars['data'] = nil
+        if not name or not level or (level and level==KeyCount.defaults.maxlevel) then
             return
         end
+        local players = KeyCount:GetStoredPlayers()
+        if players then
+            local player, dataName = KeyCount.filterfunctions.searchPlayerGetData(name, players, false)
+            if player then
+                localVars['data'] = dataName
+            end
+        end
+        if not localVars['data'] then return end
         if not options[1] then
             for i = 1, #dropdownOptions do
                 local option = dropdownOptions[i]
