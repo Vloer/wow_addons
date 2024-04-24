@@ -10,6 +10,7 @@ KeyCount.details = {}
 KeyCount.formatdata = {}
 
 -- TODO player lookup shows wrong best dungeon - includes untimed dungeons
+-- TODO fix 'no dungeons matched your filter critera' message showing up twice on checkboxes
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
