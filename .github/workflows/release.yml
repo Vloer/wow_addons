@@ -19,5 +19,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v0.8.3-alpha
-          release_name: v0.8.3-alpha
+          release_name: v0.10
           draft: false
