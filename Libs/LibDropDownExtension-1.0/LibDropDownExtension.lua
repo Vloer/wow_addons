@@ -95,13 +95,16 @@ if not Lib then return end
 Lib._callbacks = Lib._callbacks or {}
 local callbacks = Lib._callbacks
 
+---@class CustomDropDownButtonIconTexture : Texture
+---@field public tFitDropDownSizeX? number
+
 ---@class CustomDropDownButton : Button
 ---@field public option CustomDropDownOption
 ---@field public order number
 ---@field public invisibleButton Button
 ---@field public highlight Texture
 ---@field public normalText FontString
----@field public iconTexture Texture
+---@field public iconTexture CustomDropDownButtonIconTexture
 ---@field public expandArrow Button
 ---@field public check Texture
 ---@field public uncheck Texture
@@ -129,7 +132,7 @@ local function CustomDropDownButton_OnClick(self)
     if not option then
         return
     end
-    local cdropdown = self:GetParent()
+    local cdropdown = self:GetParent() ---@type Frame
     ---@diagnostic disable-next-line: assign-type-mismatch
     local checked = option.checked ---@type boolean
     if type(checked) == "function" then
@@ -156,7 +159,6 @@ local function CustomDropDownButton_OnClick(self)
         PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
     end
     if not option.keepShownOnClick then
-        ---@diagnostic disable-next-line: undefined-field
         cdropdown:GetParent():Hide() -- CloseDropDownMenus()
     end
 end
@@ -838,7 +840,7 @@ function Lib:UnregisterEvent(events, func, levels)
 end
 
 -- DEBUG:
---[[
+
 print(..., MAJOR, LibPrevMinor, "->", MINOR)
 Lib:RegisterEvent("OnShow", function(dropdown, event, options, level, data)
     if event == "OnShow" then
@@ -870,4 +872,4 @@ Lib:RegisterEvent("OnShow", function(dropdown, event, options, level, data)
         wipe(options)
     end
 end, true, { test = random(100000000, 999999999) })
---]]
+

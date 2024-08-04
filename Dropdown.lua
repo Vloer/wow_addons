@@ -70,6 +70,7 @@ end
 local function isValidDropdown(dropdown)
     local validLFG = (dropdown == LFGListFrameDropDown)
     local validType = (type(dropdown.which) == "string" and validTypes[dropdown.which])
+    print(tostring(validLFG), tostring(validType))
     return (validLFG or validType)
 end
 
@@ -117,14 +118,17 @@ local function getPlayerName(dropdown)
 end
 
 --the callback function for when the dropdown event occurs
-local function OnEvent(dropdown, event, options, level, data)
+local function OnToggle(dropdown, event, options, level, data)
+    print('enter ontoggle')
     if event == "OnShow" then
+        print('enter onShow')
         if not isValidDropdown(dropdown) then return end
         local name, realm, plevel, unit = getPlayerName(dropdown)
         localVars['name'] = name
         localVars['realm'] = realm
         localVars['level'] = plevel
         localVars['data'] = nil
+        print(name, realm, level)
         if not name or not level or (level and level==KeyCount.defaults.maxlevel) then
             return
         end
@@ -144,10 +148,11 @@ local function OnEvent(dropdown, event, options, level, data)
         end
         return true
     elseif event == "OnHide" then
+        print('enter onhide')
         _G.wipe(options)
         return true
     end
 end
 
 -- registers callback
-DDE:RegisterEvent("OnShow OnHide", OnEvent, 1)
+DDE:RegisterEvent("OnShow OnHide", OnToggle, 1)
