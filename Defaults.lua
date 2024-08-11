@@ -19,6 +19,9 @@ local seasons = {
         "Dragonflight-2",
         "Dragonflight-3",
         "Dragonflight-4"
+    },
+    TheWarWithin = {
+        "TheWarWithin-1"
     }
 }
 local keyresult = {
@@ -59,6 +62,18 @@ local defaults = {
         WM = "Waycrest Manor",
         FALL = "Dawn of the Infinite: Galakrond's Fall",
         RISE = "Dawn of the Infinite: Murozond's Rise",
+        CM = "Cinderbrew Meaderly",
+        COT = "City of Threads",
+        DC = "Darkflame Cleft",
+        AK = "Ara-Kara, City of Echoes",
+        SF = "Priory of the Sacred Flame",
+        TD = "The Dawnbreaker",
+        TR = "The Rookery",
+        SV = "The Stonevault",
+        NW = "The Necrotic Wake",
+        MISTS = "Mists of Tirna Scythe",
+        SOB = "Siege of Boralus",
+        GB = "Grim Batol"
     },
     partymember = {
         role = "",
@@ -133,9 +148,9 @@ local defaults = {
     },
     filter = { key = "alldata", value = "" },
     dungeonPlusChar = "*",
-    expansion = "Dragonflight",
+    expansion = "TheWarWithin",
     seasons = seasons,
-    maxlevel = 70,
+    maxlevel = 80,
     databaseCheckMessageFreq = 10,
 }
 
