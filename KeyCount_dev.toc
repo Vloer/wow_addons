@@ -20,5 +20,6 @@ GuiPrepareData.lua
 ExportData.lua
 FormatDataStorage.lua
 Dropdown.lua
+Dropdown2.lua
 
 External\Details.lua
