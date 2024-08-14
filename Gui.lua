@@ -674,9 +674,9 @@ function GUI:Init()
 end
 
 ---Open GUI
----@param view string|nil
----@param filter string|nil
----@param value string|nil
+---@param view string?
+---@param filter string?
+---@param value string?
 function GUI:Show(view, filter, value)
     self:Init()
     if self.visible and not view and not filter then
