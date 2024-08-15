@@ -72,14 +72,40 @@ local function getNameForBNetFriend(bnetIDAccount)
     return nil
 end
 
+local function getLFGListInfo(owner)
+    return
+end
+
 ---@param owner any
 ---@param rootDescription ModifyMenuCallbackRootDescription
 ---@param contextData ModifyMenuCallbackContextData
 ---@return string? name, string? realm, number? level, string? unit
 local function getPlayerNameForMenu(owner, rootDescription, contextData)
+    local name, realm, level
     local tag = rootDescription.tag
     if not contextData then
         local tagType = validMenuTags[tag]
+        if tagType == 1 then
+            Log(string.format('getPlayerNameForMenu found in LFGList: %s %s %s', tostring(name), tostring(realm), tostring(level)))
+            return getLFGListInfo(owner)
+        end
+        return
+    end
+    local unit = contextData.unit
+    if unit and UnitExists(unit) then
+        name = GetUnitName(unit, true)
+        level = UnitLevel(unit)
+        Log(string.format('getPlayerNameForMenu found in unit: %s %s %s', tostring(name), tostring(realm), tostring(level)))
+        return name, realm, level, unit
+    end
+    local accountInfo = contextData.accountInfo
+    if accountInfo then
+        local gameAccountInfo = accountInfo.gameAccountInfo
+        name = gameAccountInfo.characterName
+        realm = gameAccountInfo.realmName
+        level = gameAccountInfo.characterLevel
+        Log(string.format('getPlayerNameForMenu found in accountInfo: %s %s %s', tostring(name), tostring(realm), tostring(level)))
+        return name, realm, level, unit
     end
 end
 
@@ -98,10 +124,15 @@ local function OnMenuShow(owner, rootDescription, contextData)
     if not players then
         return
     end
-    local data, playerName = KeyCount.filterfunctions.searchPlayerGetData(name, players)
-    if not data then
+    local _data, playerName = KeyCount.filterfunctions.searchPlayerGetData(name, players)
+    Log(string.format('Found playerName %s', playerName))
+    if not _data then
         return
     end
+    -- TODO
+    -- Data returned in the format playerName: {season: {role: []}} so extract these
+    local dataSeason = _data['Dragonflight-3']
+    local data = dataSeason['DAMAGER']
     rootDescription:CreateDivider()
     rootDescription:CreateTitle(addonName)
     local playerScore = KeyCount.utilstats.calculatePlayerScore(data.intime, data.outtime, data.abandoned, data.median, data.best)
@@ -113,14 +144,17 @@ local function OnMenuShow(owner, rootDescription, contextData)
 end
 
 if ModifyMenu then
+    Log('Called ModifyMenu')
     for name, enabled in pairs(validTypes) do
         if enabled then
             local tag = string.format('MENU_UNIT_%s', name)
+            print(tostring(tag), type(tag))
             ModifyMenu(tag, OnMenuShow)
         end
     end
-    for tag, _ in pairs(validMenuTags) do
-        ModifyMenu(tag, OnMenuShow)
+    for _, tag in ipairs(validMenuTags) do
+        print(tostring(tag), type(tag))
+        ModifyMenu(tag, GenerateClosure(OnMenuShow))
     end
 end
 
@@ -164,51 +198,51 @@ end
 
 
 
-Menu.ModifyMenu("MENU_UNIT_SELF", function(ownerRegion, rootDescription, contextData)
-    print('init modifymenu')
-    rootDescription:CreateDivider()
-    rootDescription:CreateTitle(addonName)
-    local name         = contextData.name or nil
-    local server       = contextData.server or nil
-    local searchString = ''
-    local player       = ''
-    -- for k,v in pairs(contextData) do
-    --     print(tostring(k), tostring(v))
-    -- end
-    for k, v in pairs(rootDescription) do
-        print(tostring(k), tostring(v))
-    end
-    if name then searchString = name end
-    if server then searchString = string.format('%s-%s', searchString, server) end
-    rootDescription:CreateButton("KeyCount stats", function()
-        if 2 > 1 then
-            print('checking ' .. searchString)
-            KeyCount.filterfunctions.print.searchplayer(searchString, true)
-            GUI:Init()
-            KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, searchString)
-        end
-    end)
-end)
+-- Menu.ModifyMenu("MENU_UNIT_SELF", function(ownerRegion, rootDescription, contextData)
+--     print('init modifymenu')
+--     rootDescription:CreateDivider()
+--     rootDescription:CreateTitle(addonName)
+--     local name         = contextData.name or nil
+--     local server       = contextData.server or nil
+--     local searchString = ''
+--     local player       = ''
+--     -- for k,v in pairs(contextData) do
+--     --     print(tostring(k), tostring(v))
+--     -- end
+--     for k, v in pairs(rootDescription) do
+--         print(tostring(k), tostring(v))
+--     end
+--     if name then searchString = name end
+--     if server then searchString = string.format('%s-%s', searchString, server) end
+--     rootDescription:CreateButton("KeyCount stats", function()
+--         if 2 > 1 then
+--             print('checking ' .. searchString)
+--             KeyCount.filterfunctions.print.searchplayer(searchString, true)
+--             GUI:Init()
+--             KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, searchString)
+--         end
+--     end)
+-- end)
 
-Menu.ModifyMenu("MENU_UNIT_BN_FRIEND", function(ownerRegion, rootDescription, contextData)
-    print('init modifymenu')
-    rootDescription:CreateDivider()
-    rootDescription:CreateTitle(addonName)
-    local name         = contextData.name or nil
-    local server       = contextData.server or nil
-    local searchString = ''
-    local player       = ''
-    for k, v in pairs(contextData) do
-        print(tostring(k), tostring(v))
-    end
-    if name then searchString = name end
-    if server then searchString = string.format('%s-%s', searchString, server) end
-    rootDescription:CreateButton("KeyCount stats", function()
-        if 2 > 1 then
-            print('checking ' .. searchString)
-            KeyCount.filterfunctions.print.searchplayer(searchString, true)
-            GUI:Init()
-            KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, searchString)
-        end
-    end)
-end)
+-- Menu.ModifyMenu("MENU_UNIT_BN_FRIEND", function(ownerRegion, rootDescription, contextData)
+--     print('init modifymenu')
+--     rootDescription:CreateDivider()
+--     rootDescription:CreateTitle(addonName)
+--     local name         = contextData.name or nil
+--     local server       = contextData.server or nil
+--     local searchString = ''
+--     local player       = ''
+--     for k, v in pairs(contextData) do
+--         print(tostring(k), tostring(v))
+--     end
+--     if name then searchString = name end
+--     if server then searchString = string.format('%s-%s', searchString, server) end
+--     rootDescription:CreateButton("KeyCount stats", function()
+--         if 2 > 1 then
+--             print('checking ' .. searchString)
+--             KeyCount.filterfunctions.print.searchplayer(searchString, true)
+--             GUI:Init()
+--             KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, searchString)
+--         end
+--     end)
+-- end)
