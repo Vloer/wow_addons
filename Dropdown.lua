@@ -42,6 +42,7 @@ local validTypes = {
     TARGET = true,
     WORLD_STATE_SCORE = true,
 }
+-- TODO move to textutils
 local availablePlayerRoleAndIcon = {
     DAMAGER = '|TInterface\\AddOns\\KeyCount_dev\\Icons\\roles:14:14:0:0:64:64:0:18:0:18|t',
     HEALER = '|TInterface\\AddOns\\KeyCount_dev\\Icons\\roles:14:14:0:0:64:64:19:37:0:18|t',
@@ -114,6 +115,7 @@ local function getPlayerNameForMenu(owner, rootDescription, contextData)
     end
 end
 
+-- TODO move to textutils
 local function getSuccessRateColor(rate)
     local idx
     if rate == 0 then
@@ -127,7 +129,7 @@ local function getSuccessRateColor(rate)
     return KeyCount.defaults.colors.rating[idx].chat
 end
 
-local function getStringForRole(data, role)
+local function getStringForRole(data)
     local score = KeyCount.utilstats.calculatePlayerScore(data.intime, data.outtime, data.abandoned, data.median,
         data.best)
     local scoreString = string.format("%.0f", score)
@@ -135,10 +137,10 @@ local function getStringForRole(data, role)
     return string.format('%s%s%s', color, scoreString, KeyCount.defaults.colors.reset)
 end
 
-local function getStringForRole2(data, role)
+local function getStringForRoleWithText(data)
     local score = KeyCount.utilstats.calculatePlayerScore(data.intime, data.outtime, data.abandoned, data.median,
         data.best)
-    local scoreString = string.format('timed %s/%s', data.intime, data.totalEntries)
+    local scoreString = string.format('Timed %s of %s', data.intime, data.totalEntries)
     local color = getSuccessRateColor(score)
     return string.format('%s%s%s', color, scoreString, KeyCount.defaults.colors.reset)
 end
@@ -148,7 +150,7 @@ local function getPlayerDropdownString(data)
     for role, icon in pairs(availablePlayerRoleAndIcon) do
         local _data = data[role] or nil
         if _data then
-            playerRoleString = playerRoleString .. icon .. getStringForRole(_data, role)
+            playerRoleString = playerRoleString .. icon .. getStringForRole(_data)
         end
     end
     return playerRoleString
@@ -166,7 +168,7 @@ local function createButton(rootDescription, data, name, buttonPerRole)
         for role, icon in pairs(availablePlayerRoleAndIcon) do
             local _data = data[role] or nil
             if _data then
-                local roleString = icon .. 'Score: ' .. getStringForRole2(_data, role)
+                local roleString = icon .. getStringForRoleWithText(_data)
                 rootDescription:CreateButton(roleString, function()
                     GUI:Init()
                     KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, name)
@@ -175,7 +177,7 @@ local function createButton(rootDescription, data, name, buttonPerRole)
         end
     else
         local dropdownString = getPlayerDropdownString(data)
-        rootDescription:CreateButton(string.format("Score: %s", dropdownString), function()
+        rootDescription:CreateButton(dropdownString, function()
             GUI:Init()
             KeyCount.gui:Show(KeyCount.gui.views.searchplayer.type, KeyCount.filterkeys.player.key, name)
         end)
@@ -193,7 +195,7 @@ local function OnMenuShow(owner, rootDescription, contextData)
     if not name then
         return
     end
-    -- name = 'Stoel'
+    name = 'Stoel'
     local players = KeyCount:GetStoredPlayers()
     if not players then
         return
