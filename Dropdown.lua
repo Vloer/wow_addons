@@ -99,8 +99,10 @@ local function getPlayerNameForMenu(owner, rootDescription, contextData)
     if unit and UnitExists(unit) then
         name = GetUnitName(unit, true)
         level = UnitLevel(unit)
+        --@debug
         Log(string.format('getPlayerNameForMenu found in unit: %s %s %s', tostring(name), tostring(realm),
             tostring(level)))
+        --@end-debug@
         return name, realm, level, unit
     end
     local accountInfo = contextData.accountInfo
@@ -109,9 +111,19 @@ local function getPlayerNameForMenu(owner, rootDescription, contextData)
         name = gameAccountInfo.characterName
         realm = gameAccountInfo.realmName
         level = gameAccountInfo.characterLevel
+        --@debug
         Log(string.format('getPlayerNameForMenu found in accountInfo: %s %s %s', tostring(name), tostring(realm),
             tostring(level)))
+        --@end-debug@
         return name, realm, level, unit
+    end
+    name = contextData.name
+    realm = contextData.server
+    if name then
+        --@debug
+        Log(string.format('getPlayerNameForMenu found in contextData: %s %s', name, realm))
+        --@end-debug@
+        return name, realm
     end
 end
 
@@ -184,6 +196,11 @@ local function createButton(rootDescription, data, name, buttonPerRole)
     end
 end
 
+---@param rootDescription ModifyMenuCallbackRootDescription
+local function createButtonNoData(rootDescription)
+    rootDescription:CreateButton('No data available', function() end)
+end
+
 ---@param owner any
 ---@param rootDescription ModifyMenuCallbackRootDescription
 ---@param contextData ModifyMenuCallbackContextData
@@ -195,26 +212,25 @@ local function OnMenuShow(owner, rootDescription, contextData)
     if not name then
         return
     end
-    name = 'Stoel'
+    rootDescription:CreateDivider()
+    rootDescription:CreateTitle(addonName)
     local players = KeyCount:GetStoredPlayers()
     if not players then
         return
     end
     local _data, playerName = KeyCount.filterfunctions.searchPlayerGetData(name, players)
     if not _data then
+        createButtonNoData(rootDescription)
         return
     end
     local dataSeason = _data[KeyCount.defaults.season]
     if not dataSeason then
         return
     end
-    rootDescription:CreateDivider()
-    rootDescription:CreateTitle(addonName)
     createButton(rootDescription, dataSeason, name, true)
 end
 
 if ModifyMenu then
-    Log('Called ModifyMenu')
     for name, enabled in pairs(validTypes) do
         if enabled then
             local tag = string.format('MENU_UNIT_%s', name)
