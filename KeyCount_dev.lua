@@ -14,6 +14,92 @@ KeyCount.formatdata = {}
 -- TODO dungeons are being stored as previous season
 -- TODO make dataclasses
 
+---@alias PlayerName string
+---@alias Players table<PlayerName, PlayerSeasonData>
+---@alias Season string # Format is <expansion>-<season number>
+---@alias PlayerSeasonData table<Season, PlayerRole>
+---@alias PlayerRole
+---| "DAMAGER"
+---| "HEALER"
+---| "TANK"
+
+---@class PlayerRoleData
+---@field totalEntries number
+---@field abandoned number
+---@field class string
+---@field outtime number
+---@field player string
+---@field role string
+---@field version number
+---@field maxdps number
+---@field median number
+---@field intime number
+---@field best number
+---@field maxhps number
+---@field dungeons DungeonRun[]
+
+---@class DungeonData
+---@field startedTimestamp number
+---@field deaths table<string, number> # PlayerName is the table key
+---@field stars string
+---@field completed boolean
+---@field completedTimestamp number
+---@field timeToComplete string
+---@field season string
+---@field version number
+---@field keydata KeyData
+---@field totalDeaths number
+---@field name string
+---@field time number
+---@field party table<string, PartyMember> # PlayerName is the table key
+---@field player string
+---@field date DateInfo
+---@field keyresult KeyResult
+---@field uuid string
+
+---@class DungeonRun
+---@field uuid string
+---@field affixes string[]
+---@field season string
+---@field name string
+---@field resultstring string
+---@field level number
+---@field result number
+---@field healing HealingCombatData
+---@field damage DamageCombatData
+
+---@class KeyResult
+---@field value number
+---@field name string
+
+---@class DateInfo
+---@field datetime string
+---@field date string
+---@field datestring string
+
+---@class PartyMember
+---@field role string
+---@field name string
+---@field class string
+---@field healing HealingCombatData
+---@field damage DamageCombatData
+---@field deaths number
+
+---@class HealingCombatData
+---@field hps number
+---@field total number
+
+---@class DamageCombatData
+---@field dps number
+---@field total number
+
+---@class KeyData
+---@field timelimit number
+---@field level number
+---@field affixes string[]
+---@field name string
+
+
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
     self[event](self, event, ...)
@@ -104,12 +190,18 @@ KeyCount:SetScript("OnEvent", KeyCount.OnEvent)
 
 function KeyCount:InitSelf()
     Log("Called InitSelf")
+    ---@type table<string, PartyMember>
     self.party = self.party or {}
+    ---@type DungeonData
     self.current = self.current or table.copy({}, self.defaults.dungeonDefault)
+    ---@type DungeonData[]
     self.dungeons = self.dungeons or {}
     KeyCountDB = KeyCountDB or {}
+    ---@type DungeonData
     KeyCountDB.current = KeyCountDB.current or {}
+    ---@type DungeonData[]
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
+    ---@type PlayerSeasonData[]
     KeyCountDB.players = KeyCountDB.players or {}
     C_Timer.After(2, KeyCount.InitDatabase)
     C_Timer.After(3, KeyCount.InitPlayerList)
@@ -167,10 +259,10 @@ function KeyCount:SetKeyStart()
     printf(string.format("started recording for %s %d.", name, activeKeystoneLevel), nil, true)
     self.current.keydata.name = name
     self.current.keydata.level = activeKeystoneLevel
-    self.current.startedTimestamp = time()
-    self.current.party = self:GetPartyMemberInfo()
     self.current.keydata.affixes = {}
     self.current.keydata.timelimit = timelimit
+    self.current.startedTimestamp = time()
+    self.current.party = self:GetPartyMemberInfo()
     self.current.name = name
     self.current.uuid = self.util.uuid()
     if self.current.player == "" then
@@ -267,7 +359,8 @@ function KeyCount:SetTimeToComplete()
         timeLost = timeLost or 0
         if timeStart == 0 or timeEnd == 0 then
             local errorMsg = string.format(
-                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!", tostring(timeStart), tostring(timeEnd), tostring(timeLost))
+                "Error in collecting dungeon time. Dungeon time will not be saved. TimeStart (%s), TimeEnd (%s), TimeLost (%s). Please report the error to the author!",
+                tostring(timeStart), tostring(timeEnd), tostring(timeLost))
             printf(errorMsg, KeyCount.defaults.colors.chatError, true)
             Log(errorMsg)
             self.current.time = 0
@@ -371,11 +464,11 @@ function KeyCount:InitPlayerList()
 end
 
 ---Save data of a single player to the 'players' table
----@param players table Table to update
----@param player string Playername
----@param playerdata table Players data derived from party table (see defaults.partymember)
----@param dungeon table Dungeon data (see defaults.dungeonDefault)
----@return table players Updated players table
+---@param players Players
+---@param player PlayerName
+---@param playerdata PartyMember Players data derived from party table
+---@param dungeon DungeonData Dungeon data
+---@return Players players Updated players table
 ---@return boolean Updated True if new player was added to the player list
 local function savePlayer(players, player, playerdata, dungeon)
     local role = playerdata.role
