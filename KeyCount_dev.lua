@@ -15,53 +15,67 @@ KeyCount.formatdata = {}
 -- TODO make dataclasses
 
 ---@alias PlayerName string
----@alias Players table<PlayerName, PlayerSeasonData>
+---@alias DungeonName string
+---@alias Players table<PlayerName, table<Season, table<PlayerRole, PlayerRoleData>>>
 ---@alias Season string # Format is <expansion>-<season number>
----@alias PlayerSeasonData table<Season, PlayerRole>
 ---@alias PlayerRole
 ---| "DAMAGER"
 ---| "HEALER"
 ---| "TANK"
+---@alias PlayerClass
+---| "Warrior"
+---| "Death Knight"
+---| "Demon Hunter"
+---| "Mage"
+---| "Priest"
+---| "Hunter"
+---| "Monk"
+---| "Rogue"
+---| "Druid"
+---| "Evoker"
 
 ---@class PlayerRoleData
 ---@field totalEntries number
 ---@field abandoned number
----@field class string
+---@field class PlayerClass
 ---@field outtime number
----@field player string
----@field role string
+---@field player PlayerName
+---@field role PlayerRole
 ---@field version number
 ---@field maxdps number
 ---@field median number
 ---@field intime number
 ---@field best number
 ---@field maxhps number
----@field dungeons DungeonRun[]
+---@field dungeons PlayerDungeonSummary[]
 
 ---@class DungeonData
 ---@field startedTimestamp number
----@field deaths table<string, number> # PlayerName is the table key
+---@field deaths table<PlayerName, number>
 ---@field stars string
 ---@field completed boolean
 ---@field completedTimestamp number
 ---@field timeToComplete string
----@field season string
+---@field season Season
 ---@field version number
 ---@field keydata KeyData
 ---@field totalDeaths number
----@field name string
+---@field name DungeonName
 ---@field time number
----@field party table<string, PartyMember> # PlayerName is the table key
----@field player string
+---@field party table<PlayerName, PartyMember>
+---@field player PlayerName
 ---@field date DateInfo
 ---@field keyresult KeyResult
 ---@field uuid string
 
----@class DungeonRun
+---@class PlayerDungeonSummary
 ---@field uuid string
 ---@field affixes string[]
+---@field date string
 ---@field season string
----@field name string
+---@field deaths number
+---@field timeToComplete string
+---@field name DungeonName
 ---@field resultstring string
 ---@field level number
 ---@field result number
@@ -78,9 +92,9 @@ KeyCount.formatdata = {}
 ---@field datestring string
 
 ---@class PartyMember
----@field role string
----@field name string
----@field class string
+---@field role PlayerRole
+---@field name PlayerName
+---@field class PlayerClass
 ---@field healing HealingCombatData
 ---@field damage DamageCombatData
 ---@field deaths number
@@ -201,7 +215,7 @@ function KeyCount:InitSelf()
     KeyCountDB.current = KeyCountDB.current or {}
     ---@type DungeonData[]
     KeyCountDB.dungeons = KeyCountDB.dungeons or {}
-    ---@type PlayerSeasonData[]
+    ---@type Players
     KeyCountDB.players = KeyCountDB.players or {}
     C_Timer.After(2, KeyCount.InitDatabase)
     C_Timer.After(3, KeyCount.InitPlayerList)
@@ -488,26 +502,27 @@ local function savePlayer(players, player, playerdata, dungeon)
     if not players[player][season][role] then
         players[player][season][role] = table.copy({}, KeyCount.defaults.playerDefault)
     end
-    local d = table.copy({}, players[player][season][role])
-    d.player = player
-    d.role = role
-    d.class = class
-    d.totalEntries = d.totalEntries + 1
+    ---@type PlayerRoleData
+    local playerRoleData = table.copy({}, players[player][season][role])
+    playerRoleData.player = player
+    playerRoleData.role = role
+    playerRoleData.class = class
+    playerRoleData.totalEntries = playerRoleData.totalEntries + 1
     --@debug@
     Log(string.format("Changing totalEntries for player %s from %d to %d", player,
-        d.totalEntries - 1, d.totalEntries))
+        playerRoleData.totalEntries - 1, playerRoleData.totalEntries))
     --@end-debug@
     local dps = KeyCount.utilstats.getPlayerDps(playerdata)
     local hps = KeyCount.utilstats.getPlayerHps(playerdata)
-    d.maxdps = KeyCount.util.getMax(dps, d.maxdps)
-    d.maxhps = KeyCount.util.getMax(hps, d.maxhps)
+    playerRoleData.maxdps = KeyCount.util.getMax(dps, playerRoleData.maxdps)
+    playerRoleData.maxhps = KeyCount.util.getMax(hps, playerRoleData.maxhps)
 
     -- Dungeons
-    local keydata = dungeon.keydata
+    ---@type PlayerDungeonSummary
     local key = {
-        name = keydata.name,
-        level = keydata.level,
-        affixes = keydata.affixes,
+        name = dungeon.keydata.name,
+        level = dungeon.keydata.level,
+        affixes = dungeon.keydata.affixes,
         result = dungeon.keyresult.value,
         resultstring = dungeon.keyresult.name,
         season = dungeon.season,
@@ -519,27 +534,27 @@ local function savePlayer(players, player, playerdata, dungeon)
         date = dungeon.date.date
     }
     if key.result == KeyCount.defaults.keyresult.intime.value then
-        d.intime = d.intime + 1
+        playerRoleData.intime = playerRoleData.intime + 1
     elseif key.result == KeyCount.defaults.keyresult.outtime.value then
-        d.outtime = d.outtime + 1
-    elseif key.result == KeyCount.defaults.keyresult.abandoned.value then
-        d.abandoned = d.abandoned + 1
+        playerRoleData.outtime = playerRoleData.outtime + 1
+    elseif key.result == KeyCount.defaults.keyresult.abandoneplayerRoleData.value then
+        playerRoleData.abandoned = playerRoleData.abandoned + 1
     end
-    table.insert(d.dungeons, key)
+    table.insert(playerRoleData.dungeons, key)
 
     -- Median and best key
-    local dungeonlevels = KeyCount.util.getListOfValues(d.dungeons, "level")
-    local median = d.median or 0
-    local best = d.best or 0
+    local dungeonlevels = KeyCount.util.getListOfValues(playerRoleData.dungeons, "level")
+    local median = playerRoleData.median or 0
+    local best = playerRoleData.best or 0
     if dungeonlevels then
         median = KeyCount.util.calculateMedian(dungeonlevels)
         table.sort(dungeonlevels)
         best = dungeonlevels[#dungeonlevels]
     end
-    d.median = median
-    d.best = best
+    playerRoleData.median = median
+    playerRoleData.best = best
 
-    players[player][season][role] = table.copy({}, d)
+    players[player][season][role] = table.copy({}, playerRoleData)
     return players, updated
 end
 

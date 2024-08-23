@@ -413,7 +413,7 @@ function KeyCount.utilstats.getTopDps(party)
 end
 
 -- Get a single players dps
----@param data table The party table data for the specific player
+---@param data PartyMember The party table data for the specific player
 ---@return number dps Returns 0 if no data found
 function KeyCount.utilstats.getPlayerDps(data)
     local _data = data or {}
@@ -423,7 +423,7 @@ function KeyCount.utilstats.getPlayerDps(data)
 end
 
 -- Get a single players hps
----@param data table The party table data for the specific player
+---@param data PartyMember The party table data for the specific player
 ---@return number hps Returns 0 if no data found
 function KeyCount.utilstats.getPlayerHps(data)
     local _data = data or {}
