@@ -1,3 +1,4 @@
+---@param data DungeonData
 local function flatten(data)
     local out = {}
     for col, v in pairs(data) do
@@ -46,6 +47,10 @@ local function flatten(data)
     return out
 end
 
+---@param dataIn DungeonData
+---@param cols table enabled, name, value
+---@param output string String to append to
+---@return string output
 local function formatDungeonString(dataIn, cols, output)
     local enclosure = '"'
     local delimiter = ','

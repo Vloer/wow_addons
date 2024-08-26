@@ -60,6 +60,7 @@ local defaults = {
         FALL = "Dawn of the Infinite: Galakrond's Fall",
         RISE = "Dawn of the Infinite: Murozond's Rise",
     },
+    ---@type PartyMember
     partymember = {
         role = "",
         class = "",
@@ -74,6 +75,7 @@ local defaults = {
             dps = 0
         }
     },
+    ---@type DungeonData
     dungeonDefault = {
         uuid = "",
         version = 3,
@@ -93,6 +95,7 @@ local defaults = {
         date = { ["date"] = "1900-01-01", ["datestring"] = "", ["datetime"] = "1900-01-01 00:00:00" },
         stars = ""
     },
+    ---@type PlayerRoleData
     playerDefault = {
         version = 2,
         player = "",

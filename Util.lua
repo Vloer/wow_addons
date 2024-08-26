@@ -307,8 +307,8 @@ KeyCount.util.addRealmToName = function(name)
 end
 
 ---Formats supplied player role
----@param role string|nil Role to format
----@return string|nil formattedRole Options: TANK | HEALER | DAMAGER | nil
+---@param role string?
+---@return PlayerRole?
 KeyCount.util.formatRole = function(role)
     if not role then return nil end
     local _role = nil
@@ -464,7 +464,7 @@ KeyCount.util.checkUpdateMessage = function(msg)
 end
 
 ---Converts all words in string to Titlecase
----@param s string|nil
+---@param s string?
 KeyCount.util.titleCase = function(s)
     if not s then
         return ''

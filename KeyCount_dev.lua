@@ -16,8 +16,11 @@ KeyCount.formatdata = {}
 
 ---@alias PlayerName string
 ---@alias DungeonName string
----@alias Players table<PlayerName, table<Season, table<PlayerRole, PlayerRoleData>>>
 ---@alias Season string # Format is <expansion>-<season number>
+---@alias PlayerSeasonData table<PlayerRole, PlayerRoleData>
+---@alias PlayerData table<Season, PlayerSeasonData>
+---@alias Players table<PlayerName, PlayerData>
+---@alias PlayerDataRoleAsKey table<PlayerRole[], table<Season, PlayerRoleData>>
 ---@alias PlayerRole
 ---| "DAMAGER"
 ---| "HEALER"
@@ -113,6 +116,11 @@ KeyCount.formatdata = {}
 ---@field affixes string[]
 ---@field name string
 
+---@class PlayerInfo
+---@field class PlayerClass
+---@field spec string
+---@field role PlayerRole
+---@field name PlayerName
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
@@ -607,6 +615,7 @@ function KeyCount:SaveAllPlayers(dungeons)
     end
 end
 
+---@return PlayerInfo
 function KeyCount:GetPartyMemberInfo()
     local info = {}
     local numGroupMembers = GetNumGroupMembers()
@@ -622,6 +631,7 @@ function KeyCount:GetPartyMemberInfo()
     return info
 end
 
+---@return PlayerInfo
 function KeyCount:GetPlayerInfo()
     local specIndex = GetSpecialization()
     local _, spec, _, _, specRole = GetSpecializationInfo(specIndex)
@@ -639,7 +649,7 @@ function KeyCount:GetPlayerInfo()
 end
 
 ---Get all dungeons in the database
----@return table|nil T Table of dungeons or nil if no dungeons found
+---@return DungeonData[]?
 function KeyCount:GetStoredDungeons()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.dungeons) == nil then
         printf("No dungeons stored!", KeyCount.defaults.colors.chatError, true)
@@ -649,7 +659,7 @@ function KeyCount:GetStoredDungeons()
 end
 
 ---Get data for all players stored in the database
----@return table|nil T Table of players or nil if no players found
+---@return Players?
 function KeyCount:GetStoredPlayers()
     if not KeyCountDB or next(KeyCountDB) == nil or next(KeyCountDB.players) == nil then
         printf("No players stored!", KeyCount.defaults.colors.chatError, true)

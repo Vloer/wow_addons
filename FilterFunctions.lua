@@ -85,7 +85,7 @@ local filterConditions = {
 ---Gets the correct key and values for specified keys and values
 ---@param key string
 ---@param value any
----@return string|nil cleanedKey, any cleanedValue
+---@return string? cleanedKey, any cleanedValue
 local function cleanFilterArgs(key, value)
     if #key == 0 and #value == 0 then
         return KeyCount.defaults.filter.key, KeyCount.defaults.filter.value
@@ -164,8 +164,8 @@ end
 ---Filters data based on key (filter type) and value (filter value)
 ---@param tbl table
 ---@param key string
----@param value string | number | table | nil
----@return table | nil
+---@param value string | number | table | ?
+---@return table?
 local function filterData(tbl, key, value)
     local result = {}
     local _key, _value = cleanFilterArgs(key, value)
@@ -199,10 +199,10 @@ end
 
 ---Search a list of playernames for a specific player.
 ---Checks name-realm first, then name only and returns the first match if there are multiple.
----@param playername string Name to search
----@param db table Database containing all player data
----@param printOutput boolean|nil
----@return table|nil data, string name All data for a single player, The actual player name
+---@param playername PlayerName
+---@param db Players
+---@param printOutput boolean?
+---@return PlayerData?, PlayerName
 function KeyCount.filterfunctions.searchPlayerGetData(playername, db, printOutput)
     printOutput = printOutput or false
     if not db or next(db) == 0 then return nil, '' end
@@ -238,10 +238,10 @@ end
 
 --#region Filter functions
 ---Apply filter to dungeons
----@param dungeons table|nil
+---@param dungeons DungeonData[]?
 ---@param key string Filter key
 ---@param value any Filter value
----@return table|nil T
+---@return DungeonData[]?
 local function filterDungeons(dungeons, key, value)
     local _dungeons = dungeons or KeyCount:GetStoredDungeons()
     if not _dungeons then return end
@@ -250,11 +250,19 @@ local function filterDungeons(dungeons, key, value)
     return filteredDungeons
 end
 
+---@param dungeons DungeonData[]?
+---@param key string Filter key
+---@param value any Filter value
+---@return 
 local function filterDungeonsSuccessRate(dungeons, key, value)
     local _dungeons = filterDungeons(dungeons, key, value)
     if _dungeons then return KeyCount.utilstats.getDungeonSuccessRate(_dungeons) end
 end
 
+---@param dungeons DungeonData[]?
+---@param key string Filter key
+---@param value any Filter value
+---@return 
 local function filterDungeonsPlayersGroupedWith(dungeons, key, value)
     local _dungeons = filterDungeons(dungeons, key, value)
     if _dungeons then return KeyCount.utilstats.getPlayerSuccessRate(_dungeons) end
@@ -262,8 +270,8 @@ end
 
 ---Get data required for the 'searchplayer' view in the GUI
 ---@param key string Always set to 'player'. Unused
----@param value string Player name to search
----@param season string | nil Season to search. Defaults to all seasons further in the code if nothing is supplied
+---@param value PlayerName Player name to search
+---@param season string? Season to search. Defaults to all seasons further in the code if nothing is supplied
 ---@return table|nil T1, table|nil T2 [T1] Stats for the player, [T2] All dungeon stats for the player
 local function filterPlayersSearchPlayer(key, value, season)
     local players = KeyCount:GetStoredPlayers()
@@ -274,6 +282,8 @@ local function filterPlayersSearchPlayer(key, value, season)
     return playerdata, dungeondata
 end
 
+---@param key string Filter key
+---@param value any Filter value
 local function filterDungeonsListPrint(key, value)
     local d = KeyCount:GetStoredDungeons()
     local _dungeons = filterDungeons(d, "", "")
@@ -284,6 +294,8 @@ local function filterDungeonsListPrint(key, value)
     end
 end
 
+---@param key string Filter key
+---@param value any Filter value
 local function filterDungeonsFilterPrint(key, value)
     local d = KeyCount:GetStoredDungeons()
     local _dungeons = filterDungeons(d, key, value)
@@ -294,6 +306,8 @@ local function filterDungeonsFilterPrint(key, value)
     end
 end
 
+---@param key string Filter key
+---@param value any Filter value
 local function filterDungeonsSuccessRatePrint(key, value)
     local d = KeyCount:GetStoredDungeons()
     local dungeons = KeyCount.filterfunctions.rate(d, key, value)
@@ -301,9 +315,9 @@ local function filterDungeonsSuccessRatePrint(key, value)
 end
 
 ---Search player data for specific player to print to chat
----@param value string Player name
+---@param value PlayerName Player name
 ---@param onlySummary boolean Only print summary
----@return table|nil T Table if data is found, nil otherwise
+---@return table? T Table if data is found, nil otherwise
 local function filterPlayersSearchPlayerPrint(value, onlySummary)
     onlySummary = onlySummary or false
     local players = KeyCount:GetStoredPlayers()
@@ -319,9 +333,9 @@ end
 
 ---Apply any filter to a set of data
 ---@param data table
----@param key string | nil
+---@param key string?
 ---@param value string | number | table | nil
----@return table | nil filteredData
+---@return table? filteredData
 function KeyCount.filterfunctions.applyfilter(data, key, value)
     key = key or ""
     value = value or ""
