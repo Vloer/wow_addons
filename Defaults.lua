@@ -92,7 +92,7 @@ local defaults = {
     dungeonDefault = {
         uuid = "",
         version = 3,
-        season = seasons.Dragonflight[4],
+        season = seasons.TheWarWithin[1],
         player = "",
         name = "",
         party = {},
@@ -152,6 +152,7 @@ local defaults = {
     seasons = seasons,
     maxlevel = 80,
     databaseCheckMessageFreq = 10,
+    enablePreviousSeason = {enabled = true, season = "Dragonflight-4"}
 }
 
 KeyCount.defaults = defaults

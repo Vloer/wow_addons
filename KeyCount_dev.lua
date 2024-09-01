@@ -13,6 +13,7 @@ KeyCount.formatdata = {}
 -- TODO fix 'no dungeons matched your filter critera' message showing up twice on checkboxes
 -- TODO dungeons are being stored as previous season
 -- TODO make dataclasses
+-- TODO combine current and last season for when new seasons start
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
