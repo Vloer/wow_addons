@@ -79,6 +79,10 @@ function GUI:ConstructGUI()
     self.widgets.season:SetMultiselect(true)
     self.widgets.season:SetItemValue(KeyCount.defaults.dungeonDefault.season, true)
     self.selectedSeasons[KeyCount.defaults.dungeonDefault.season] = true
+    if KeyCount.defaults.enablePreviousSeason.enabled then
+        self.widgets.season:SetItemValue(KeyCount.defaults.enablePreviousSeason.season, true)
+        self.selectedSeasons[KeyCount.defaults.enablePreviousSeason.season] = true
+    end
 
     self.checkboxes.character = AceGUI:Create("CheckBox")
     self.checkboxes.character:SetLabel(self.defaults.checkboxes.character.text)
