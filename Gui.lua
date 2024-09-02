@@ -75,8 +75,7 @@ function GUI:ConstructGUI()
     self.widgets.season = AceGUI:Create("Dropdown")
     self.widgets.season:SetLabel(self.defaults.widgets.season.text)
     self.widgets.season:SetWidth(self.defaults.widgets.season.width)
-    self.widgets.season:SetList(self.defaults.seasonOrder)
-    self.widgets.season:SetValue(KeyCount.defaults.dungeonDefault.season)
+    self.widgets.season:SetList(self.defaults.seasonsDropdown, self.defaults.seasonsViewOrder)
     self.widgets.season:SetMultiselect(true)
     self.widgets.season:SetItemValue(KeyCount.defaults.dungeonDefault.season, true)
     self.selectedSeasons[KeyCount.defaults.dungeonDefault.season] = true
@@ -305,6 +304,17 @@ function GUI:ConstructGUI()
         self:c_FilterValue(text)
     end)
     self.widgets.season:SetCallback("OnValueChanged", function(widget, event, key, checked)
+        if key == "All" and checked then
+            for k, v in pairs(self.selectedSeasons) do
+                if k ~= "All" then
+                    self.selectedSeasons[k] = false
+                    self.widgets.season:SetItemValue(k, false)
+                end
+            end
+        else
+            self.selectedSeasons["All"] = false
+            self.widgets.season:SetItemValue("All", false)
+        end
         self.selectedSeasons[key] = checked
     end)
     self.buttons.showdata:SetCallback("OnClick", function(...)
@@ -587,13 +597,21 @@ GUI.defaults = {
     },
     view = "filter",
     viewOrder = { "filter", "rate", "grouped", "searchplayer" },
-    seasonOrder = {
+    seasonsDropdown = {
         All = "All",
         [KeyCount.defaults.seasons.TheWarWithin[1]] = KeyCount.defaults.seasons.TheWarWithin[1],
         [KeyCount.defaults.seasons.Dragonflight[4]] = KeyCount.defaults.seasons.Dragonflight[4],
         [KeyCount.defaults.seasons.Dragonflight[3]] = KeyCount.defaults.seasons.Dragonflight[3],
         [KeyCount.defaults.seasons.Dragonflight[2]] = KeyCount.defaults.seasons.Dragonflight[2],
         [KeyCount.defaults.seasons.Dragonflight[1]] = KeyCount.defaults.seasons.Dragonflight[1]
+    },
+    seasonsViewOrder = {
+        "All",
+        KeyCount.defaults.seasons.TheWarWithin[1],
+        KeyCount.defaults.seasons.Dragonflight[4],
+        KeyCount.defaults.seasons.Dragonflight[3],
+        KeyCount.defaults.seasons.Dragonflight[2],
+        KeyCount.defaults.seasons.Dragonflight[1]
     }
 }
 
@@ -708,5 +726,3 @@ function GUI:Show(view, filter, value)
     end
     self.visible = true
 end
-
-GUI:Show()

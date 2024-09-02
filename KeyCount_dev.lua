@@ -10,9 +10,9 @@ KeyCount.details = {}
 KeyCount.formatdata = {}
 
 -- TODO player lookup shows wrong best dungeon - includes untimed dungeons
--- TODO fix 'no dungeons matched your filter critera' message showing up twice on checkboxes
 -- TODO dungeons are being stored as previous season
 -- TODO make dataclasses
+-- TODO player lookup still shows all dungeons regardless of season
 
 -- Event behaviour
 function KeyCount:OnEvent(event, ...)
