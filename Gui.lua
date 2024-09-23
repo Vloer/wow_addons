@@ -320,6 +320,7 @@ function GUI:ConstructGUI()
             self.widgets.season:SetItemValue("All", false)
         end
         self.selectedSeasons[key] = checked
+        self:c_ShowData()
     end)
     self.buttons.showdata:SetCallback("OnClick", function(...)
         self:c_ShowData()
@@ -481,8 +482,8 @@ local function fillTable(gui)
     else
         if self.view == self.views.searchplayer.type then
             self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
-            if self.players and self.dungeons then
-                self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, self.dungeons)
+            if self.players and dungeons then
+                self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, dungeons)
             else
                 self.dataPlayers = {}
                 self.data = {}
