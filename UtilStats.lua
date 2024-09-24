@@ -43,7 +43,7 @@ end
 
 ---Helper function to combine player data per role over multiple seasons.
 ---This function is used in KeyCount.utilstats.getPlayerData
----@param roledata table Data table containing all player data seperated by role
+---@param roledata table Data table containing all player data separated by role
 ---@param skipDungeons boolean|nil Only returns player data. Defaults to returning player and dungeon dat
 ---@return table|nil, table|nil T [1] Combined table [2] List of all dungeons for the player. Nil for both if invalid data object supplied
 local function combinePlayerDataPerRole(roledata, skipDungeons)
@@ -146,7 +146,7 @@ end
 ---@param player string Player name
 ---@param summary table All data (retrieved from getPlayerDataSummary)
 ---@param onlySummary boolean Only print the summary
----@param dungeons table|nil All dungeons
+---@param dungeons table? All dungeons
 function KeyCount.utilstats.printPlayerSuccessRate(player, summary, onlySummary, dungeons)
     onlySummary = onlySummary or false
     if dungeons and next(dungeons) ~= nil and not onlySummary then
@@ -420,7 +420,7 @@ end
 
 ---Retrieve the data of a single player for the 'searchplayer' view in the GUI
 ---@param player table Player data
----@return table|nil T1, table|nil T2 [T1] stats of the player, [T2] all dungeon stats for the player
+---@return table? T1, table? T2 [T1] stats of the player, [T2] all dungeon stats for the player
 function KeyCount.utilstats.getPlayerData(player)
     local dataByRole = getPlayerDataRoleSeason(player) or {}
     local playerdata, allDungeons = combinePlayerDataPerRole(dataByRole) -- TODO fix This
@@ -482,16 +482,14 @@ end
 
 ---Retrieve the data summary of a single player. Returns counts and success rate per role
 ---@param player table All player data
----@param season string|nil Defaults to all seasons
----@param role string|nil Defaults to all roles
----@return table|nil T One row per role, nil if something went wrong
-function KeyCount.utilstats.getPlayerDataSummary(player, season, role)
+---@param role string? Defaults to all roles
+---@return table? T One row per role, nil if something went wrong
+function KeyCount.utilstats.getPlayerDataSummary(player, role)
     --@debug@
     Log('Starting getPlayerDataSummary')
     --@end-debug@
-    local _season = season or "all"
     local _role = KeyCount.util.formatRole(role) or "all"
-    local dataByRole = getPlayerDataRoleSeason(player, _role, _season) or {}
+    local dataByRole = getPlayerDataRoleSeason(player, _role) or {}
     local playerdata = combinePlayerDataPerRole(dataByRole, true)
     local finalDataOverview = {}
     if playerdata then
