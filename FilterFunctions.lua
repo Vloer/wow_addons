@@ -178,11 +178,11 @@ local function cleanFilterArgs(key, value)
     return _key, value
 end
 
----Selects specified season data
+---Selects specified season data from dungeons
 ---@param seasons table Specified seasons {[season(str)]: enabled(bool)}
 ---@param dungeons table? All dungeons to filter from
 ---@return table?
-function KeyCount.filterfunctions.selectSeasonData(seasons, dungeons)
+function KeyCount.filterfunctions.selectSeasonDataDungeons(seasons, dungeons)
     Log(string.format('Enter select seasons: %d dungeons', #(dungeons or {})))
     local selectedAllSeasons = false
 
@@ -222,6 +222,47 @@ function KeyCount.filterfunctions.selectSeasonData(seasons, dungeons)
             printf('No dungeons found because no seasons are selected!', KeyCount.defaults.colors.chatWarning, true)
         else
             printf(string.format('No dungeons found for selected seasons: %s', table.concat(selectedSeasons, ', ')),
+                KeyCount.defaults.colors.chatWarning, true)
+        end
+        return nil
+    end
+    return result
+end
+
+---Selects specified season data from players
+---@param playerData table Player data
+---@param seasons table Specified seasons {[season(str)]: enabled(bool)}
+---@return table?
+function KeyCount.filterfunctions.selectSeasonDataPlayers(playerData, seasons)
+    local selectedAllSeasons = false
+    local selectedSeasons = {}
+    for season, isSelected in pairs(seasons) do
+        if isSelected then
+            Log('Selecting ' .. season)
+            if season == 'All' then
+                selectedAllSeasons = true
+            end
+            table.insert(selectedSeasons, season)
+        end
+    end
+
+    if #selectedSeasons == 1 then
+        return playerData[selectedSeasons[1]]
+    end
+    
+    local result = {}
+    for seasonInPlayerData, seasonData in pairs(playerData) do
+        if KeyCount.util.listContainsItem(seasonInPlayerData, selectedSeasons) or selectedAllSeasons then
+            table.insert(result, seasonData)
+        end
+    end
+
+    Log(string.format('Select seasons found data for %d seasons', #result))
+    if #result == 0 then
+        if next(selectedSeasons) == nil then
+            printf('No player data found because no seasons are selected!', KeyCount.defaults.colors.chatWarning, true)
+        else
+            printf(string.format('No player data found for selected seasons: %s', table.concat(selectedSeasons, ', ')),
                 KeyCount.defaults.colors.chatWarning, true)
         end
         return nil
@@ -340,14 +381,15 @@ end
 ---Get data required for the 'searchplayer' view in the GUI
 ---@param key string Always set to 'player'. Unused
 ---@param value string Player name to search
----@param season string | nil Season to search. Defaults to all seasons further in the code if nothing is supplied
----@return table|nil T1, table|nil T2 [T1] Stats for the player, [T2] All dungeon stats for the player
-local function filterPlayersSearchPlayer(key, value, season)
+---@param seasons string Season to search
+---@return table? T1, table? T2 [T1] Stats for the player, [T2] All dungeon stats for the player
+local function filterPlayersSearchPlayer(key, value, seasons)
     local players = KeyCount:GetStoredPlayers()
     if not players then return end
-    local player = KeyCount.filterfunctions.searchPlayerGetData(value, players)
+    local playerData = KeyCount.filterfunctions.searchPlayerGetData(value, players)
     if not player then return end
-    local playerdata, dungeondata = KeyCount.utilstats.getPlayerData(player, season)
+    local playerDataSeasons = KeyCount.filterfunctions.selectSeasonDataPlayers(playerData, seasons)
+    local playerdata, dungeondata = KeyCount.utilstats.getPlayerData(playerData)
     return playerdata, dungeondata
 end
 

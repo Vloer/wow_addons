@@ -17,37 +17,25 @@ end
 ---Expects data to be in the format {SEASON1 = {role1, role2, ...}, SEASON2 = {role1, role2, ...}, ...}
 ---This function is used in KeyCount.utilstats.getPlayerData
 ---@param playerdata table Player data object
----@param role string Role to filter. Defaults to all
----@param season string Season to filter. Accepts 'all'. Defaults to current season
+---@param role? string Role to filter. Defaults to all
 ---@return table|nil T Reformatted table or nil if invalid playerdata object supplied
-local function getPlayerDataRoleSeason(playerdata, role, season)
+local function getPlayerDataRoleSeason(playerdata, role)
     if not playerdata or next(playerdata) == nil then return nil end
-    local seasondata = {}
     local roledata = {}
-    local _season = season or KeyCount.defaults.dungeonDefault.season
     local _role = role or 'all'
-    if _season == "all" then
-        for _, v in pairs(playerdata) do
-            table.insert(seasondata, v)
-        end
-    else
-        table.insert(seasondata, playerdata[season])
-    end
-    if seasondata and next(seasondata) ~= nil then
-        for _, seasonEntry in ipairs(seasondata) do
-            if _role == "all" then
-                for currentRole, roleEntry in pairs(seasonEntry) do
-                    if not roledata[currentRole] then
-                        roledata[currentRole] = {}
-                    end
-                    table.insert(roledata[currentRole], roleEntry)
+    for _, seasonEntry in ipairs(playerdata) do
+        if _role == "all" then
+            for currentRole, roleEntry in pairs(seasonEntry) do
+                if not roledata[currentRole] then
+                    roledata[currentRole] = {}
                 end
-            else
-                if not roledata[_role] then
-                    roledata[_role] = {}
-                end
-                table.insert(roledata[_role], seasonEntry[_role])
+                table.insert(roledata[currentRole], roleEntry)
             end
+        else
+            if not roledata[_role] then
+                roledata[_role] = {}
+            end
+            table.insert(roledata[_role], seasonEntry[_role])
         end
     end
     return roledata
@@ -432,14 +420,11 @@ end
 
 ---Retrieve the data of a single player for the 'searchplayer' view in the GUI
 ---@param player table Player data
----@param season string|nil Specify season to retrieve. Defaults to all seasons.
----@param role string|nil Specify for which role we want to retrieve data. Defaults to all roles
 ---@return table|nil T1, table|nil T2 [T1] stats of the player, [T2] all dungeon stats for the player
-function KeyCount.utilstats.getPlayerData(player, season, role)
-    local _season = season or "all"
-    local _role = KeyCount.util.formatRole(role) or "all"
-    local dataByRole = getPlayerDataRoleSeason(player, _role, _season) or {}
-    local playerdata, allDungeons = combinePlayerDataPerRole(dataByRole)
+function KeyCount.utilstats.getPlayerData(player)
+    local dataByRole = getPlayerDataRoleSeason(player) or {}
+    local playerdata, allDungeons = combinePlayerDataPerRole(dataByRole) -- TODO fix This
+    -- TODO fix from here onwards
     local finalDataOverview = {}
     local finalDataDungeons = {}
 

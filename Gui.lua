@@ -474,14 +474,15 @@ local function fillTable(gui)
         tostring(self.value)))
     --@end-debug@
     local dungeons = KeyCount:GetStoredDungeons()
+    local players = KeyCount:GetStoredPlayers()
     KeyCount.util.printTableOnSameLine(self.selectedSeasons, "Currently selected seasons")
-    dungeons = KeyCount.filterfunctions.selectSeasonData(self.selectedSeasons, dungeons)
+    dungeons = KeyCount.filterfunctions.selectSeasonDataDungeons(self.selectedSeasons, dungeons)
     if not dungeons then
         self.dungeons = {}
         self.data = {}
     else
         if self.view == self.views.searchplayer.type then
-            self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value)
+            self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value, self.selectedSeasons)
             if self.players and dungeons then
                 self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, dungeons)
             else
