@@ -481,10 +481,11 @@ local function fillTable(gui)
         self.dungeons = {}
         self.data = {}
     else
+        Log(string.format('Dungeon data has %s entries', #dungeons))
         if self.view == self.views.searchplayer.type then
             self.players, self.dungeons = KeyCount.filterfunctions[self.view](self.key, self.value, self.selectedSeasons)
-            if self.players and dungeons then
-                self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, dungeons)
+            if self.players and self.dungeons then
+                self.dataPlayers, self.data = KeyCount.guipreparedata[self.view](self.players, self.dungeons)
             else
                 self.dataPlayers = {}
                 self.data = {}
