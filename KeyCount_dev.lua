@@ -614,7 +614,20 @@ function KeyCount:ShowMessageNewMember(member)
             local datamsg = KeyCount.utiltext.getPlayerStatsString(dataSeason)
             local msg = string.format('Found data for %s: %s', member, datamsg)
             printf(msg, KeyCount.defaults.colors.chatWarning, true)
-            PlaySound(SOUNDKIT.TELL_MESSAGE)
+            if KeyCount.defaults.soundOnNewGroupMember then
+                PlaySound(SOUNDKIT.TELL_MESSAGE)
+            end
         end
     end
+end
+
+---Enables or disables the sound that pops up when a player with known data joins your group (KeyCount:ShowMessageNewMember)
+---@param flag boolean
+function KeyCount:EnableSound(flag)
+    local setting = 'disabled'
+    if flag then
+        setting = 'enabled'
+    end
+    printf(string.format('Sound on new group member is now %s', setting), KeyCount.defaults.colors.chatWarning, true)
+    KeyCount.defaults.soundOnNewGroupMember = flag
 end
