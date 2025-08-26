@@ -69,7 +69,6 @@ end
 function KeyCount:GROUP_ROSTER_UPDATE(event)
     local newMembers = KeyCount.util.findNewGroupMember()
     for _, member in ipairs(newMembers) do
-        print('checking ' .. tostring(member))
         if member then
             KeyCount:ShowMessageNewMember(member)
         end
@@ -132,7 +131,7 @@ function KeyCount:InitSelf()
         table.copy(self.current, KeyCountDB.current)
     end
     local updateMessage =
-    "·Updated for TWW season 2·"
+    "·Updated for TWW season 3·"
     C_Timer.After(15, function() KeyCount.util.checkUpdateMessage(updateMessage) end)
     Log("Finished InitSelf")
 end
@@ -503,9 +502,7 @@ function KeyCount:SaveAllPlayers(dungeons)
         msg = msg .. ": " .. amt .. " players added to the database"
         printf(msg, nil, true)
     else
-        print('checking')
         if KeyCount.util.checkIfPrintMessage() then
-            print('true')
             printf(msg, nil, true)
         end
     end

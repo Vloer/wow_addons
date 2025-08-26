@@ -1,4 +1,4 @@
-## Interface: 110100
+## Interface: 110200
 ## Title: KeyCount_dev
 ## Author: Vloer
 ## Version: @project-version@
